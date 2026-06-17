@@ -1,28 +1,6 @@
 import { fileURLToPath } from 'node:url';
+import type { StarlightPlugin } from '@astrojs/starlight/types';
 import { generateSeedColorScheme, isHexSeed, type Md3SeedVariant } from './palette.js';
-
-interface StarlightPluginContext {
-	config: {
-		customCss?: string[];
-	};
-	updateConfig(config: { customCss?: string[] }): void;
-	addIntegration(integration: {
-		name: string;
-		hooks: {
-			'astro:config:setup'(context: { updateConfig(config: { vite?: { plugins?: unknown[] } }): void }): void;
-		};
-	}): void;
-	logger: {
-		warn(message: string): void;
-	};
-}
-
-export interface StarlightPlugin {
-	name: string;
-	hooks: {
-		'config:setup'(context: StarlightPluginContext): void | Promise<void>;
-	};
-}
 
 export interface Md3ThemeOptions {
 	preset?: 'neutral' | 'playful' | 'highContrast';

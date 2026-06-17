@@ -23,7 +23,7 @@ custom property approach without requiring Material Web components at runtime.
 | --- | --- |
 | `index.css` | Declares cascade layer order so Starlight layers load before MD3 theme layers |
 | `tokens.css` | MD3-style system color, type, shape, elevation, motion, and state tokens |
-| `src/palette.ts` | Deterministic seed color helper for generated light and dark roles |
+| `src/palette.ts` | Material Color Utilities based seed color generation for light and dark roles |
 | `bridge.css` | Mapping from `--md-sys-*` to Starlight `--sl-*` variables |
 | `layout.css` | Header, sidebar, search, table of contents, and pagination styling |
 | `prose.css` | Markdown typography, lists, links, blockquotes, and tables |
@@ -47,12 +47,18 @@ component structure and accessibility behavior.
 
 The demo uses `seed: '#00a99d'` with the `tonalSpot` variant. When a seed is
 configured, the plugin generates primary, secondary, tertiary, error, surface,
-outline, inverse, and scrim roles for both dark and light themes.
+outline, inverse, and scrim roles for both dark and light themes through
+`@material/material-color-utilities`.
+
+`tonalSpot` and `content` use Material Color Utilities core palettes.
+`expressive` currently keeps a HCT-based approximation because the package's
+newer DynamicScheme modules still rely on imports that are not stable across the
+target Node and bundler matrix.
 
 ## Next Token Work
 
-- Add high-contrast token variants.
-- Decide whether to replace the local seed helper with official Material color utilities once the package entry is stable in this toolchain.
+- Add explicit contrast-level options beyond the current `highContrast` preset.
+- Expand component-level tokens for nav items, search, cards, tabs, badges, asides, and code blocks.
 - Document which tokens are public API and which are implementation details.
 
 ## Plugin Options

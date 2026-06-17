@@ -39,9 +39,10 @@ md3Theme({
 });
 ```
 
-The current generator is deterministic and local to the plugin. It is designed
-to be lightweight and contrast-audited, not a byte-for-byte clone of the
-official Material color utilities output.
+Seed roles are generated with `@material/material-color-utilities` during Astro
+configuration. `tonalSpot` and `content` use Material core palettes directly;
+`expressive` currently uses a HCT-based approximation while newer DynamicScheme
+entrypoints remain unstable in the target Node and bundler matrix.
 
 ## `variant`
 

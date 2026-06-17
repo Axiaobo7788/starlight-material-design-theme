@@ -8,6 +8,10 @@
     "moduleResolution": "Bundler",
     "noEmit": false,
     "outDir": "./dist",
+    "baseUrl": ".",
+    "paths": {
+      "@astrojs/starlight/types": ["./src/starlight-types-shim.d.ts"]
+    },
     "rootDir": "./src",
     "target": "ES2022",
     "types": ["node"]

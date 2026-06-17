@@ -3,6 +3,7 @@
   "description": "A Material Design 3 / Material You inspired theme for Astro Starlight.",
   "type": "module",
   "version": "0.0.1",
+  "packageManager": "pnpm@10.33.4",
   "license": "MIT",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -37,6 +38,8 @@
     "build:theme": "node scripts/clean-package.mjs && tsc -p tsconfig.package.json && node scripts/copy-css.mjs",
     "build:demo": "astro build",
     "check:contrast": "pnpm run build:theme && node scripts/check-contrast.mjs",
+    "test:screenshots": "playwright test",
+    "test:screenshots:update": "playwright test --update-snapshots",
     "typecheck": "astro check",
     "preview": "astro preview",
     "astro": "astro"
@@ -48,9 +51,14 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
     "@astrojs/starlight": "^0.40.0",
+    "@playwright/test": "^1.61.0",
     "@types/node": "^25.9.3",
     "astro": "^6.4.5",
+    "lightningcss-cli": "^1.32.0",
     "sharp": "^0.34.5",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@material/material-color-utilities": "0.4.0"
   }
 }

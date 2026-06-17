@@ -1,0 +1,161 @@
+---
+title: Theme Lab
+description: A visual regression surface for the Starlight Material Design 3 theme.
+---
+
+import { Aside, Badge, Card, CardGrid, LinkCard, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Theme Lab is a dense page for visual checks. It keeps Starlight's default
+navigation, table of contents, markdown, and component markup active while the
+theme applies Material Design 3 color roles, tonal surfaces, shape, state layers,
+and compact documentation density.
+
+中文长文档需要稳定、克制、可反复阅读的排版。这里放入中文段落不是为了展示语言能力，而是为了检查行高、字重、链接、代码、列表和表格在真实资料页中的节奏是否自然。Material You 的动态色不应该压过内容，选中态和容器层级也不应该让读者分心。
+
+## Navigation And TOC
+
+The active sidebar item and this page's table of contents should use the same
+primary role family. Hover states should feel quiet, selected states should be
+obvious, and the final TOC item should still become active near the bottom of the
+document.
+
+<div class="md3-showcase not-content" aria-label="Navigation state samples">
+	<section class="md3-showcase-panel">
+		<p class="md3-overline">Sidebar states</p>
+		<div class="md3-mini-nav">
+			<span>Getting Started</span>
+			<span class="active">Theme Lab</span>
+			<span>Plugin Options</span>
+		</div>
+	</section>
+	<section class="md3-showcase-panel">
+		<p class="md3-overline">TOC states</p>
+		<div class="md3-mini-nav">
+			<span>Overview</span>
+			<span class="active">Components</span>
+			<span>Final Check</span>
+		</div>
+	</section>
+</div>
+
+## Badges And Inline Tone
+
+<Badge text="default" /> <Badge text="note" variant="note" /> <Badge text="tip" variant="tip" /> <Badge text="success" variant="success" /> <Badge text="caution" variant="caution" /> <Badge text="danger" variant="danger" />
+
+Inline `code`, **strong text**, links, and badges must remain legible in both
+light and dark themes. A docs theme should make state clear without turning each
+small element into a competing call to action.
+
+## Asides
+
+<Aside type="note" title="Neutral surface">
+	Notes use a neutral container to carry supporting context. The border is an
+	inset tonal outline rather than a heavy stripe.
+</Aside>
+
+<Aside type="tip" title="Primary container">
+	Tips use the primary container family. They should feel helpful and selected,
+	not promotional.
+</Aside>
+
+<Aside type="caution" title="Secondary warning">
+	Caution blocks use a warm secondary role so they can stand apart without
+	copying the error palette.
+</Aside>
+
+<Aside type="danger" title="Error role">
+	Danger blocks use error container roles and must keep readable foreground
+	contrast in both themes.
+</Aside>
+
+## Cards
+
+<CardGrid>
+	<Card title="System tokens" icon="setting">
+		Color, type, shape, elevation, motion, and state are exposed as reusable CSS variables.
+	</Card>
+	<Card title="Starlight bridge" icon="puzzle">
+		The theme maps Material roles onto Starlight's existing custom properties.
+	</Card>
+	<Card title="Documentation density" icon="list-format">
+		Spacing stays compact enough for reference pages while preserving generous hit targets.
+	</Card>
+	<Card title="Dynamic color" icon="setting">
+		Seed colors generate tonal roles through Material Color Utilities.
+	</Card>
+</CardGrid>
+
+<LinkCard
+	title="Plugin options"
+	description="Review seed, variant, density, shape, tonal surface, and motion options."
+	href="/reference/plugin-options/"
+/>
+
+## Tables
+
+| Surface | Expected role | Regression risk |
+| --- | --- | --- |
+| Header | `surface-container-low` | Loading-time height shift |
+| Sidebar selected item | `primary-container` | Flashing between secondary and primary roles |
+| TOC active item | `primary` | Last item fails to activate near page bottom |
+| Table header | `surface-container-high` | Header blends into table body |
+| Code block | `surface-container-low` | Syntax colors lose contrast |
+
+## Tabs
+
+<Tabs>
+	<TabItem label="Tokens" icon="setting">
+		System tokens are the public theme contract. Component selectors should consume these roles instead of hard-coded colors.
+	</TabItem>
+	<TabItem label="Bridge" icon="code-branch">
+		The bridge layer keeps Starlight's content model, search, and navigation intact.
+	</TabItem>
+	<TabItem label="QA" icon="approve-check-circle">
+		Screenshot tests cover desktop and mobile snapshots in light and dark modes.
+	</TabItem>
+</Tabs>
+
+## Code Blocks
+
+Inline `plugins: [md3Theme()]` remains the intended user API. Users should not
+need to configure Tailwind to use the theme.
+
+```ts
+import starlight from '@astrojs/starlight';
+import md3Theme from 'starlight-theme-md3';
+
+export default {
+	integrations: [
+		starlight({
+			plugins: [
+				md3Theme({
+					seed: '#00a99d',
+					variant: 'tonalSpot',
+					density: 'compact',
+				}),
+			],
+		}),
+	],
+};
+```
+
+## Chinese Paragraphs
+
+这一段用于观察中文正文在紧凑文档布局中的表现。标题不应该过大，正文不应该显得松散，列表、表格和代码块之间也需要有清楚的层次。对于长期维护的技术文档来说，稳定的阅读节奏比一眼惊艳更重要。
+
+中文链接例如 [Design Tokens](/reference/design-tokens/) 应该与英文链接拥有一致的颜色和下划线策略。`--md-sys-color-primary` 这类 token 出现在中文句子里时，行高和背景不应该产生跳动。
+
+## Steps
+
+<Steps>
+1. Generate seed color roles with Material Color Utilities.
+2. Bridge generated roles into Starlight's existing variables.
+3. Render real Starlight components without adding a runtime UI library.
+4. Capture desktop and mobile screenshots in light and dark modes.
+</Steps>
+
+## Final Scrollspy Check
+
+This final heading exists to keep the TOC scrollspy honest. When the page is
+scrolled to the bottom, this item should become the active entry instead of
+leaving the previous heading highlighted.

@@ -6,6 +6,9 @@ import md3Theme from './src/index.ts';
 // https://astro.build/config
 export default defineConfig({
 	outDir: './demo-dist',
+	devToolbar: {
+		enabled: false,
+	},
 	vite: {
 		server: {
 			watch: {
@@ -32,6 +35,7 @@ export default defineConfig({
 					items: [
 						{ label: 'Theme Direction', slug: 'guides/theme-concept' },
 						{ label: 'Implementation Plan', slug: 'guides/implementation-plan' },
+						{ label: 'Theme Lab', slug: 'guides/theme-lab' },
 						{ label: 'Component Samples', slug: 'guides/component-samples' },
 					],
 				},
