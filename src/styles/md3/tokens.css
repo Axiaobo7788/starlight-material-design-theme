@@ -1,0 +1,142 @@
+@layer md3.tokens {
+	:root,
+	::backdrop {
+		color-scheme: dark;
+
+		--md-sys-color-primary: hsl(174, 60%, 74%);
+		--md-sys-color-on-primary: hsl(176, 100%, 10%);
+		--md-sys-color-primary-container: hsl(176, 56%, 18%);
+		--md-sys-color-on-primary-container: hsl(174, 74%, 88%);
+		--md-sys-color-secondary: hsl(36, 82%, 76%);
+		--md-sys-color-on-secondary: hsl(32, 70%, 14%);
+		--md-sys-color-secondary-container: hsl(32, 46%, 22%);
+		--md-sys-color-on-secondary-container: hsl(36, 88%, 88%);
+		--md-sys-color-tertiary: hsl(9, 82%, 78%);
+		--md-sys-color-on-tertiary: hsl(8, 80%, 14%);
+		--md-sys-color-tertiary-container: hsl(8, 48%, 23%);
+		--md-sys-color-on-tertiary-container: hsl(9, 88%, 90%);
+		--md-sys-color-error: hsl(4, 86%, 77%);
+		--md-sys-color-on-error: hsl(3, 82%, 14%);
+		--md-sys-color-error-container: hsl(3, 54%, 22%);
+		--md-sys-color-on-error-container: hsl(4, 100%, 91%);
+		--md-sys-color-background: hsl(210, 19%, 9%);
+		--md-sys-color-on-background: hsl(196, 20%, 90%);
+		--md-sys-color-surface: hsl(200, 18%, 10%);
+		--md-sys-color-surface-dim: hsl(204, 19%, 8%);
+		--md-sys-color-surface-container-lowest: hsl(204, 19%, 7%);
+		--md-sys-color-surface-container-low: hsl(198, 18%, 13%);
+		--md-sys-color-surface-container: hsl(197, 16%, 16%);
+		--md-sys-color-surface-container-high: hsl(195, 15%, 20%);
+		--md-sys-color-surface-container-highest: hsl(193, 14%, 24%);
+		--md-sys-color-on-surface: hsl(196, 20%, 90%);
+		--md-sys-color-surface-variant: hsl(192, 12%, 27%);
+		--md-sys-color-on-surface-variant: hsl(194, 13%, 74%);
+		--md-sys-color-outline: hsl(190, 10%, 42%);
+		--md-sys-color-outline-variant: hsl(192, 12%, 27%);
+		--md-sys-color-inverse-surface: hsl(196, 20%, 90%);
+		--md-sys-color-inverse-on-surface: hsl(200, 18%, 10%);
+		--md-sys-color-inverse-primary: hsl(176, 84%, 24%);
+		--md-sys-color-scrim: hsl(200, 44%, 2%);
+
+		--md-sys-typescale-body-small-size: 0.8125rem;
+		--md-sys-typescale-body-medium-size: 0.875rem;
+		--md-sys-typescale-body-large-size: 1rem;
+		--md-sys-typescale-title-small-size: 0.875rem;
+		--md-sys-typescale-title-medium-size: 1rem;
+		--md-sys-typescale-title-large-size: 1.375rem;
+		--md-sys-typescale-headline-small-size: 1.5rem;
+		--md-sys-typescale-headline-medium-size: 1.75rem;
+		--md-sys-typescale-headline-large-size: 2.25rem;
+		--md-sys-typescale-display-small-size: 2.75rem;
+		--md-sys-typescale-line-height-body: 1.75;
+		--md-sys-typescale-line-height-heading: 1.18;
+
+		--md-sys-shape-corner-extra-small: 0.25rem;
+		--md-sys-shape-corner-small: 0.5rem;
+		--md-sys-shape-corner-medium: 0.75rem;
+		--md-sys-shape-corner-large: 1rem;
+		--md-sys-shape-corner-extra-large: 1.5rem;
+		--md-sys-shape-corner-full: 999rem;
+
+		--md-sys-elevation-level0: none;
+		--md-sys-elevation-level1: 0 1px 2px hsl(200 50% 2% / 0.26);
+		--md-sys-elevation-level2: 0 2px 6px hsl(200 50% 2% / 0.24);
+		--md-sys-elevation-level3: 0 8px 24px hsl(200 50% 2% / 0.28);
+
+		--md-sys-motion-duration-short: 120ms;
+		--md-sys-motion-duration-medium: 200ms;
+		--md-sys-motion-duration-long: 320ms;
+		--md-sys-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+
+		--md-sys-state-hover-opacity: 0.08;
+		--md-sys-state-focus-opacity: 0.12;
+		--md-sys-state-pressed-opacity: 0.12;
+		--md-sys-state-dragged-opacity: 0.16;
+
+		--md3-state-hover: color-mix(
+			in srgb,
+			var(--md-sys-color-primary) calc(var(--md-sys-state-hover-opacity) * 100%),
+			transparent
+		);
+		--md3-state-focus: color-mix(
+			in srgb,
+			var(--md-sys-color-primary) calc(var(--md-sys-state-focus-opacity) * 100%),
+			transparent
+		);
+		--md3-state-on-surface-hover: color-mix(
+			in srgb,
+			var(--md-sys-color-on-surface) calc(var(--md-sys-state-hover-opacity) * 100%),
+			transparent
+		);
+		--md3-state-on-surface-focus: color-mix(
+			in srgb,
+			var(--md-sys-color-on-surface) calc(var(--md-sys-state-focus-opacity) * 100%),
+			transparent
+		);
+		--md3-focus-ring: 0 0 0 0.1875rem color-mix(in srgb, var(--md-sys-color-primary) 32%, transparent);
+	}
+
+	:root[data-theme='light'],
+	[data-theme='light'] ::backdrop {
+		color-scheme: light;
+
+		--md-sys-color-primary: hsl(176, 84%, 24%);
+		--md-sys-color-on-primary: hsl(0, 0%, 100%);
+		--md-sys-color-primary-container: hsl(174, 78%, 86%);
+		--md-sys-color-on-primary-container: hsl(176, 100%, 9%);
+		--md-sys-color-secondary: hsl(33, 60%, 37%);
+		--md-sys-color-on-secondary: hsl(0, 0%, 100%);
+		--md-sys-color-secondary-container: hsl(38, 92%, 85%);
+		--md-sys-color-on-secondary-container: hsl(31, 80%, 12%);
+		--md-sys-color-tertiary: hsl(8, 64%, 45%);
+		--md-sys-color-on-tertiary: hsl(0, 0%, 100%);
+		--md-sys-color-tertiary-container: hsl(9, 100%, 88%);
+		--md-sys-color-on-tertiary-container: hsl(8, 84%, 13%);
+		--md-sys-color-error: hsl(3, 72%, 42%);
+		--md-sys-color-on-error: hsl(0, 0%, 100%);
+		--md-sys-color-error-container: hsl(6, 100%, 92%);
+		--md-sys-color-on-error-container: hsl(2, 88%, 12%);
+		--md-sys-color-background: hsl(48, 44%, 96%);
+		--md-sys-color-on-background: hsl(190, 18%, 13%);
+		--md-sys-color-surface: hsl(48, 44%, 96%);
+		--md-sys-color-surface-dim: hsl(48, 23%, 86%);
+		--md-sys-color-surface-container-lowest: hsl(0, 0%, 100%);
+		--md-sys-color-surface-container-low: hsl(50, 48%, 93%);
+		--md-sys-color-surface-container: hsl(48, 38%, 90%);
+		--md-sys-color-surface-container-high: hsl(46, 30%, 86%);
+		--md-sys-color-surface-container-highest: hsl(44, 25%, 82%);
+		--md-sys-color-on-surface: hsl(190, 18%, 13%);
+		--md-sys-color-surface-variant: hsl(190, 15%, 78%);
+		--md-sys-color-on-surface-variant: hsl(190, 11%, 31%);
+		--md-sys-color-outline: hsl(188, 9%, 46%);
+		--md-sys-color-outline-variant: hsl(190, 15%, 78%);
+		--md-sys-color-inverse-surface: hsl(190, 18%, 13%);
+		--md-sys-color-inverse-on-surface: hsl(48, 44%, 96%);
+		--md-sys-color-inverse-primary: hsl(174, 60%, 74%);
+		--md-sys-color-scrim: hsl(190, 18%, 13%);
+
+		--md-sys-elevation-level1: 0 1px 2px hsl(190 18% 13% / 0.08);
+		--md-sys-elevation-level2: 0 2px 8px hsl(190 18% 13% / 0.1);
+		--md-sys-elevation-level3: 0 10px 28px hsl(190 18% 13% / 0.14);
+	}
+}

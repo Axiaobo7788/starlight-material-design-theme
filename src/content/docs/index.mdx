@@ -1,0 +1,76 @@
+---
+title: starlight-theme-md3
+description: A Material Design 3 theme package for Astro Starlight.
+template: splash
+hero:
+  tagline: A compact, token-first documentation theme shaped by Material Design 3 color roles, tonal surfaces, state layers, and Starlight-native plugin APIs.
+  image:
+    html: |
+      <div class="material-hero-preview" aria-hidden="true">
+        <span class="preview-chip chip-primary"></span>
+        <span class="preview-chip chip-secondary"></span>
+        <span class="preview-chip chip-tertiary"></span>
+        <span class="preview-window">
+          <span class="preview-bar"></span>
+          <span class="preview-row row-wide"></span>
+          <span class="preview-row"></span>
+          <span class="preview-card"></span>
+        </span>
+      </div>
+  actions:
+    - text: Explore direction
+      link: /guides/theme-concept/
+      icon: right-arrow
+    - text: Component samples
+      link: /guides/component-samples/
+      icon: setting
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## MVP Surface
+
+<CardGrid stagger>
+	<Card title="Plugin First" icon="puzzle">
+		Install as a Starlight plugin and let the theme append its own CSS entrypoint.
+	</Card>
+	<Card title="Token Bridge" icon="code-branch">
+		Map Material Design 3 `--md-sys-*` roles into Starlight's existing `--sl-*` contract.
+	</Card>
+	<Card title="Docs Density" icon="list-format">
+		Keep navigation, prose, code, tables, and asides compact enough for wiki-style reference.
+	</Card>
+	<Card title="No Heavy Runtime" icon="server">
+		Use Material Web as a visual and token reference, not as a required component runtime.
+	</Card>
+</CardGrid>
+
+## Theme Snapshot
+
+<div class="md3-showcase not-content" aria-label="Material Design 3 theme snapshot">
+	<section class="md3-showcase-panel">
+		<p class="md3-overline">Color roles</p>
+		<div class="md3-palette">
+			<div class="md3-swatch-line">Primary <span class="md3-swatch primary"></span></div>
+			<div class="md3-swatch-line">Secondary <span class="md3-swatch secondary"></span></div>
+			<div class="md3-swatch-line">Tertiary <span class="md3-swatch tertiary"></span></div>
+		</div>
+	</section>
+	<section class="md3-showcase-panel">
+		<p class="md3-overline">Controls</p>
+		<div class="md3-state-demo">
+			<span class="md3-demo-button filled">Filled</span>
+			<span class="md3-demo-button tonal">Tonal</span>
+			<span class="md3-demo-button outlined">Outlined</span>
+		</div>
+	</section>
+	<section class="md3-showcase-panel">
+		<p class="md3-overline">Navigation</p>
+		<div class="md3-mini-nav">
+			<span>Getting Started</span>
+			<span class="active">Design Tokens</span>
+			<span>Component Samples</span>
+		</div>
+	</section>
+</div>

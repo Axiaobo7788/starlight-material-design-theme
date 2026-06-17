@@ -1,0 +1,32 @@
+@layer md3.code {
+	.sl-markdown-content code:not(:where(.not-content *)) {
+		border-radius: var(--md-sys-shape-xs);
+		background-color: var(--md-sys-color-surface-container-high);
+		color: var(--md-sys-color-on-surface);
+		padding: 0.1em 0.35em;
+	}
+
+	.sl-markdown-content pre:not(:where(.not-content *)) {
+		border-color: var(--md-sys-color-outline-variant);
+		background-color: var(--md-sys-color-surface-container-low);
+		box-shadow: none;
+	}
+
+	.sl-markdown-content pre code:not(:where(.not-content *)) {
+		color: inherit;
+	}
+
+	.expressive-code .frame {
+		border-radius: var(--md-sys-shape-lg);
+		box-shadow: none;
+	}
+
+	.expressive-code .frame .header {
+		background-color: var(--md-sys-color-surface-container);
+		border-color: var(--md-sys-color-outline-variant);
+	}
+
+	.expressive-code .frame pre {
+		background-color: var(--md-sys-color-surface-container-low);
+	}
+}

@@ -1,0 +1,82 @@
+@layer md3.bridge {
+	:root,
+	::backdrop {
+		--md-sys-shape-xs: var(--md-sys-shape-corner-extra-small);
+		--md-sys-shape-sm: var(--md-sys-shape-corner-small);
+		--md-sys-shape-md: var(--md-sys-shape-corner-medium);
+		--md-sys-shape-lg: var(--md-sys-shape-corner-large);
+		--md-sys-shape-xl: var(--md-sys-shape-corner-extra-large);
+		--md-sys-shape-full: var(--md-sys-shape-corner-full);
+
+		--sl-font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+		--sl-color-white: var(--md-sys-color-on-surface);
+		--sl-color-gray-1: var(--md-sys-color-on-surface);
+		--sl-color-gray-2: var(--md-sys-color-on-surface-variant);
+		--sl-color-gray-3: var(--md-sys-color-outline);
+		--sl-color-gray-4: var(--md-sys-color-outline);
+		--sl-color-gray-5: var(--md-sys-color-outline-variant);
+		--sl-color-gray-6: var(--md-sys-color-surface-container);
+		--sl-color-black: var(--md-sys-color-background);
+
+		--sl-color-accent-low: var(--md-sys-color-primary-container);
+		--sl-color-accent: var(--md-sys-color-primary);
+		--sl-color-accent-high: var(--md-sys-color-on-primary-container);
+		--sl-color-text: var(--md-sys-color-on-surface-variant);
+		--sl-color-text-accent: var(--md-sys-color-primary);
+		--sl-color-text-invert: var(--md-sys-color-on-primary);
+		--sl-color-bg: var(--md-sys-color-background);
+		--sl-color-bg-nav: color-mix(in srgb, var(--md-sys-color-surface-container-low) 94%, transparent);
+		--sl-color-bg-sidebar: var(--md-sys-color-surface);
+		--sl-color-bg-inline-code: var(--md-sys-color-surface-container-high);
+		--sl-color-bg-accent: var(--md-sys-color-primary);
+		--sl-color-hairline-light: var(--md-sys-color-outline-variant);
+		--sl-color-hairline: var(--md-sys-color-outline-variant);
+		--sl-color-hairline-shade: color-mix(in srgb, var(--md-sys-color-outline-variant) 60%, transparent);
+		--sl-color-backdrop-overlay: hsl(200 30% 4% / 0.72);
+
+		--sl-color-blue-low: var(--md-sys-color-primary-container);
+		--sl-color-blue: var(--md-sys-color-primary);
+		--sl-color-blue-high: var(--md-sys-color-on-primary-container);
+		--sl-color-purple-low: var(--md-sys-color-secondary-container);
+		--sl-color-purple: var(--md-sys-color-secondary);
+		--sl-color-purple-high: var(--md-sys-color-on-secondary-container);
+		--sl-color-orange-low: var(--md-sys-color-secondary-container);
+		--sl-color-orange: var(--md-sys-color-secondary);
+		--sl-color-orange-high: var(--md-sys-color-on-secondary-container);
+		--sl-color-green-low: hsl(143, 35%, 20%);
+		--sl-color-green: hsl(145, 62%, 72%);
+		--sl-color-green-high: hsl(141, 72%, 89%);
+		--sl-color-red-low: var(--md-sys-color-error-container);
+		--sl-color-red: var(--md-sys-color-error);
+		--sl-color-red-high: var(--md-sys-color-on-error-container);
+
+		--sl-shadow-sm: var(--md-sys-elevation-level1);
+		--sl-shadow-md: var(--md-sys-elevation-level2);
+		--sl-shadow-lg: var(--md-sys-elevation-level3);
+		--sl-nav-height: var(--md3-density-nav-height);
+		--sl-content-width: 52rem;
+		--sl-sidebar-width: 18rem;
+		--sl-content-gap-y: var(--md3-density-content-gap);
+		--sl-text-body: var(--md-sys-typescale-body-large-size);
+		--sl-text-body-sm: var(--md-sys-typescale-body-medium-size);
+		--sl-text-h1: 2.5rem;
+		--sl-text-h2: var(--md-sys-typescale-headline-medium-size);
+		--sl-text-h3: var(--md-sys-typescale-headline-small-size);
+		--sl-text-h4: var(--md-sys-typescale-title-large-size);
+		--sl-text-h5: var(--md-sys-typescale-title-medium-size);
+		--sl-line-height: var(--md-sys-typescale-line-height-body);
+		--sl-line-height-headings: var(--md-sys-typescale-line-height-heading);
+	}
+
+	:root[data-theme='light'],
+	[data-theme='light'] ::backdrop {
+		--sl-color-gray-7: var(--md-sys-color-surface-container-low);
+		--sl-color-black: var(--md-sys-color-surface);
+		--sl-color-bg-nav: color-mix(in srgb, var(--md-sys-color-surface-container-low) 94%, transparent);
+		--sl-color-bg-sidebar: var(--md-sys-color-surface-container-low);
+		--sl-color-backdrop-overlay: hsl(190 16% 18% / 0.42);
+		--sl-color-green-low: hsl(140, 56%, 88%);
+		--sl-color-green: hsl(148, 50%, 32%);
+		--sl-color-green-high: hsl(143, 74%, 16%);
+	}
+}

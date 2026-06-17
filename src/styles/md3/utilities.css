@@ -1,0 +1,10 @@
+@layer md3.utilities {
+	.md3-token-swatch {
+		display: inline-block;
+		inline-size: 0.9em;
+		block-size: 0.9em;
+		border-radius: var(--md-sys-shape-full);
+		background: currentColor;
+		vertical-align: -0.08em;
+	}
+}

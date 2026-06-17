@@ -1,0 +1,129 @@
+---
+title: Component Samples
+description: Demo content used to harden the Material Design 3 Starlight theme MVP.
+---
+
+import { Aside, Badge, Card, CardGrid, LinkCard, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+This page exists as a compact visual test bed. It keeps Starlight components in
+place and lets the theme prove that MD3-style tokens can improve the surface
+without replacing the documentation system.
+
+中文内容需要稳定的行高、清晰的段落节奏和不过度夸张的标题层级。这个主题的目标是让 wiki 和技术文档保持高信息密度，同时拥有 Material You 的色彩角色、tonal surface 和清晰状态反馈。
+
+## Badges
+
+<Badge text="default" /> <Badge text="note" variant="note" /> <Badge text="tip" variant="tip" /> <Badge text="success" variant="success" /> <Badge text="caution" variant="caution" /> <Badge text="danger" variant="danger" />
+
+## Controls
+
+<div class="md3-showcase not-content" aria-label="Control state samples">
+	<section class="md3-showcase-panel">
+		<p class="md3-overline">Buttons</p>
+		<div class="md3-state-demo">
+			<span class="md3-demo-button filled">Filled action</span>
+			<span class="md3-demo-button tonal">Tonal action</span>
+			<span class="md3-demo-button outlined">Outlined action</span>
+		</div>
+	</section>
+	<section class="md3-showcase-panel">
+		<p class="md3-overline">Inline nav</p>
+		<div class="md3-mini-nav">
+			<span>Overview</span>
+			<span class="active">Tokens</span>
+			<span>Components</span>
+		</div>
+	</section>
+</div>
+
+## Asides
+
+<Aside type="note" title="Surface note">
+	Notes use a neutral elevated container so they read as supporting context instead of a loud alert.
+</Aside>
+
+<Aside type="tip" title="Primary tip">
+	Tips use the primary container role and should feel helpful, not promotional.
+</Aside>
+
+<Aside type="caution" title="Secondary caution">
+	Caution blocks use warm tonal roles, with a restrained outline instead of a heavy vertical stripe.
+</Aside>
+
+<Aside type="danger" title="Error container">
+	Danger blocks use error container roles and should remain readable in both light and dark modes.
+</Aside>
+
+## Cards
+
+<CardGrid>
+	<Card title="Token layer" icon="setting">
+		Material system tokens define color, type, shape, elevation, motion, and state.
+	</Card>
+	<Card title="Bridge layer" icon="code-branch">
+		Starlight variables consume MD3 roles through a small compatibility bridge.
+	</Card>
+	<Card title="Docs density" icon="list-format">
+		The default density is compact enough for repeated reference reading.
+	</Card>
+</CardGrid>
+
+<LinkCard
+	title="Design token reference"
+	description="Review how MD3 system roles map to Starlight custom properties."
+	href="/reference/design-tokens/"
+/>
+
+## Tabs
+
+<Tabs>
+	<TabItem label="CSS variables" icon="code-branch">
+		The MVP uses CSS variables as the source of truth for theme decisions.
+	</TabItem>
+	<TabItem label="Plugin" icon="puzzle">
+		The local Starlight plugin appends the CSS entrypoint through `config:setup`.
+	</TabItem>
+	<TabItem label="Overrides" icon="window">
+		Component overrides are reserved for cases where CSS cannot express the design.
+	</TabItem>
+</Tabs>
+
+## Steps
+
+<Steps>
+1. Define Material-style `--md-sys-*` tokens.
+2. Bridge those tokens into the current Starlight `--sl-*` variables.
+3. Style high-impact documentation surfaces first: sidebar, header, prose, code, asides, cards.
+4. Add component overrides only after the CSS-only version exposes a real markup limitation.
+</Steps>
+
+## Code
+
+Inline `code` should be legible without becoming a bright pill in the paragraph.
+
+```ts
+import starlight from '@astrojs/starlight';
+import md3Theme from 'starlight-theme-md3';
+
+export default {
+	integrations: [
+		starlight({
+			plugins: [md3Theme()],
+		}),
+	],
+};
+```
+
+## Table
+
+| Surface | MD3 role | Starlight target |
+| --- | --- | --- |
+| Page | `surface` / `background` | `--sl-color-bg` |
+| Header | `surface-container-low` | `--sl-color-bg-nav` |
+| Sidebar active item | `primary-container` | `[aria-current='page']` |
+| Code block | `surface-container-low` | Markdown `pre` |
+| Aside tip | `primary-container` | `.starlight-aside--tip` |
+
+## Blockquote
+
+> A docs theme should make structure obvious, keep reading comfortable, and avoid turning every component into a large app card.

@@ -1,0 +1,56 @@
+{
+  "name": "starlight-theme-md3",
+  "description": "A Material Design 3 / Material You inspired theme for Astro Starlight.",
+  "type": "module",
+  "version": "0.0.1",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./css/index.css": "./dist/css/index.css",
+    "./css/*": "./dist/css/*"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "keywords": [
+    "astro",
+    "starlight",
+    "theme",
+    "material-design",
+    "material-you",
+    "docs"
+  ],
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "pnpm run build:theme && pnpm run build:demo",
+    "build:theme": "node scripts/clean-package.mjs && tsc -p tsconfig.package.json && node scripts/copy-css.mjs",
+    "build:demo": "astro build",
+    "check:contrast": "pnpm run build:theme && node scripts/check-contrast.mjs",
+    "typecheck": "astro check",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "peerDependencies": {
+    "@astrojs/starlight": ">=0.40.0",
+    "astro": ">=6.4.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.9",
+    "@astrojs/starlight": "^0.40.0",
+    "@types/node": "^25.9.3",
+    "astro": "^6.4.5",
+    "sharp": "^0.34.5",
+    "typescript": "^5.9.3"
+  }
+}

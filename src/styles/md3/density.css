@@ -1,0 +1,21 @@
+@layer md3.tokens {
+	:root {
+		--md3-density-nav-height: 3.75rem;
+		--md3-density-header-control-height: 2.25rem;
+		--md3-density-content-gap: 1rem;
+		--md3-density-nav-item-min-height: 2rem;
+		--md3-density-sidebar-gap: 0.125rem;
+		--md3-density-card-padding: 1rem;
+		--md3-density-control-height: 2.5rem;
+	}
+
+	:root[data-md3-density='comfortable'] {
+		--md3-density-nav-height: 4rem;
+		--md3-density-header-control-height: 2.5rem;
+		--md3-density-content-gap: 1.25rem;
+		--md3-density-nav-item-min-height: 2.375rem;
+		--md3-density-sidebar-gap: 0.25rem;
+		--md3-density-card-padding: 1.25rem;
+		--md3-density-control-height: 2.75rem;
+	}
+}

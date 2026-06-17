@@ -1,0 +1,41 @@
+@layer md3.base {
+	html {
+		background: var(--md-sys-color-background);
+		scrollbar-color: var(--md-sys-color-outline) var(--md-sys-color-surface);
+	}
+
+	body {
+		background: var(--md-sys-color-background);
+		accent-color: var(--md-sys-color-primary);
+	}
+
+	::selection {
+		background: color-mix(in srgb, var(--md-sys-color-primary) 32%, transparent);
+		color: var(--md-sys-color-on-surface);
+	}
+
+	:focus-visible {
+		outline-color: var(--md-sys-color-primary);
+		outline-offset: 0.2rem;
+	}
+
+	:where(a, button, summary, select) {
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	:where(button, summary, [role='tab'], a):focus-visible {
+		outline: 2px solid var(--md-sys-color-primary);
+		box-shadow: var(--md3-focus-ring);
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		:where(a, button, summary, [role='tab']) {
+			transition:
+				background-color var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard),
+				border-color var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard),
+				color var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard),
+				box-shadow var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard),
+				transform var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+		}
+	}
+}
