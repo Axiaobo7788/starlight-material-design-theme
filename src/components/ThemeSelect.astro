@@ -265,6 +265,15 @@ const defaultOption = options.find((option) => option.value === 'auto')!;
 			padding: 0;
 		}
 
+		:global(.mobile-preferences) .md3-theme-select__button {
+			inline-size: 3rem;
+			block-size: 3rem;
+			min-block-size: 3rem;
+			background-color: var(--md-sys-color-surface-container-high);
+			color: var(--md-sys-color-on-surface-variant);
+			box-shadow: var(--md-sys-elevation-level0);
+		}
+
 		.md3-theme-select__button:hover {
 			background-color: var(--md3-comp-header-control-hover-container-color);
 			color: var(--md3-comp-header-control-hover-label-color);
@@ -283,13 +292,23 @@ const defaultOption = options.find((option) => option.value === 'auto')!;
 		}
 
 		.md3-theme-select__button-icon {
-			display: none;
+			position: absolute;
+			inset: 0;
+			display: block;
+			inline-size: 1.25rem;
+			block-size: 1.25rem;
+			margin: auto;
+			opacity: 0;
+			pointer-events: none;
+			transform: scale(0.72) rotate(-32deg);
+			transform-origin: center;
 		}
 
 		.md3-theme-select__button[data-theme-value='dark'] .md3-theme-select__button-icon--dark,
 		.md3-theme-select__button[data-theme-value='light'] .md3-theme-select__button-icon--light,
 		.md3-theme-select__button[data-theme-value='auto'] .md3-theme-select__button-icon--auto {
-			display: block;
+			opacity: 1;
+			transform: scale(1) rotate(0);
 		}
 
 		.label-icon,
@@ -383,7 +402,19 @@ const defaultOption = options.find((option) => option.value === 'auto')!;
 			margin-inline-start: auto;
 		}
 
+		:global(.mobile-preferences) .md3-theme-select__menu {
+			inset-block-start: auto;
+			inset-block-end: calc(100% + 0.5rem);
+			transform-origin: bottom right;
+		}
+
 		@media (prefers-reduced-motion: no-preference) {
+			.md3-theme-select__button-icon {
+				transition:
+					opacity var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
+					transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-emphasized);
+			}
+
 			.md3-theme-select__menu {
 				opacity: 1;
 				transform: translateY(0) scale(1);
@@ -403,7 +434,12 @@ const defaultOption = options.find((option) => option.value === 'auto')!;
 			.md3-theme-select__menu[hidden],
 			.md3-theme-select__menu[data-md3-menu-state='closing'] {
 				opacity: 0;
-				transform: translateY(-0.25rem) scale(0.9);
+				transform: translateY(-0.25rem) scale(0.82);
+			}
+
+			:global(.mobile-preferences) .md3-theme-select__menu[hidden],
+			:global(.mobile-preferences) .md3-theme-select__menu[data-md3-menu-state='closing'] {
+				transform: translateY(0.25rem) scale(0.82);
 			}
 
 			.md3-theme-select__menu[data-md3-menu-state='closing'] {
@@ -421,7 +457,12 @@ const defaultOption = options.find((option) => option.value === 'auto')!;
 			@starting-style {
 				.md3-theme-select__menu:not([hidden]) {
 					opacity: 0;
-					transform: translateY(-0.25rem) scale(0.9);
+					transform: translateY(-0.25rem) scale(0.82);
+				}
+
+				:global(.mobile-preferences) .md3-theme-select__menu:not([hidden]) {
+					opacity: 0;
+					transform: translateY(0.25rem) scale(0.82);
 				}
 			}
 		}

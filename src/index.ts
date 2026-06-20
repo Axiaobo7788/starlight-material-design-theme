@@ -527,13 +527,13 @@ function getMotionRuntimeScript() {
 		const isClosing = details.open;
 		const duration = getMotionDuration(
 			isClosing ? '--md3-motion-duration-sidebar-collapse' : '--md3-motion-duration-sidebar-expand',
-			isClosing ? 200 : 300
+			isClosing ? 300 : 400
 		);
 		if (duration <= 0) return false;
 
 		const easing = isClosing
 			? getMotionEasing('--md-sys-motion-easing-emphasized-accelerate', 'cubic-bezier(0.3, 0, 0.8, 0.15)')
-			: getMotionEasing('--md-sys-motion-easing-standard', 'cubic-bezier(0.2, 0, 0, 1)');
+			: getMotionEasing('--md-sys-motion-easing-emphasized-decelerate', 'cubic-bezier(0.05, 0.7, 0.1, 1)');
 		details.dataset.md3DisclosureState = isClosing ? 'closing' : 'opening';
 
 		if (!isClosing) {

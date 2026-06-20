@@ -702,7 +702,7 @@ test.describe('Theme MD3 component contracts', () => {
 				inlineSize: styles.inlineSize,
 				minBlockSize: styles.minBlockSize,
 				visibleIcons: [...button.querySelectorAll('.md3-theme-select__button-icon')].filter(
-					(icon) => getComputedStyle(icon).display !== 'none'
+					(icon) => Number.parseFloat(getComputedStyle(icon).opacity) > 0.99
 				).length,
 				visibleText: button.textContent?.trim() ?? '',
 			};
@@ -854,6 +854,77 @@ test.describe('Theme MD3 component contracts', () => {
 		await expect.poll(() => details.evaluate((element) => element.dataset.md3DisclosureState ?? '')).toBe('opening');
 		await expect.poll(() => details.evaluate((element) => element.dataset.md3DisclosureState ?? '')).toBe('');
 		await expect.poll(() => details.evaluate((element) => (element as HTMLDetailsElement).open)).toBe(true);
+	});
+
+	test('mobile drawer theme button keeps the active icon centered', async ({ page }) => {
+		await page.setViewportSize(viewports.find((viewport) => viewport.name === 'mobile')!.size);
+		await page.emulateMedia({ reducedMotion: 'no-preference' });
+		await setThemeBeforeNavigation(page, 'light');
+		await page.goto('/guides/theme-lab/');
+		await page.locator('main').waitFor({ state: 'visible' });
+
+		await page.locator('starlight-menu-button button').click();
+		await expect(page.locator('starlight-menu-button')).toHaveAttribute('aria-expanded', 'true');
+
+		const themeButton = page.locator('.mobile-preferences starlight-theme-select .md3-theme-select__button');
+		await expect(themeButton).toBeVisible();
+		await expect
+			.poll(() =>
+				themeButton.evaluate(
+					(button) =>
+						[...button.querySelectorAll('.md3-theme-select__button-icon')].filter(
+							(icon) => Number.parseFloat(getComputedStyle(icon).opacity) > 0.99
+						).length
+				)
+			)
+			.toBe(1);
+
+		const contract = await themeButton.evaluate((button) => {
+			const buttonBox = button.getBoundingClientRect();
+			const visibleIcon = [...button.querySelectorAll('.md3-theme-select__button-icon')].find(
+				(icon) => Number.parseFloat(getComputedStyle(icon).opacity) > 0.99
+			);
+			if (!(visibleIcon instanceof Element)) throw new Error('Expected one visible theme icon.');
+			const iconBox = visibleIcon.getBoundingClientRect();
+			const styles = getComputedStyle(button);
+			return {
+				backgroundColor: styles.backgroundColor,
+				buttonBlockSize: buttonBox.height,
+				buttonInlineSize: buttonBox.width,
+				centerDeltaX: Math.abs(buttonBox.left + buttonBox.width / 2 - (iconBox.left + iconBox.width / 2)),
+				centerDeltaY: Math.abs(buttonBox.top + buttonBox.height / 2 - (iconBox.top + iconBox.height / 2)),
+				visibleIcons: [...button.querySelectorAll('.md3-theme-select__button-icon')].filter(
+					(icon) => Number.parseFloat(getComputedStyle(icon).opacity) > 0.99
+				).length,
+			};
+		});
+
+		expect(contract.buttonInlineSize).toBe(48);
+		expect(contract.buttonBlockSize).toBe(48);
+		expect(contract.visibleIcons).toBe(1);
+		expect(contract.centerDeltaX).toBeLessThanOrEqual(0.5);
+		expect(contract.centerDeltaY).toBeLessThanOrEqual(0.5);
+		expect(contract.backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+
+		await themeButton.click();
+		const menu = page.locator('.mobile-preferences starlight-theme-select .md3-theme-select__menu');
+		await expect(menu).toBeVisible();
+		const menuContract = await page.evaluate(() => {
+			const button = document.querySelector('.mobile-preferences starlight-theme-select .md3-theme-select__button');
+			const menu = document.querySelector('.mobile-preferences starlight-theme-select .md3-theme-select__menu');
+			if (!(button instanceof HTMLElement) || !(menu instanceof HTMLElement)) {
+				throw new Error('Expected mobile theme button and menu.');
+			}
+			const buttonBox = button.getBoundingClientRect();
+			const menuBox = menu.getBoundingClientRect();
+			return {
+				bottomGap: buttonBox.top - menuBox.bottom,
+				rightDelta: Math.abs(buttonBox.right - menuBox.right),
+			};
+		});
+		expect(menuContract.bottomGap).toBeGreaterThanOrEqual(7);
+		expect(menuContract.bottomGap).toBeLessThanOrEqual(9);
+		expect(menuContract.rightDelta).toBeLessThanOrEqual(1);
 	});
 });
 
