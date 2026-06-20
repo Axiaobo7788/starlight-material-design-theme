@@ -1,0 +1,50 @@
+name: Visual Regression
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_diff_pixel_ratio:
+        description: Maximum screenshot diff ratio to allow.
+        required: false
+        default: '0.02'
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Screenshot tests
+        run: pnpm run test:screenshots
+        env:
+          MD3_SCREENSHOT_MAX_DIFF_PIXEL_RATIO: ${{ inputs.max_diff_pixel_ratio }}
+
+      - name: Upload Playwright artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: ignore
+          retention-days: 7

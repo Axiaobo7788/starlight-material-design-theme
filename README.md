@@ -106,7 +106,7 @@ All commands are run from the root of the project, from a terminal:
 | `pnpm build:demo`          | Builds the demo site to `./demo-dist/`           |
 | `pnpm build`               | Builds both the package and demo site            |
 | `pnpm check:contrast`      | Audits core MD3 foreground/background pairs      |
-| `pnpm test:screenshots`    | Compares Playwright visual snapshots             |
+| `pnpm test:screenshots`    | Compares Playwright visual snapshots locally or in the manual visual regression workflow |
 | `pnpm test:screenshots:update` | Updates Playwright visual snapshots          |
 | `pnpm typecheck`           | Runs `astro check`                               |
 | `pnpm pack --dry-run`      | Verifies package contents                        |
@@ -138,7 +138,8 @@ such as `https://<user>.github.io/<repo>/` build with the correct base path.
 - `demo-dist/` contains the demo output after `pnpm build:demo`.
 - Concept, implementation, Theme Lab, component sample, and token reference docs live in `src/content/docs/`.
 - Playwright screenshot tests cover homepage, Theme Lab, implementation plan, plugin options, search dialog, and mobile drawer states in light/dark modes.
-- GitHub Actions runs install, typecheck, contrast, build, screenshot tests, package consumption, pack dry-run, and demo deployment to GitHub Pages.
+- GitHub Actions CI runs install, typecheck, contrast, build, package consumption, and pack dry-run.
+- The separate Visual Regression workflow runs Playwright screenshot tests manually when a UI review needs CI artifacts.
 
 ## Current Limits
 
