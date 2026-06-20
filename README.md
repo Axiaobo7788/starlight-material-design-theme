@@ -11,6 +11,19 @@ The theme does not require Tailwind configuration and does not depend on
 `@material/web` at runtime. Users install the package and keep the Starlight
 integration shape as `plugins: [md3Theme()]`.
 
+## Preview
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="tests/theme-screenshots.spec.ts-snapshots/home-desktop-dark-chromium-linux.png">
+  <img src="tests/theme-screenshots.spec.ts-snapshots/home-desktop-light-chromium-linux.png" alt="Starlight Material Design 3 theme homepage preview" width="100%">
+</picture>
+
+<p align="center">
+  <img src="tests/theme-screenshots.spec.ts-snapshots/mobile-toc-light-chromium-linux.png" alt="Mobile Material Design 3 table of contents preview" width="32%">
+  <img src="tests/theme-screenshots.spec.ts-snapshots/mobile-drawer-light-chromium-linux.png" alt="Mobile Material Design 3 navigation drawer preview" width="32%">
+  <img src="tests/theme-screenshots.spec.ts-snapshots/theme-lab-mobile-dark-chromium-linux.png" alt="Mobile dark theme component preview" width="32%">
+</p>
+
 ## Install
 
 ```sh
@@ -137,7 +150,7 @@ such as `https://<user>.github.io/<repo>/` build with the correct base path.
 - `dist/` contains the package output after `pnpm build:theme`.
 - `demo-dist/` contains the demo output after `pnpm build:demo`.
 - Concept, implementation, Theme Lab, component sample, and token reference docs live in `src/content/docs/`.
-- Playwright screenshot tests cover homepage, Theme Lab, implementation plan, plugin options, search dialog, and mobile drawer states in light/dark modes.
+- Playwright screenshot tests cover homepage, Theme Lab, implementation plan, plugin options, search dialog, mobile drawer, and mobile table-of-contents states in light/dark modes.
 - GitHub Actions CI runs install, typecheck, contrast, build, package consumption, and pack dry-run.
 - The separate Visual Regression workflow runs Playwright screenshot tests manually when a UI review needs CI artifacts.
 

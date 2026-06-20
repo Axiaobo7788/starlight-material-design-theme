@@ -89,6 +89,70 @@
 			transition-duration: var(--md3-motion-duration-control);
 		}
 
+		@media (max-width: 49.999rem) {
+			.page > .header button[data-open-modal],
+			starlight-menu-button button {
+				transition:
+					background-color var(--md3-motion-duration-control) var(--md-sys-motion-easing-standard),
+					color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard),
+					box-shadow var(--md3-motion-duration-control) var(--md-sys-motion-easing-standard),
+					transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-emphasized);
+			}
+
+			.page > .header button[data-open-modal]:active,
+			starlight-menu-button button:active {
+				transform: scale(0.96);
+			}
+
+			starlight-menu-button button :where(.open-menu, .close-menu) {
+				transition:
+					opacity var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-linear),
+					transform var(--md-sys-motion-duration-medium1) var(--md-sys-motion-easing-emphasized);
+			}
+
+			mobile-starlight-toc details {
+				transition:
+					background-color var(--md3-motion-duration-control) var(--md-sys-motion-easing-standard),
+					box-shadow var(--md3-motion-duration-control) var(--md-sys-motion-easing-standard);
+			}
+
+			mobile-starlight-toc summary,
+			mobile-starlight-toc summary .toggle,
+			mobile-starlight-toc .dropdown a {
+				transition:
+					background-color var(--md3-motion-duration-control) var(--md-sys-motion-easing-standard),
+					color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard),
+					box-shadow var(--md3-motion-duration-control) var(--md-sys-motion-easing-standard);
+			}
+
+			mobile-starlight-toc summary .toggle .caret {
+				transition: transform var(--md-sys-motion-duration-medium1)
+					var(--md-sys-motion-easing-emphasized);
+			}
+
+			mobile-starlight-toc details[open] summary .toggle .caret {
+				transform: rotate(90deg);
+			}
+
+			mobile-starlight-toc .dropdown {
+				opacity: 1;
+				transform: translateY(0) scaleY(1);
+				transition:
+					opacity var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-linear),
+					transform var(--md-sys-motion-duration-medium2)
+						var(--md-sys-motion-easing-emphasized-decelerate),
+					background-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard);
+				will-change: opacity, transform;
+			}
+
+			@starting-style {
+				mobile-starlight-toc details[open] .dropdown {
+					opacity: 0;
+					transform: translateY(-0.25rem) scaleY(0.94);
+				}
+			}
+		}
+
 		.sl-link-card,
 		.card,
 		.pagination-links a {

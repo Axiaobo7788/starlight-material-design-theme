@@ -41,6 +41,13 @@ const mobileDrawerScenarios = themes.map((theme) => ({
 	viewport: viewports.find((viewport) => viewport.name === 'mobile')!.size,
 }));
 
+const mobileTocScenarios = themes.map((theme) => ({
+	name: `mobile-toc-${theme}`,
+	path: '/guides/theme-concept/',
+	theme,
+	viewport: viewports.find((viewport) => viewport.name === 'mobile')!.size,
+}));
+
 const themeMenuScenarios = themes.map((theme) => ({
 	name: `theme-menu-desktop-${theme}`,
 	path: '/guides/theme-lab/',
@@ -87,6 +94,25 @@ test.describe('Theme interaction screenshots', () => {
 			await page.locator('starlight-menu-button button').click();
 			await expect(page.locator('starlight-menu-button')).toHaveAttribute('aria-expanded', 'true');
 			await expect(page.locator('#starlight__sidebar')).toBeVisible();
+			await page.evaluate(() => window.getSelection()?.removeAllRanges());
+
+			await takeScreenshot(page, scenario.name, {
+				fullPage: false,
+				maxDiffPixelRatio: 0.001,
+			});
+		});
+	}
+
+	for (const scenario of mobileTocScenarios) {
+		test(scenario.name, async ({ page }) => {
+			await page.setViewportSize(scenario.viewport);
+			await setThemeBeforeNavigation(page, scenario.theme);
+			await page.goto(scenario.path);
+			await settlePage(page, scenario.theme);
+
+			await page.locator('#starlight__mobile-toc summary').click();
+			await expect(page.locator('#starlight__mobile-toc')).toHaveAttribute('open', '');
+			await expect(page.locator('#starlight__mobile-toc .dropdown a').first()).toBeVisible();
 			await page.evaluate(() => window.getSelection()?.removeAllRanges());
 
 			await takeScreenshot(page, scenario.name, {
@@ -810,7 +836,7 @@ test.describe('Theme MD3 component contracts', () => {
 		await expect(menu).toBeHidden();
 	});
 
-	test('mobile menu button rests as a transparent top app bar icon button', async ({ page }) => {
+	test('mobile top app bar icon buttons use MD3 spacing and state layers', async ({ page }) => {
 		await page.setViewportSize(viewports.find((viewport) => viewport.name === 'mobile')!.size);
 		await page.emulateMedia({ reducedMotion: 'no-preference' });
 		await setThemeBeforeNavigation(page, 'dark');
@@ -818,16 +844,46 @@ test.describe('Theme MD3 component contracts', () => {
 		await page.locator('main').waitFor({ state: 'visible' });
 
 		const menuButton = page.locator('starlight-menu-button button');
+		const searchButton = page.locator('button[data-open-modal]');
 		await expect(menuButton).toBeVisible();
-		await expect(menuButton).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+		await expect(searchButton).toBeVisible();
+
+		const contract = await page.evaluate(() => {
+			const search = document.querySelector('button[data-open-modal]');
+			const menu = document.querySelector('starlight-menu-button button');
+			if (!(search instanceof HTMLElement) || !(menu instanceof HTMLElement)) {
+				throw new Error('Expected mobile search and menu buttons.');
+			}
+			const searchBox = search.getBoundingClientRect();
+			const menuBox = menu.getBoundingClientRect();
+			const searchStyles = getComputedStyle(search);
+			const menuStyles = getComputedStyle(menu);
+			const openIcon = menu.querySelector('.open-menu');
+			return {
+				gap: menuBox.left - searchBox.right,
+				menuBackgroundColor: menuStyles.backgroundColor,
+				menuBlockSize: menuBox.height,
+				menuInlineSize: menuBox.width,
+				menuTransitionProperty: menuStyles.transitionProperty,
+				searchBackgroundColor: searchStyles.backgroundColor,
+				searchBlockSize: searchBox.height,
+				searchInlineSize: searchBox.width,
+				openIconTransitionProperty: openIcon ? getComputedStyle(openIcon).transitionProperty : '',
+			};
+		});
+
+		expect(contract.searchInlineSize).toBe(48);
+		expect(contract.searchBlockSize).toBe(48);
+		expect(contract.menuInlineSize).toBe(48);
+		expect(contract.menuBlockSize).toBe(48);
+		expect(contract.gap).toBeGreaterThanOrEqual(8);
+		expect(contract.searchBackgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+		expect(contract.menuBackgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+		expect(contract.menuTransitionProperty).toContain('background-color');
+		expect(contract.openIconTransitionProperty).toContain('transform');
 
 		const box = await menuButton.boundingBox();
 		expect(box).not.toBeNull();
-		expect(box!.x).toBeGreaterThanOrEqual(0);
-		expect(box!.x + box!.width).toBeLessThanOrEqual(viewports.find((viewport) => viewport.name === 'mobile')!.size.width);
-		expect(box!.width).toBe(48);
-		expect(box!.height).toBe(48);
-
 		await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
 		await page.mouse.down();
 		await expect(menuButton.locator('.md3-ripple')).toHaveCount(1);
@@ -925,6 +981,80 @@ test.describe('Theme MD3 component contracts', () => {
 		expect(menuContract.bottomGap).toBeGreaterThanOrEqual(7);
 		expect(menuContract.bottomGap).toBeLessThanOrEqual(9);
 		expect(menuContract.rightDelta).toBeLessThanOrEqual(1);
+	});
+
+	test('mobile table of contents uses MD3 menu surface styling', async ({ page }) => {
+		await page.setViewportSize(viewports.find((viewport) => viewport.name === 'mobile')!.size);
+		await page.emulateMedia({ reducedMotion: 'no-preference' });
+		await setThemeBeforeNavigation(page, 'light');
+		await page.goto('/guides/theme-concept/');
+		await page.locator('main').waitFor({ state: 'visible' });
+
+		const toc = page.locator('#starlight__mobile-toc');
+		const summary = toc.locator('summary');
+		await expect(summary).toBeVisible();
+
+		const restContract = await toc.evaluate((details) => {
+			const summary = details.querySelector('summary');
+			const toggle = details.querySelector('.toggle');
+			if (!(summary instanceof HTMLElement) || !(toggle instanceof HTMLElement)) {
+				throw new Error('Expected mobile TOC summary and toggle.');
+			}
+			const detailsStyles = getComputedStyle(details);
+			const summaryBox = summary.getBoundingClientRect();
+			const toggleStyles = getComputedStyle(toggle);
+			return {
+				backgroundColor: detailsStyles.backgroundColor,
+				borderTopWidth: detailsStyles.borderTopWidth,
+				borderRadius: detailsStyles.borderRadius,
+				summaryBlockSize: summaryBox.height,
+				toggleBackgroundColor: toggleStyles.backgroundColor,
+				toggleBorderTopWidth: toggleStyles.borderTopWidth,
+			};
+		});
+		expect(restContract.backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+		expect(restContract.borderTopWidth).toBe('0px');
+		expect(Number.parseFloat(restContract.borderRadius)).toBeGreaterThanOrEqual(16);
+		expect(restContract.summaryBlockSize).toBeGreaterThanOrEqual(52);
+		expect(restContract.toggleBackgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+		expect(restContract.toggleBorderTopWidth).toBe('0px');
+
+		await summary.click();
+		await expect(toc).toHaveAttribute('open', '');
+		const firstLink = toc.locator('.dropdown a').first();
+		await expect(firstLink).toBeVisible();
+
+		const openContract = await toc.evaluate((details) => {
+			const dropdown = details.querySelector('.dropdown');
+			const firstLink = details.querySelector('.dropdown a');
+			const currentLink =
+				details.querySelector('.dropdown a[aria-current="true"]') ??
+				details.querySelector('.dropdown a[aria-current="page"]') ??
+				firstLink;
+			if (!(dropdown instanceof HTMLElement) || !(firstLink instanceof HTMLElement) || !(currentLink instanceof HTMLElement)) {
+				throw new Error('Expected mobile TOC dropdown links.');
+			}
+			const dropdownStyles = getComputedStyle(dropdown);
+			const firstLinkStyles = getComputedStyle(firstLink);
+			const currentLinkStyles = getComputedStyle(currentLink);
+			return {
+				currentBackgroundColor: currentLinkStyles.backgroundColor,
+				currentColor: currentLinkStyles.color,
+				dropdownOpacity: dropdownStyles.opacity,
+				dropdownTransform: dropdownStyles.transform,
+				firstLinkBlockSize: firstLink.getBoundingClientRect().height,
+				firstLinkBorderRadius: firstLinkStyles.borderRadius,
+				firstLinkTextDecorationLine: firstLinkStyles.textDecorationLine,
+			};
+		});
+
+		expect(openContract.dropdownOpacity).toBe('1');
+		expect(openContract.dropdownTransform).toBe('matrix(1, 0, 0, 1, 0, 0)');
+		expect(openContract.firstLinkBlockSize).toBeGreaterThanOrEqual(44);
+		expect(Number.parseFloat(openContract.firstLinkBorderRadius)).toBeGreaterThanOrEqual(20);
+		expect(openContract.firstLinkTextDecorationLine).toBe('none');
+		expect(openContract.currentBackgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+		expect(openContract.currentColor).not.toBe('');
 	});
 });
 
