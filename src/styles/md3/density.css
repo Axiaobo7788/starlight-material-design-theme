@@ -1,12 +1,20 @@
 @layer md3.tokens {
 	:root {
 		--md3-density-nav-height: 3.75rem;
-		--md3-density-header-control-height: 2.25rem;
+		--md3-density-header-control-height: 2.75rem;
 		--md3-density-content-gap: 1rem;
-		--md3-density-nav-item-min-height: 2rem;
+		--md3-density-nav-item-min-height: 2.5rem;
 		--md3-density-sidebar-gap: 0.125rem;
 		--md3-density-card-padding: 1rem;
 		--md3-density-control-height: 2.5rem;
+		--md3-density-prose-line-height: 1.72;
+		--md3-density-prose-paragraph-gap: 0.72rem;
+		--md3-density-prose-block-gap: 1rem;
+		--md3-density-prose-heading-gap-lg: 2.75rem;
+		--md3-density-prose-heading-gap-md: 2rem;
+		--md3-density-prose-list-gap: 0.22rem;
+		--md3-density-table-cell-padding-block: 0.62rem;
+		--md3-density-table-cell-padding-inline: 0.85rem;
 	}
 
 	:root[data-md3-density='comfortable'] {
@@ -17,5 +25,26 @@
 		--md3-density-sidebar-gap: 0.25rem;
 		--md3-density-card-padding: 1.25rem;
 		--md3-density-control-height: 2.75rem;
+		--md3-density-prose-line-height: 1.78;
+		--md3-density-prose-paragraph-gap: 0.82rem;
+		--md3-density-prose-block-gap: 1.15rem;
+		--md3-density-prose-heading-gap-lg: 3rem;
+		--md3-density-prose-heading-gap-md: 2.25rem;
+		--md3-density-prose-list-gap: 0.3rem;
+		--md3-density-table-cell-padding-block: 0.7rem;
+		--md3-density-table-cell-padding-inline: 1rem;
+	}
+
+	@media (min-width: 50rem) {
+		:root {
+			--md3-density-nav-height: 4rem;
+			--md3-density-header-control-height: 3rem;
+			--md3-density-nav-item-min-height: 2rem;
+		}
+
+		:root[data-md3-density='comfortable'] {
+			--md3-density-header-control-height: 3rem;
+			--md3-density-nav-item-min-height: 2.375rem;
+		}
 	}
 }

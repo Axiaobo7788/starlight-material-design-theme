@@ -41,5 +41,8 @@ jobs:
       - name: Screenshot tests
         run: pnpm run test:screenshots
 
+      - name: Package consumption fixture
+        run: pnpm run verify:package
+
       - name: Pack dry run
         run: pnpm pack --dry-run

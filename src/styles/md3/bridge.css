@@ -16,7 +16,7 @@
 		--sl-color-gray-4: var(--md-sys-color-outline);
 		--sl-color-gray-5: var(--md-sys-color-outline-variant);
 		--sl-color-gray-6: var(--md-sys-color-surface-container);
-		--sl-color-black: var(--md-sys-color-background);
+		--sl-color-black: var(--md-sys-color-surface);
 
 		--sl-color-accent-low: var(--md-sys-color-primary-container);
 		--sl-color-accent: var(--md-sys-color-primary);
@@ -24,9 +24,9 @@
 		--sl-color-text: var(--md-sys-color-on-surface-variant);
 		--sl-color-text-accent: var(--md-sys-color-primary);
 		--sl-color-text-invert: var(--md-sys-color-on-primary);
-		--sl-color-bg: var(--md-sys-color-background);
-		--sl-color-bg-nav: color-mix(in srgb, var(--md-sys-color-surface-container-low) 94%, transparent);
-		--sl-color-bg-sidebar: var(--md-sys-color-surface);
+		--sl-color-bg: var(--md-sys-color-surface);
+		--sl-color-bg-nav: var(--md-sys-color-surface-container-low);
+		--sl-color-bg-sidebar: var(--md-sys-color-surface-container-low);
 		--sl-color-bg-inline-code: var(--md-sys-color-surface-container-high);
 		--sl-color-bg-accent: var(--md-sys-color-primary);
 		--sl-color-hairline-light: var(--md-sys-color-outline-variant);
@@ -54,12 +54,15 @@
 		--sl-shadow-md: var(--md-sys-elevation-level2);
 		--sl-shadow-lg: var(--md-sys-elevation-level3);
 		--sl-nav-height: var(--md3-density-nav-height);
+		--sl-nav-pad-y: 0.5rem;
 		--sl-content-width: 52rem;
 		--sl-sidebar-width: 18rem;
 		--sl-content-gap-y: var(--md3-density-content-gap);
 		--sl-text-body: var(--md-sys-typescale-body-large-size);
 		--sl-text-body-sm: var(--md-sys-typescale-body-medium-size);
-		--sl-text-h1: 2.5rem;
+		--sl-text-xs: var(--md-sys-typescale-label-small-size);
+		--sl-text-sm: var(--md-sys-typescale-label-medium-size);
+		--sl-text-h1: var(--md-sys-typescale-display-small-size);
 		--sl-text-h2: var(--md-sys-typescale-headline-medium-size);
 		--sl-text-h3: var(--md-sys-typescale-headline-small-size);
 		--sl-text-h4: var(--md-sys-typescale-title-large-size);
@@ -72,7 +75,7 @@
 	[data-theme='light'] ::backdrop {
 		--sl-color-gray-7: var(--md-sys-color-surface-container-low);
 		--sl-color-black: var(--md-sys-color-surface);
-		--sl-color-bg-nav: color-mix(in srgb, var(--md-sys-color-surface-container-low) 94%, transparent);
+		--sl-color-bg-nav: var(--md-sys-color-surface-container-low);
 		--sl-color-bg-sidebar: var(--md-sys-color-surface-container-low);
 		--sl-color-backdrop-overlay: hsl(190 16% 18% / 0.42);
 		--sl-color-green-low: hsl(140, 56%, 88%);

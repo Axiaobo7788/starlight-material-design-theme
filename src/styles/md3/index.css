@@ -1,12 +1,14 @@
 @layer starlight.base, starlight.reset, starlight.core, starlight.content, starlight.components, starlight.utils,
-	md3.tokens, md3.bridge, md3.base, md3.layout, md3.prose, md3.components, md3.code, md3.utilities;
+	md3.tokens, md3.bridge, md3.base, md3.layout, md3.prose, md3.components, md3.code, md3.motion, md3.utilities;
 
 @import './tokens.css';
 @import './density.css';
+@import './component-tokens.css';
 @import './bridge.css';
 @import './base.css';
 @import './layout.css';
 @import './prose.css';
 @import './components.css';
 @import './code.css';
+@import './motion.css';
 @import './utilities.css';

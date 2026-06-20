@@ -1,0 +1,76 @@
+---
+import { generateSeedColorScheme, type Md3SeedVariant } from '../palette';
+
+const roles = ['primary', 'secondary', 'tertiary', 'surface-container', 'error'] as const;
+const seeds: Array<{ id: string; label: string; value: string; variant: Md3SeedVariant }> = [
+	{ id: 'teal-tonal', label: 'Teal - tonalSpot', value: '#00a99d', variant: 'tonalSpot' },
+	{ id: 'purple-expressive', label: 'Purple - expressive', value: '#6750a4', variant: 'expressive' },
+	{ id: 'orange-content', label: 'Orange - content', value: '#d96c00', variant: 'content' },
+	{ id: 'blue-tonal', label: 'Blue - tonalSpot', value: '#0061a4', variant: 'tonalSpot' },
+];
+
+const palettes = Object.fromEntries(
+	seeds.map((seed) => {
+		const scheme = generateSeedColorScheme(seed.value, seed.variant);
+		return [
+			seed.id,
+			{
+				...seed,
+				dark: scheme.dark,
+				light: scheme.light,
+			},
+		];
+	})
+);
+---
+
+<div class="md3-seed-demo not-content" data-seed-demo>
+	<div class="md3-seed-demo__toolbar">
+		<label>
+			<span>Seed</span>
+			<select data-seed-select>
+				{seeds.map((seed) => <option value={seed.id}>{seed.label}</option>)}
+			</select>
+		</label>
+	</div>
+	<div class="md3-seed-demo__grid" data-seed-grid>
+		{
+			roles.map((role) => (
+				<div class="md3-seed-demo__role" data-role={role}>
+					<span class="md3-seed-demo__swatch" data-swatch></span>
+					<span>
+						<strong>{role}</strong>
+						<code data-value></code>
+					</span>
+				</div>
+			))
+		}
+	</div>
+	<script is:inline type="application/json" data-seed-payload set:html={JSON.stringify({ palettes, roles })} />
+	<script is:inline>
+		(() => {
+			const root = document.currentScript?.closest('[data-seed-demo]');
+			const payload = root?.querySelector('[data-seed-payload]');
+			const select = root?.querySelector('[data-seed-select]');
+			const roleNodes = [...(root?.querySelectorAll('[data-role]') ?? [])];
+			if (!root || !payload || !(select instanceof HTMLSelectElement)) return;
+
+			const data = JSON.parse(payload.textContent || '{}');
+			const render = () => {
+				const palette = data.palettes?.[select.value];
+				if (!palette) return;
+				for (const node of roleNodes) {
+					const role = node.getAttribute('data-role');
+					const color = palette.light?.[role] || palette.dark?.[role];
+					const swatch = node.querySelector('[data-swatch]');
+					const value = node.querySelector('[data-value]');
+					if (swatch instanceof HTMLElement) swatch.style.backgroundColor = color;
+					if (value) value.textContent = color;
+				}
+			};
+
+			select.addEventListener('change', render);
+			render();
+		})();
+	</script>
+</div>

@@ -27,6 +27,7 @@ description: A practical build plan for turning the concept into a reusable Star
 - [x] Add focused visual regression screenshots for desktop/mobile and light/dark modes.
 - [x] Add demo coverage for long-form content, Chinese paragraphs, tables, tabs, badges, cards, steps, and code.
 - [x] Add homepage and component-page theme snapshots for color roles, control states, and navigation density.
+- [x] Add local `--md3-comp-*` tokens for sidebar navigation, TOC links, search, cards, asides, badges, tabs, code blocks, and pagination.
 
 ## Phase 3: Package Shape
 
@@ -42,8 +43,24 @@ description: A practical build plan for turning the concept into a reusable Star
 
 - [x] Generate seed color roles with `@material/material-color-utilities`.
 - [x] Offer named presets for neutral, playful, and high-contrast docs.
-- [ ] Consider a small client-side color seed demo for theme documentation, not as a runtime dependency for every docs site.
-- [ ] Revisit newer Material DynamicScheme entrypoints when their package imports are stable in the target Node and bundler matrix.
+- [x] Add a small demo-only seed preview for theme documentation without adding runtime work to every docs site.
+- [x] Revisit newer Material DynamicScheme entrypoints and keep them deferred until their package imports work in the target Node ESM matrix.
+
+## Official MD3 Comparison
+
+What is now aligned:
+
+- The theme is token-first: `--md-sys-*` system roles hold color, type, shape, elevation, motion, and state decisions.
+- Color roles are semantic rather than page-specific: Starlight surfaces, selected states, asides, badges, and code blocks consume role names instead of raw hex values.
+- Component styling now has a local `--md3-comp-*` layer for the same kind of indirection Material components use internally.
+- State layers are shared across navigation, search, tabs, buttons, and TOC instead of each component inventing a separate hover color.
+- Material Web remains a design reference only; the runtime stays CSS variables plus the Starlight plugin.
+
+Remaining post-MVP choices:
+
+- Component tokens are local names, not a full Material Web token contract. This remains intentional so Starlight users get a small CSS API instead of a Material Web wrapper layer.
+- Runtime dynamic color remains a documentation demo rather than a default runtime feature for every consuming docs site.
+- Newer expressive DynamicScheme classes remain out of scope until the package import path is stable in this Node/bundler matrix.
 
 ## MVP Exclusions
 
@@ -61,21 +78,18 @@ Current baseline:
 - Do not add Tailwind to the main theme chain. If Tailwind is ever needed, keep it as a demo-only or custom-component `devDependency`; never make it a `peerDependency`.
 - `@material/web` is a reference only and must not become a core runtime dependency.
 - Seed colors now use `@material/material-color-utilities` in `src/palette.ts`.
+- `contrast: 'standard' | 'medium' | 'high'` is available for state, outline, and selected-tone emphasis.
 - `src/styles/md3/index.css` is bundled to `dist/css/index.css` with Lightning CSS during `pnpm run build:theme`.
 - Theme Lab exists at `src/content/docs/guides/theme-lab.mdx`.
-- Screenshot baselines exist under `tests/theme-screenshots.spec.ts-snapshots/`.
+- Screenshot baselines cover homepage, Theme Lab, implementation plan, and plugin options in desktop/mobile plus light/dark.
+- A package consumption fixture exists under `fixtures/package-consumption/`.
 - CI exists at `.github/workflows/ci.yml`.
 
-Recommended next tasks:
+Post-MVP release hardening:
 
-- Add explicit component-level CSS tokens, likely `--md3-comp-*`, for sidebar nav items, TOC links, search field, cards, tabs, badges, asides, code blocks, and pagination.
-- Expand typography tokens toward the full MD3 type scale: display, headline, title, body, and label roles with size, line-height, weight, and tracking decisions.
-- Add clearer elevation and tonal-surface policy: when to use `surface-container-*`, when to use shadow, and which Starlight surfaces map to each level.
-- Expand state layers beyond hover/focus: selected, pressed, disabled, and focus-visible states should be consistent across navigation, tabs, cards, buttons, and search.
-- Add screenshot coverage for the homepage, implementation plan page, and plugin options page after component tokens are introduced.
-- Add a package-consumption fixture that installs the built package into a separate minimal Starlight project and verifies `md3Theme()` plus `starlight-theme-md3/css/index.css` exports.
-- Consider adding `site` to `astro.config.mjs` for the demo to remove the sitemap warning during `pnpm run build`.
-- Revisit newer Material DynamicScheme modules only if their package imports work reliably in the Node/bundler matrix; do not regress the currently passing CorePalette path.
+- Keep `--md3-comp-*` public-preview tokens stable for at least one release cycle before promoting them to stable public API.
+- Add more consuming-project examples for token overrides.
+- Revisit DynamicScheme only after Material Color Utilities publishes Node-compatible ESM imports; do not regress the currently passing CorePalette path.
 
 Required verification before handing back:
 
@@ -85,11 +99,11 @@ pnpm run check:contrast
 pnpm run build
 pnpm run test:screenshots
 CI=1 pnpm run test:screenshots
+pnpm run verify:package
 pnpm pack --dry-run
 ```
 
 Known caveats:
 
 - `tonalSpot` and `content` use Material Color Utilities core palettes directly.
-- `expressive` currently keeps the public option but uses a HCT-based approximation until newer DynamicScheme entrypoints are stable.
-- Build currently succeeds with a sitemap warning if `site` is not configured.
+- `expressive` currently keeps the public option but uses a HCT-based approximation because newer DynamicScheme entrypoints are not stable under Node ESM.

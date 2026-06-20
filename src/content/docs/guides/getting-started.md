@@ -34,7 +34,7 @@ export default defineConfig({
 
 ```ts
 md3Theme({
-	seed: '#6750a4',
+	seed: '#00a99d',
 	variant: 'expressive',
 	density: 'compact',
 	shape: 'medium',

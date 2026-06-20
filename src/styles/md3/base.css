@@ -27,15 +27,4 @@
 		outline: 2px solid var(--md-sys-color-primary);
 		box-shadow: var(--md3-focus-ring);
 	}
-
-	@media (prefers-reduced-motion: no-preference) {
-		:where(a, button, summary, [role='tab']) {
-			transition:
-				background-color var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard),
-				border-color var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard),
-				color var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard),
-				box-shadow var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard),
-				transform var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
-		}
-	}
 }

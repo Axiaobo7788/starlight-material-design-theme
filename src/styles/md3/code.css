@@ -1,14 +1,14 @@
 @layer md3.code {
 	.sl-markdown-content code:not(:where(.not-content *)) {
-		border-radius: var(--md-sys-shape-xs);
-		background-color: var(--md-sys-color-surface-container-high);
-		color: var(--md-sys-color-on-surface);
+		border-radius: var(--md3-comp-code-inline-shape);
+		background-color: var(--md3-comp-code-inline-container-color);
+		color: var(--md3-comp-code-inline-label-color);
 		padding: 0.1em 0.35em;
 	}
 
 	.sl-markdown-content pre:not(:where(.not-content *)) {
-		border-color: var(--md-sys-color-outline-variant);
-		background-color: var(--md-sys-color-surface-container-low);
+		border: 1px solid var(--md3-comp-code-outline-color);
+		background-color: var(--md3-comp-code-block-container-color);
 		box-shadow: none;
 	}
 
@@ -17,16 +17,40 @@
 	}
 
 	.expressive-code .frame {
-		border-radius: var(--md-sys-shape-lg);
+		border-radius: var(--md3-comp-code-block-shape);
 		box-shadow: none;
+		border: 1px solid var(--md3-comp-code-outline-color);
+		overflow: hidden;
 	}
 
 	.expressive-code .frame .header {
-		background-color: var(--md-sys-color-surface-container);
-		border-color: var(--md-sys-color-outline-variant);
+		background-color: var(--md3-comp-code-header-container-color);
+		border-bottom: 1px solid color-mix(in srgb, var(--md3-comp-code-outline-color) 50%, transparent);
+		border-radius: 0;
 	}
 
 	.expressive-code .frame pre {
-		background-color: var(--md-sys-color-surface-container-low);
+		background-color: var(--md3-comp-code-block-container-color);
+		border-top: none;
+	}
+
+	/* MD3 style for copy buttons */
+	.expressive-code .copy button,
+	.sl-markdown-content .copy-control {
+		border-radius: var(--md-sys-shape-full);
+		background-color: transparent;
+		color: var(--md-sys-color-on-surface-variant);
+		border: none;
+	}
+
+	.expressive-code .copy button:hover,
+	.sl-markdown-content .copy-control:hover {
+		background-color: var(--md3-state-hover);
+		color: var(--md-sys-color-on-surface);
+	}
+
+	.expressive-code .copy button:active,
+	.sl-markdown-content .copy-control:active {
+		background-color: var(--md3-state-pressed);
 	}
 }

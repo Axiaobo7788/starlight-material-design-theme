@@ -38,6 +38,7 @@
     "build:theme": "node scripts/clean-package.mjs && tsc -p tsconfig.package.json && node scripts/copy-css.mjs",
     "build:demo": "astro build",
     "check:contrast": "pnpm run build:theme && node scripts/check-contrast.mjs",
+    "verify:package": "node scripts/verify-package-consumption.mjs",
     "test:screenshots": "playwright test",
     "test:screenshots:update": "playwright test --update-snapshots",
     "typecheck": "astro check",

@@ -1,0 +1,429 @@
+---
+import { Icon } from '@astrojs/starlight/components';
+
+type Theme = 'auto' | 'dark' | 'light';
+
+const options: Array<{ value: Theme; label: string; icon: 'laptop' | 'moon' | 'sun' }> = [
+	{ value: 'dark', label: Astro.locals.t('themeSelect.dark'), icon: 'moon' },
+	{ value: 'light', label: Astro.locals.t('themeSelect.light'), icon: 'sun' },
+	{ value: 'auto', label: Astro.locals.t('themeSelect.auto'), icon: 'laptop' },
+];
+const defaultOption = options.find((option) => option.value === 'auto')!;
+---
+
+<starlight-theme-select
+	class="md3-theme-select"
+	data-accessible-label={Astro.locals.t('themeSelect.accessibleLabel')}
+	data-label-auto={Astro.locals.t('themeSelect.auto')}
+	data-label-dark={Astro.locals.t('themeSelect.dark')}
+	data-label-light={Astro.locals.t('themeSelect.light')}
+>
+	<button
+		type="button"
+		class="md3-theme-select__button"
+		aria-haspopup="menu"
+		aria-expanded="false"
+		aria-label={`${Astro.locals.t('themeSelect.accessibleLabel')}: ${defaultOption.label}`}
+		title={`${Astro.locals.t('themeSelect.accessibleLabel')}: ${defaultOption.label}`}
+		data-theme-value={defaultOption.value}
+	>
+		<span class="sr-only md3-theme-select__current">{defaultOption.label}</span>
+		{
+			options.map((option) => (
+				<Icon name={option.icon} class={`icon label-icon md3-theme-select__button-icon md3-theme-select__button-icon--${option.value}`} />
+			))
+		}
+	</button>
+	<div class="md3-theme-select__menu" role="menu" hidden>
+		{
+			options.map((option) => (
+				<button
+					type="button"
+					class="md3-theme-select__option"
+					role="menuitemradio"
+					aria-checked={option.value === defaultOption.value ? 'true' : 'false'}
+					data-theme-value={option.value}
+				>
+					<Icon name={option.icon} class="icon md3-theme-select__option-icon" />
+					<span>{option.label}</span>
+					<Icon name="approve-check" class="icon md3-theme-select__check" />
+				</button>
+			))
+		}
+	</div>
+</starlight-theme-select>
+
+{/* Inlined to avoid FOUC. Uses global scope from `ThemeProvider.astro`. */}
+<script is:inline>
+	StarlightThemeProvider.updatePickers();
+</script>
+
+<script>
+	type Theme = 'auto' | 'dark' | 'light';
+
+	declare const StarlightThemeProvider: { updatePickers: (theme?: Theme) => void };
+
+	const storageKey = 'starlight-theme';
+	const parseTheme = (theme: unknown): Theme =>
+		theme === 'auto' || theme === 'dark' || theme === 'light' ? theme : 'auto';
+
+	const loadTheme = (): Theme =>
+		parseTheme(typeof localStorage !== 'undefined' && localStorage.getItem(storageKey));
+
+	function storeTheme(theme: Theme): void {
+		if (typeof localStorage !== 'undefined') {
+			localStorage.setItem(storageKey, theme === 'light' || theme === 'dark' ? theme : '');
+		}
+	}
+
+	const getPreferredColorScheme = (): Theme =>
+		matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+
+	function getThemeLabel(picker: HTMLElement, theme: Theme): string {
+		return picker.dataset[`label${theme[0].toUpperCase()}${theme.slice(1)}`] ?? theme;
+	}
+
+	function getThemeAccessibleLabel(picker: HTMLElement, theme: Theme): string {
+		const baseLabel = picker.dataset.accessibleLabel ?? 'Theme';
+		return `${baseLabel}: ${getThemeLabel(picker, theme)}`;
+	}
+
+	const closeTimers = new WeakMap<HTMLElement, number>();
+	const closeCleanups = new WeakMap<HTMLElement, () => void>();
+
+	function clearCloseTimer(picker: HTMLElement): void {
+		const timer = closeTimers.get(picker);
+		if (timer) window.clearTimeout(timer);
+		closeTimers.delete(picker);
+		closeCleanups.get(picker)?.();
+		closeCleanups.delete(picker);
+	}
+
+	function closeMenu(picker: HTMLElement): void {
+		const button = picker.querySelector<HTMLButtonElement>('.md3-theme-select__button');
+		const menu = picker.querySelector<HTMLElement>('.md3-theme-select__menu');
+		if (!button || !menu) return;
+
+		button.setAttribute('aria-expanded', 'false');
+		clearCloseTimer(picker);
+
+		if (menu.hidden || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			menu.hidden = true;
+			menu.removeAttribute('data-md3-menu-state');
+			return;
+		}
+
+		menu.dataset.md3MenuState = 'closing';
+
+		const finishClose = () => {
+			menu.hidden = true;
+			menu.removeAttribute('data-md3-menu-state');
+			clearCloseTimer(picker);
+		};
+		const onTransitionEnd = (event: TransitionEvent) => {
+			if (event.target === menu && event.propertyName === 'transform') finishClose();
+		};
+
+		menu.addEventListener('transitionend', onTransitionEnd);
+		closeCleanups.set(picker, () => menu.removeEventListener('transitionend', onTransitionEnd));
+		closeTimers.set(picker, window.setTimeout(finishClose, 260));
+	}
+
+	function openMenu(picker: HTMLElement): void {
+		const button = picker.querySelector<HTMLButtonElement>('.md3-theme-select__button');
+		const menu = picker.querySelector<HTMLElement>('.md3-theme-select__menu');
+		const selected = picker.querySelector<HTMLButtonElement>('.md3-theme-select__option[aria-checked="true"]');
+		if (!button || !menu) return;
+
+		clearCloseTimer(picker);
+		button.setAttribute('aria-expanded', 'true');
+		menu.hidden = false;
+		menu.removeAttribute('data-md3-menu-state');
+		selected?.focus();
+	}
+
+	function syncPicker(picker: HTMLElement, theme: Theme): void {
+		const button = picker.querySelector<HTMLButtonElement>('.md3-theme-select__button');
+		const current = picker.querySelector<HTMLElement>('.md3-theme-select__current');
+		if (!button || !current) return;
+
+		button.dataset.themeValue = theme;
+		current.textContent = getThemeLabel(picker, theme);
+		button.title = getThemeAccessibleLabel(picker, theme);
+		button.setAttribute('aria-label', getThemeAccessibleLabel(picker, theme));
+
+		picker.querySelectorAll<HTMLButtonElement>('.md3-theme-select__option').forEach((option) => {
+			const selected = option.dataset.themeValue === theme;
+			option.setAttribute('aria-checked', String(selected));
+		});
+	}
+
+	function updatePickers(theme: Theme): void {
+		StarlightThemeProvider.updatePickers(theme);
+		document.querySelectorAll<HTMLElement>('starlight-theme-select').forEach((picker) => {
+			syncPicker(picker, theme);
+		});
+	}
+
+	function onThemeChange(theme: Theme): void {
+		updatePickers(theme);
+		document.documentElement.dataset.theme = theme === 'auto' ? getPreferredColorScheme() : theme;
+		storeTheme(theme);
+	}
+
+	matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+		if (loadTheme() === 'auto') onThemeChange('auto');
+	});
+
+	class StarlightThemeSelect extends HTMLElement {
+		connectedCallback(): void {
+			if (this.dataset.md3ThemeSelectReady === 'true') return;
+			this.dataset.md3ThemeSelectReady = 'true';
+			onThemeChange(loadTheme());
+
+			this.querySelector('.md3-theme-select__button')?.addEventListener('click', () => {
+				const expanded =
+					this.querySelector('.md3-theme-select__button')?.getAttribute('aria-expanded') === 'true';
+				expanded ? closeMenu(this) : openMenu(this);
+			});
+
+			this.querySelectorAll<HTMLButtonElement>('.md3-theme-select__option').forEach((option) => {
+				option.addEventListener('click', () => {
+					onThemeChange(parseTheme(option.dataset.themeValue));
+					closeMenu(this);
+					this.querySelector<HTMLButtonElement>('.md3-theme-select__button')?.focus();
+				});
+			});
+
+			this.addEventListener('keydown', (event) => {
+				if (!(event instanceof KeyboardEvent)) return;
+				const expanded =
+					this.querySelector('.md3-theme-select__button')?.getAttribute('aria-expanded') === 'true';
+
+				if (event.key === 'Escape') {
+					event.preventDefault();
+					closeMenu(this);
+					this.querySelector<HTMLButtonElement>('.md3-theme-select__button')?.focus();
+					return;
+				}
+
+				if (!expanded && ['ArrowDown', 'Enter', ' '].includes(event.key)) {
+					event.preventDefault();
+					openMenu(this);
+					return;
+				}
+
+				if (!expanded || !['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+				event.preventDefault();
+
+				const items = [...this.querySelectorAll<HTMLButtonElement>('.md3-theme-select__option')];
+				const currentIndex = Math.max(0, items.indexOf(document.activeElement as HTMLButtonElement));
+				const nextIndex =
+					event.key === 'Home'
+						? 0
+						: event.key === 'End'
+							? items.length - 1
+							: event.key === 'ArrowDown'
+								? (currentIndex + 1) % items.length
+								: (currentIndex - 1 + items.length) % items.length;
+				items[nextIndex]?.focus();
+			});
+
+			document.addEventListener('pointerdown', (event) => {
+				if (event.target instanceof Node && !this.contains(event.target)) closeMenu(this);
+			});
+		}
+	}
+
+	if (!customElements.get('starlight-theme-select')) {
+		customElements.define('starlight-theme-select', StarlightThemeSelect);
+	}
+</script>
+
+<style>
+	@layer md3.components {
+		starlight-theme-select {
+			position: relative;
+			display: inline-flex;
+			min-width: 0;
+		}
+
+		.md3-theme-select__button {
+			position: relative;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			box-sizing: border-box;
+			inline-size: var(--md3-density-header-control-height, 3rem);
+			block-size: var(--md3-density-header-control-height, 3rem);
+			min-block-size: var(--md3-density-header-control-height, 3rem);
+			border: none;
+			border-radius: var(--md-sys-shape-full);
+			background-color: transparent;
+			color: var(--md3-comp-header-control-label-color);
+			cursor: pointer;
+			padding: 0;
+		}
+
+		.md3-theme-select__button:hover {
+			background-color: var(--md3-comp-header-control-hover-container-color);
+			color: var(--md3-comp-header-control-hover-label-color);
+		}
+
+		.md3-theme-select__button:focus-visible {
+			background-color: var(--md3-comp-header-control-focus-container-color);
+			color: var(--md3-comp-header-control-focus-label-color);
+			outline: 2px solid var(--md3-comp-header-control-focus-outline-color);
+			outline-offset: 2px;
+		}
+
+		.md3-theme-select__button:active,
+		.md3-theme-select__button[aria-expanded='true'] {
+			background-color: var(--md3-comp-header-control-pressed-container-color);
+		}
+
+		.md3-theme-select__button-icon {
+			display: none;
+		}
+
+		.md3-theme-select__button[data-theme-value='dark'] .md3-theme-select__button-icon--dark,
+		.md3-theme-select__button[data-theme-value='light'] .md3-theme-select__button-icon--light,
+		.md3-theme-select__button[data-theme-value='auto'] .md3-theme-select__button-icon--auto {
+			display: block;
+		}
+
+		.label-icon,
+		.md3-theme-select__button-icon,
+		.md3-theme-select__option-icon,
+		.md3-theme-select__check {
+			flex: 0 0 auto;
+			font-size: 1rem;
+		}
+
+		.md3-theme-select__menu {
+			position: absolute;
+			z-index: calc(var(--sl-z-index-navbar) + 1);
+			inset-block-start: calc(100% + 0.5rem);
+			inset-inline-end: 0;
+			box-sizing: border-box;
+			display: block;
+			inline-size: max-content;
+			min-inline-size: 7rem;
+			max-inline-size: 17.5rem;
+			padding-block: 0.5rem;
+			padding-inline: 0;
+			border: 1px solid transparent;
+			border-radius: var(--md3-comp-menu-shape);
+			background-color: var(--md3-comp-menu-container-color);
+			box-shadow: var(--md3-comp-menu-elevation);
+			color: var(--md3-comp-menu-label-color);
+			transform-origin: top right;
+		}
+
+		.md3-theme-select__menu[hidden] {
+			display: none;
+		}
+
+		.md3-theme-select__option {
+			position: relative;
+			display: grid;
+			grid-template-columns: 1.25rem minmax(0, 1fr) 1rem;
+			align-items: center;
+			gap: 0.75rem;
+			inline-size: 100%;
+			min-block-size: 3rem;
+			border: 0;
+			border-radius: 0;
+			background-color: transparent;
+			color: inherit;
+			cursor: pointer;
+			font-size: var(--md-sys-typescale-label-large-size);
+			font-weight: 400;
+			letter-spacing: var(--md-sys-typescale-label-large-tracking);
+			line-height: var(--md-sys-typescale-label-large-line-height);
+			text-align: start;
+			white-space: nowrap;
+			padding-block: 0;
+			padding-inline: 1rem;
+		}
+
+		.md3-theme-select__option:hover {
+			background-color: var(--md3-comp-menu-item-hover-container-color);
+			color: var(--md3-comp-menu-item-hover-label-color);
+		}
+
+		.md3-theme-select__option:focus-visible {
+			background-color: var(--md3-comp-menu-item-focus-container-color);
+			color: var(--md3-comp-menu-item-focus-label-color);
+			outline: 0;
+		}
+
+		.md3-theme-select__option:active {
+			background-color: var(--md3-comp-menu-item-pressed-container-color);
+		}
+
+		.md3-theme-select__option[aria-checked='true'] {
+			background-color: var(--md3-comp-menu-item-selected-container-color);
+			color: var(--md3-comp-menu-item-selected-label-color);
+			font-weight: 500;
+		}
+
+		.md3-theme-select__check {
+			color: inherit;
+			justify-self: end;
+			opacity: 0;
+		}
+
+		.md3-theme-select__option[aria-checked='true'] .md3-theme-select__check {
+			color: inherit;
+			opacity: 1;
+		}
+
+		:global(.mobile-preferences) starlight-theme-select.md3-theme-select {
+			margin-inline-start: auto;
+		}
+
+		@media (prefers-reduced-motion: no-preference) {
+			.md3-theme-select__menu {
+				opacity: 1;
+				transform: translateY(0) scale(1);
+				transition:
+					opacity var(--md-sys-motion-duration-medium2)
+						var(--md-sys-motion-easing-emphasized-decelerate),
+					transform var(--md-sys-motion-duration-medium2)
+						var(--md-sys-motion-easing-emphasized-decelerate),
+					background-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard),
+					border-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard),
+					box-shadow var(--md3-motion-duration-control) var(--md-sys-motion-easing-standard),
+					display var(--md-sys-motion-duration-medium2) allow-discrete;
+				transition-behavior: allow-discrete;
+				will-change: opacity, transform;
+			}
+
+			.md3-theme-select__menu[hidden],
+			.md3-theme-select__menu[data-md3-menu-state='closing'] {
+				opacity: 0;
+				transform: translateY(-0.25rem) scale(0.9);
+			}
+
+			.md3-theme-select__menu[data-md3-menu-state='closing'] {
+				pointer-events: none;
+				transition:
+					opacity var(--md-sys-motion-duration-short4)
+						var(--md-sys-motion-easing-emphasized-accelerate),
+					transform var(--md-sys-motion-duration-short4)
+						var(--md-sys-motion-easing-emphasized-accelerate),
+					background-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard),
+					border-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard),
+					box-shadow var(--md3-motion-duration-control) var(--md-sys-motion-easing-standard);
+			}
+
+			@starting-style {
+				.md3-theme-select__menu:not([hidden]) {
+					opacity: 0;
+					transform: translateY(-0.25rem) scale(0.9);
+				}
+			}
+		}
+	}
+</style>

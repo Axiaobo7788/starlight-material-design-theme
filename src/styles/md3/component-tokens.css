@@ -1,0 +1,169 @@
+@layer md3.tokens {
+	:root {
+		--md3-comp-nav-item-container-color: transparent;
+		--md3-comp-nav-item-label-color: var(--md-sys-color-on-surface-variant);
+		--md3-comp-nav-item-hover-container-color: var(--md3-state-on-surface-hover);
+		--md3-comp-nav-item-hover-label-color: var(--md-sys-color-on-surface);
+		--md3-comp-nav-item-focus-container-color: var(--md3-state-on-surface-focus);
+		--md3-comp-nav-item-pressed-container-color: var(--md3-state-on-surface-pressed);
+		--md3-comp-nav-item-disabled-label-color: var(--md3-state-disabled-label);
+		--md3-comp-nav-item-selected-container-color: color-mix(
+			in srgb,
+			var(--md-sys-color-secondary-container) 68%,
+			var(--md-sys-color-surface-container-low)
+		);
+		--md3-comp-nav-item-selected-label-color: var(--md-sys-color-on-secondary-container);
+		--md3-comp-nav-item-selected-indicator-color: transparent;
+		--md3-comp-nav-item-shape: var(--md-sys-shape-full);
+
+		--md3-comp-toc-link-container-color: transparent;
+		--md3-comp-toc-link-label-color: var(--md-sys-color-on-surface-variant);
+		--md3-comp-toc-link-hover-container-color: var(--md3-state-on-surface-hover);
+		--md3-comp-toc-link-hover-label-color: var(--md-sys-color-on-surface);
+		--md3-comp-toc-link-pressed-container-color: var(--md3-state-on-surface-pressed);
+		--md3-comp-toc-link-active-label-color: var(--md-sys-color-tertiary);
+		--md3-comp-toc-link-active-indicator-color: var(--md-sys-color-tertiary);
+		--md3-comp-toc-link-shape: var(--md-sys-shape-full);
+
+		--md3-comp-search-field-container-color: var(--md-sys-color-surface-container-high);
+		--md3-comp-search-field-label-color: var(--md-sys-color-on-surface-variant);
+		--md3-comp-search-field-hover-container-color: color-mix(in srgb, var(--md-sys-color-surface-container-highest) 80%, var(--md3-state-hover));
+		--md3-comp-search-field-hover-label-color: var(--md-sys-color-on-surface);
+		--md3-comp-search-field-focus-container-color: var(--md-sys-color-surface-container-highest);
+		--md3-comp-search-field-pressed-container-color: var(--md3-state-pressed);
+		--md3-comp-search-field-disabled-container-color: var(--md3-comp-search-field-container-color);
+		--md3-comp-search-field-disabled-label-color: var(--md3-comp-search-field-label-color);
+		--md3-comp-search-field-outline-color: transparent;
+		--md3-comp-search-field-hover-outline-color: transparent;
+		--md3-comp-search-field-max-inline-size: 30rem;
+		--md3-comp-search-field-key-container-color: var(--md-sys-color-surface);
+		--md3-comp-search-field-key-label-color: var(--md-sys-color-on-surface-variant);
+		--md3-comp-search-field-shape: var(--md-sys-shape-full);
+		--md3-comp-search-field-key-shape: var(--md-sys-shape-xs);
+
+		--md3-comp-dialog-container-color: var(--md-sys-color-surface-container);
+		--md3-comp-dialog-label-color: var(--md-sys-color-on-surface-variant);
+		--md3-comp-dialog-outline-color: var(--md-sys-color-outline-variant);
+		--md3-comp-dialog-elevation: var(--md-sys-elevation-level3);
+		--md3-comp-dialog-shape: var(--md-sys-shape-lg);
+		--md3-comp-dialog-scrim-color: color-mix(in srgb, var(--md-sys-color-scrim) 58%, transparent);
+
+		--md3-comp-header-control-container-color: var(--md-sys-color-surface-container-low);
+		--md3-comp-header-control-label-color: var(--md-sys-color-on-surface-variant);
+		--md3-comp-header-control-hover-container-color: var(--md3-state-on-surface-hover);
+		--md3-comp-header-control-hover-label-color: var(--md-sys-color-on-surface);
+		--md3-comp-header-control-focus-container-color: var(--md3-state-on-surface-focus);
+		--md3-comp-header-control-focus-label-color: var(--md-sys-color-on-surface);
+		--md3-comp-header-control-pressed-container-color: var(--md3-state-on-surface-pressed);
+		--md3-comp-header-control-disabled-container-color: var(--md3-state-disabled-container);
+		--md3-comp-header-control-disabled-label-color: var(--md3-state-disabled-label);
+		--md3-comp-header-control-focus-outline-color: var(--md-sys-color-primary);
+		--md3-comp-header-control-shape: var(--md-sys-shape-full);
+
+		--md3-comp-menu-container-color: var(--md-sys-color-surface-container);
+		--md3-comp-menu-label-color: var(--md-sys-color-on-surface);
+		--md3-comp-menu-outline-color: var(--md-sys-color-outline-variant);
+		--md3-comp-menu-elevation: var(--md-sys-elevation-level2);
+		--md3-comp-menu-shape: var(--md-sys-shape-xs);
+		--md3-comp-menu-item-shape: 0px;
+		--md3-comp-menu-item-hover-container-color: var(--md3-state-on-surface-hover);
+		--md3-comp-menu-item-hover-label-color: var(--md-sys-color-on-surface);
+		--md3-comp-menu-item-focus-container-color: var(--md3-state-on-surface-focus);
+		--md3-comp-menu-item-focus-label-color: var(--md-sys-color-on-surface);
+		--md3-comp-menu-item-focus-outline-color: var(--md-sys-color-primary);
+		--md3-comp-menu-item-pressed-container-color: var(--md3-state-on-surface-pressed);
+		--md3-comp-menu-item-selected-container-color: transparent;
+		--md3-comp-menu-item-selected-label-color: var(--md-sys-color-primary);
+
+		--md3-comp-card-container-color: var(--md-sys-color-surface-container-low);
+		--md3-comp-card-label-color: var(--md-sys-color-on-surface-variant);
+		--md3-comp-card-outline-color: transparent;
+		--md3-comp-card-hover-container-color: var(--md-sys-color-surface-container);
+		--md3-comp-card-pressed-container-color: var(--md-sys-color-surface-container-high);
+		--md3-comp-card-focus-outline-color: var(--md-sys-color-primary);
+		--md3-comp-card-elevation: var(--md-sys-elevation-level0);
+		--md3-comp-card-hover-elevation: var(--md-sys-elevation-level1);
+		--md3-comp-card-dragged-elevation: var(--md-sys-elevation-level2);
+		--md3-comp-card-shape: var(--md-sys-shape-lg);
+		--md3-comp-card-icon-shape: var(--md-sys-shape-md);
+
+		--md3-comp-link-button-filled-container-color: var(--md-sys-color-primary);
+		--md3-comp-link-button-filled-label-color: var(--md-sys-color-on-primary);
+		--md3-comp-link-button-filled-hover-container-color: color-mix(
+			in srgb,
+			var(--md-sys-color-primary) 88%,
+			var(--md-sys-color-on-primary)
+		);
+		--md3-comp-link-button-filled-pressed-container-color: color-mix(
+			in srgb,
+			var(--md-sys-color-primary) 82%,
+			var(--md-sys-color-on-primary)
+		);
+		--md3-comp-link-button-disabled-container-color: var(--md3-state-disabled-container);
+		--md3-comp-link-button-disabled-label-color: var(--md3-state-disabled-label);
+		--md3-comp-link-button-outlined-outline-color: var(--md-sys-color-outline);
+		--md3-comp-link-button-outlined-label-color: var(--md-sys-color-primary);
+		--md3-comp-link-button-outlined-hover-container-color: var(--md3-state-hover);
+		--md3-comp-link-button-outlined-hover-outline-color: var(--md-sys-color-primary);
+		--md3-comp-link-button-outlined-pressed-container-color: var(--md3-state-pressed);
+		--md3-comp-link-button-text-label-color: var(--md-sys-color-primary);
+		--md3-comp-link-button-text-hover-container-color: var(--md3-state-hover);
+		--md3-comp-link-button-text-pressed-container-color: var(--md3-state-pressed);
+		--md3-comp-link-button-shape: var(--md-sys-shape-full);
+
+		--md3-comp-aside-container-color: var(--md-sys-color-secondary-container);
+		--md3-comp-aside-label-color: var(--md-sys-color-on-secondary-container);
+		--md3-comp-aside-outline-color: transparent;
+		--md3-comp-aside-tip-container-color: var(--md-sys-color-primary-container);
+		--md3-comp-aside-tip-label-color: var(--md-sys-color-on-primary-container);
+		--md3-comp-aside-tip-outline-color: transparent;
+		--md3-comp-aside-caution-container-color: var(--md-sys-color-tertiary-container);
+		--md3-comp-aside-caution-label-color: var(--md-sys-color-on-tertiary-container);
+		--md3-comp-aside-caution-outline-color: transparent;
+		--md3-comp-aside-danger-container-color: var(--md-sys-color-error-container);
+		--md3-comp-aside-danger-label-color: var(--md-sys-color-on-error-container);
+		--md3-comp-aside-danger-outline-color: transparent;
+		--md3-comp-aside-shape: var(--md-sys-shape-lg);
+		--md3-comp-aside-icon-shape: var(--md-sys-shape-full);
+
+		--md3-comp-badge-container-color: var(--md-sys-color-primary-container);
+		--md3-comp-badge-label-color: var(--md-sys-color-on-primary-container);
+		--md3-comp-badge-outline-color: color-mix(in srgb, var(--md-sys-color-primary) 45%, transparent);
+		--md3-comp-badge-secondary-container-color: var(--md-sys-color-secondary-container);
+		--md3-comp-badge-secondary-label-color: var(--md-sys-color-on-secondary-container);
+		--md3-comp-badge-secondary-outline-color: color-mix(in srgb, var(--md-sys-color-secondary) 45%, transparent);
+		--md3-comp-badge-error-container-color: var(--md-sys-color-error-container);
+		--md3-comp-badge-error-label-color: var(--md-sys-color-on-error-container);
+		--md3-comp-badge-error-outline-color: color-mix(in srgb, var(--md-sys-color-error) 45%, transparent);
+		--md3-comp-badge-shape: var(--md-sys-shape-sm);
+
+		--md3-comp-tabs-container-color: var(--md-sys-color-surface-container-low);
+		--md3-comp-tabs-active-container-color: var(--md-sys-color-secondary-container);
+		--md3-comp-tabs-active-label-color: var(--md-sys-color-on-secondary-container);
+		--md3-comp-tabs-label-color: var(--md-sys-color-on-surface-variant);
+		--md3-comp-tabs-hover-container-color: var(--md3-state-on-surface-hover);
+		--md3-comp-tabs-hover-label-color: var(--md-sys-color-on-surface);
+		--md3-comp-tabs-focus-container-color: var(--md3-state-on-surface-focus);
+		--md3-comp-tabs-pressed-container-color: var(--md3-state-on-surface-pressed);
+		--md3-comp-tabs-disabled-label-color: var(--md3-state-disabled-label);
+		--md3-comp-tabs-panel-container-color: var(--md-sys-color-surface-container-low);
+		--md3-comp-tabs-panel-outline-color: var(--md-sys-color-outline-variant);
+		--md3-comp-tabs-shape: var(--md-sys-shape-sm);
+		--md3-comp-tabs-panel-shape: var(--md-sys-shape-lg);
+
+		--md3-comp-code-inline-container-color: var(--md-sys-color-surface-container-high);
+		--md3-comp-code-inline-label-color: var(--md-sys-color-on-surface);
+		--md3-comp-code-block-container-color: var(--md-sys-color-surface);
+		--md3-comp-code-header-container-color: var(--md-sys-color-surface-container-low);
+		--md3-comp-code-outline-color: var(--md-sys-color-outline-variant);
+		--md3-comp-code-inline-shape: var(--md-sys-shape-xs);
+		--md3-comp-code-block-shape: var(--md-sys-shape-lg);
+
+		--md3-comp-pagination-container-color: var(--md-sys-color-surface-container-low);
+		--md3-comp-pagination-hover-container-color: var(--md-sys-color-surface-container);
+		--md3-comp-pagination-pressed-container-color: var(--md-sys-color-surface-container-high);
+		--md3-comp-pagination-outline-color: var(--md-sys-color-outline-variant);
+		--md3-comp-pagination-hover-outline-color: var(--md-sys-color-outline);
+		--md3-comp-pagination-shape: var(--md-sys-shape-lg);
+	}
+}

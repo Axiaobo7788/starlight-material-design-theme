@@ -10,8 +10,8 @@ takes precedence over `accent`.
 
 | Value | Intent |
 | --- | --- |
-| `teal` | Default Material You inspired docs palette |
-| `purple` | Baseline Material 3 style accent |
+| `teal` | Default green-teal Material You docs palette |
+| `purple` | Canonical Material 3 style accent for purple-led sites |
 | `blue` | Technical and product documentation |
 | `green` | Knowledge bases, operations, and sustainability themes |
 | `orange` | Warm editorial or tutorial sites |
@@ -26,7 +26,7 @@ the preset values.
 | --- | --- | --- |
 | `neutral` | `seed: '#607d8b'`, `variant: 'content'`, `shape: 'small'` | Quiet reference docs |
 | `playful` | `seed: '#6750a4'`, `variant: 'expressive'`, `shape: 'large'` | Product and community docs |
-| `highContrast` | `seed: '#005a54'`, `variant: 'content'`, `tonalSurface: false`, `shape: 'small'` | Dense operational docs |
+| `highContrast` | `seed: '#005a54'`, `variant: 'content'`, `tonalSurface: false`, `shape: 'small'`, `contrast: 'high'` | Dense operational docs |
 
 ## `seed`
 
@@ -73,6 +73,17 @@ Controls the Material corner token scale.
 | `medium` | Default Material Design 3 inspired shape scale |
 | `large` | More expressive Material You presentation |
 
+## `contrast`
+
+Controls CSS-level state, outline, and selected-tone emphasis without relying on
+unstable DynamicScheme entrypoints.
+
+| Value | Use case |
+| --- | --- |
+| `standard` | Default balance for long-form documentation |
+| `medium` | Stronger focus, pressed, and outline states while keeping tonal selected containers |
+| `high` | Strongest state opacity and primary filled selected states for dense operational docs |
+
 ## `tonalSurface`
 
 When `true`, navigation, cards, code, and asides use layered tonal containers.
@@ -80,8 +91,15 @@ When `false`, elevated surfaces flatten closer to the base surface color.
 
 ## `motion`
 
-When `true`, small state transitions are enabled for controls and navigation.
-When `false`, theme transition durations are set to `0ms`.
+When `true`, tokenized state layers, pointer-origin ripple feedback, focus
+transitions, sidebar disclosure motion, TOC tracker motion, menu/search dialog
+surface transitions, homepage hero entrance motion, and content-only internal
+route transitions are enabled for high-impact interactive surfaces. When
+`false`, the interactive motion runtime is skipped and theme transition duration
+tokens are set to `0ms`.
+
+The CSS also respects `prefers-reduced-motion: reduce`, so users who request
+reduced motion do not need a separate Starlight configuration.
 
 ## `experimentalComponents`
 

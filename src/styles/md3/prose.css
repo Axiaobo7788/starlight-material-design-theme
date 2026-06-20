@@ -1,18 +1,19 @@
 @layer md3.prose {
 	.sl-markdown-content {
 		color: var(--md-sys-color-on-surface-variant);
-		font-size: 0.98rem;
+		font-size: var(--md-sys-typescale-body-large-size);
+		line-height: var(--md3-density-prose-line-height);
 	}
 
 	:root[data-has-toc] .sl-markdown-content {
-		/* Starlight's scrollspy needs room below the last heading to mark it active. */
-		padding-block-end: max(10rem, 42vh);
+		padding-block-end: 4rem;
 	}
 
 	.sl-markdown-content :is(h1, h2, h3, h4, h5, h6):not(:where(.not-content *)) {
 		color: var(--md-sys-color-on-surface);
-		font-weight: 650;
+		font-weight: 600;
 		letter-spacing: 0;
+		text-wrap: balance;
 	}
 
 	.sl-markdown-content .sl-heading-wrapper {
@@ -20,7 +21,11 @@
 	}
 
 	.sl-markdown-content .sl-heading-wrapper.level-h2:not(:where(.not-content *)) {
-		margin-top: clamp(2rem, 6vw, 3rem);
+		margin-top: var(--md3-density-prose-heading-gap-lg);
+	}
+
+	.sl-markdown-content .sl-heading-wrapper.level-h3:not(:where(.not-content *)) {
+		margin-top: var(--md3-density-prose-heading-gap-md);
 	}
 
 	.sl-markdown-content .sl-anchor-link {
@@ -34,42 +39,47 @@
 	}
 
 	.sl-markdown-content p:not(:where(.not-content *)) {
-		margin-block: 0.65rem;
+		margin-block: var(--md3-density-prose-paragraph-gap);
 	}
 
 	.sl-markdown-content strong:not(:where(.not-content *)) {
 		color: var(--md-sys-color-on-surface);
-		font-weight: 650;
+		font-weight: 600;
 	}
 
 	.sl-markdown-content a:not(:where(.not-content *)) {
 		color: var(--md-sys-color-primary);
+		text-decoration: underline;
+		text-decoration-color: color-mix(in srgb, var(--md-sys-color-primary) 30%, transparent);
 		text-decoration-thickness: 0.08em;
 		text-underline-offset: 0.18em;
+		transition: text-decoration-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard);
 	}
 
 	.sl-markdown-content a:hover:not(:where(.not-content *)) {
-		color: var(--md-sys-color-primary);
-		text-decoration-style: solid;
+		text-decoration-color: var(--md-sys-color-primary);
 	}
 
 	.sl-markdown-content :is(ul, ol):not(:where(.not-content *)) {
+		margin-block: var(--md3-density-prose-block-gap);
 		padding-inline-start: 1.35rem;
 	}
 
 	.sl-markdown-content li + li:not(:where(.not-content *)) {
-		margin-top: 0.125rem;
+		margin-top: var(--md3-density-prose-list-gap);
 	}
 
 	.sl-markdown-content li::marker {
-		color: var(--md-sys-color-primary);
+		color: var(--md-sys-color-on-surface-variant);
 	}
 
 	.sl-markdown-content blockquote:not(:where(.not-content *)) {
 		border-inline-start: 0.25rem solid var(--md-sys-color-primary);
 		background-color: color-mix(in srgb, var(--md-sys-color-primary-container) 28%, transparent);
 		border-radius: 0 var(--md-sys-shape-md) var(--md-sys-shape-md) 0;
-		padding-block: 0.75rem;
+		margin-block: var(--md3-density-prose-block-gap);
+		padding-block: 0.8rem;
+		padding-inline-end: 1rem;
 		color: var(--md-sys-color-on-surface);
 	}
 
@@ -79,22 +89,28 @@
 
 	.sl-markdown-content table:not(:where(.not-content *)) {
 		border: 1px solid var(--md-sys-color-outline-variant);
-		border-radius: var(--md-sys-shape-md);
+		border-radius: var(--md-sys-shape-lg);
 		background-color: var(--md-sys-color-surface-container-low);
 		border-collapse: separate;
 		border-spacing: 0;
+		margin-block: var(--md3-density-prose-block-gap);
 		overflow: hidden;
+		width: max-content;
+		max-width: 100%;
 	}
 
 	.sl-markdown-content th:not(:where(.not-content *)) {
-		background-color: var(--md-sys-color-surface-container-high);
 		color: var(--md-sys-color-on-surface);
-		font-weight: 700;
+		font-weight: 600;
 	}
 
 	.sl-markdown-content :is(th, td):not(:where(.not-content *)) {
-		border-bottom-color: var(--md-sys-color-outline-variant);
-		padding: 0.55rem 0.75rem;
+		border-bottom: 1px solid var(--md-sys-color-outline-variant);
+		padding: var(--md3-density-table-cell-padding-block) var(--md3-density-table-cell-padding-inline);
+	}
+
+	.sl-markdown-content tr:last-child :is(th, td):not(:where(.not-content *)) {
+		border-bottom: 0;
 	}
 
 	.sl-markdown-content tbody tr:hover:not(:where(.not-content *)) {

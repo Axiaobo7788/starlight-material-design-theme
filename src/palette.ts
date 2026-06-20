@@ -128,6 +128,7 @@ function shiftedHct(source: Hct, hueShift: number, chroma: number, tone: number)
 
 function formatScheme(scheme: MaterialScheme, core: CorePalette, mode: 'dark' | 'light') {
 	const neutral = core.n1;
+	const surfaceBase = mode === 'dark' ? hex(neutral.tone(6)) : hex(scheme.surface);
 	const surfaceTones =
 		mode === 'dark'
 			? {
@@ -164,9 +165,9 @@ function formatScheme(scheme: MaterialScheme, core: CorePalette, mode: 'dark' | 
 		'on-error': hex(scheme.onError),
 		'error-container': hex(scheme.errorContainer),
 		'on-error-container': hex(scheme.onErrorContainer),
-		background: hex(scheme.background),
+		background: mode === 'dark' ? surfaceBase : hex(scheme.background),
 		'on-background': hex(scheme.onBackground),
-		surface: hex(scheme.surface),
+		surface: surfaceBase,
 		...mapTones(neutral, surfaceTones),
 		'on-surface': hex(scheme.onSurface),
 		'surface-variant': hex(scheme.surfaceVariant),

@@ -3,8 +3,13 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import md3Theme from './src/index.ts';
 
+const site = process.env.ASTRO_SITE || 'https://starlight-theme-md3.local';
+const base = process.env.ASTRO_BASE || undefined;
+
 // https://astro.build/config
 export default defineConfig({
+	site,
+	...(base ? { base } : {}),
 	outDir: './demo-dist',
 	devToolbar: {
 		enabled: false,

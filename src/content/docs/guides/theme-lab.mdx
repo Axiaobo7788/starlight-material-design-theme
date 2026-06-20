@@ -4,6 +4,7 @@ description: A visual regression surface for the Starlight Material Design 3 the
 ---
 
 import { Aside, Badge, Card, CardGrid, LinkCard, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import SeedColorDemo from '../../../components/SeedColorDemo.astro';
 
 Theme Lab is a dense page for visual checks. It keeps Starlight's default
 navigation, table of contents, markdown, and component markup active while the
@@ -36,6 +37,13 @@ document.
 			<span>Final Check</span>
 		</div>
 	</section>
+	<section class="md3-showcase-panel">
+		<p class="md3-overline">State layers</p>
+		<div class="md3-state-demo">
+			<span class="md3-demo-button pressed">Pressed</span>
+			<span class="md3-demo-button disabled">Disabled</span>
+		</div>
+	</section>
 </div>
 
 ## Badges And Inline Tone
@@ -45,6 +53,10 @@ document.
 Inline `code`, **strong text**, links, and badges must remain legible in both
 light and dark themes. A docs theme should make state clear without turning each
 small element into a competing call to action.
+
+## Seed Preview
+
+<SeedColorDemo />
 
 ## Asides
 
