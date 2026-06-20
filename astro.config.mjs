@@ -4,7 +4,14 @@ import starlight from '@astrojs/starlight';
 import md3Theme from './src/index.ts';
 
 const site = process.env.ASTRO_SITE || 'https://starlight-theme-md3.local';
-const base = process.env.ASTRO_BASE || undefined;
+const base = normalizeBase(process.env.ASTRO_BASE);
+
+/** @param {string | undefined} value */
+function normalizeBase(value) {
+	if (!value || value === '/') return undefined;
+	const withLeadingSlash = value.startsWith('/') ? value : `/${value}`;
+	return withLeadingSlash.replace(/\/+$/, '');
+}
 
 // https://astro.build/config
 export default defineConfig({

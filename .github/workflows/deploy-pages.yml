@@ -43,11 +43,20 @@ jobs:
         env:
           PAGES_ORIGIN: ${{ steps.pages.outputs.origin }}
           PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+          REPOSITORY_NAME: ${{ github.event.repository.name }}
         run: |
-          echo "ASTRO_SITE=${PAGES_ORIGIN}" >> "$GITHUB_ENV"
-          if [ -n "${PAGES_BASE_PATH}" ]; then
-            echo "ASTRO_BASE=${PAGES_BASE_PATH}" >> "$GITHUB_ENV"
+          ASTRO_SITE="${PAGES_ORIGIN}"
+          if [ -z "${ASTRO_SITE}" ]; then
+            ASTRO_SITE="https://${GITHUB_REPOSITORY_OWNER}.github.io"
           fi
+          ASTRO_BASE="${PAGES_BASE_PATH}"
+          if [ -z "${ASTRO_BASE}" ] && [ "${REPOSITORY_NAME}" != "${GITHUB_REPOSITORY_OWNER}.github.io" ]; then
+            ASTRO_BASE="/${REPOSITORY_NAME}"
+          fi
+          echo "ASTRO_SITE=${ASTRO_SITE}" >> "$GITHUB_ENV"
+          echo "ASTRO_BASE=${ASTRO_BASE}" >> "$GITHUB_ENV"
+          echo "Astro site: ${ASTRO_SITE}"
+          echo "Astro base: ${ASTRO_BASE:-/}"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
