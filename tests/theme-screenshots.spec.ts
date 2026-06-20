@@ -906,10 +906,12 @@ async function takeScreenshot(
 	name: string,
 	options: { fullPage?: boolean; maxDiffPixelRatio?: number } = {}
 ) {
+	const ciMaxDiffPixelRatio = Number.parseFloat(process.env.MD3_SCREENSHOT_MAX_DIFF_PIXEL_RATIO ?? '');
+
 	await expect(page).toHaveScreenshot(`${name}.png`, {
 		animations: 'disabled',
 		fullPage: options.fullPage ?? true,
-		maxDiffPixelRatio: options.maxDiffPixelRatio ?? 0.02,
+		maxDiffPixelRatio: options.maxDiffPixelRatio ?? (Number.isFinite(ciMaxDiffPixelRatio) ? ciMaxDiffPixelRatio : 0.02),
 		timeout: 15_000,
 	});
 }
