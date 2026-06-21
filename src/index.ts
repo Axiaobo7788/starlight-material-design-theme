@@ -503,6 +503,8 @@ function getMotionRuntimeScript() {
 	};
 
 	const activeRipples = new Map();
+	const sidebarDisclosureAnimations = new WeakMap();
+	const mobileTocAnimations = new WeakMap();
 
 	const getMotionDuration = (tokenName, fallback) => {
 		const styles = getComputedStyle(document.documentElement);
@@ -529,12 +531,18 @@ function getMotionRuntimeScript() {
 		if (!(details instanceof HTMLDetailsElement)) return false;
 		const content = getDisclosureContent(details);
 		if (!content) return false;
-		if (details.dataset.md3DisclosureState) return true;
 
-		const isClosing = details.open;
+		const active = sidebarDisclosureAnimations.get(details);
+		const currentHeight = active ? content.getBoundingClientRect().height : null;
+		const isClosing = active ? !active.closing : details.open;
+		if (active) {
+			active.animation.cancel();
+			sidebarDisclosureAnimations.delete(details);
+		}
+
 		const duration = getMotionDuration(
 			isClosing ? '--md3-motion-duration-sidebar-collapse' : '--md3-motion-duration-sidebar-expand',
-			isClosing ? 300 : 400
+			isClosing ? 250 : 500
 		);
 		if (duration <= 0) return false;
 
@@ -547,8 +555,9 @@ function getMotionRuntimeScript() {
 			details.open = true;
 		}
 
-		const startHeight = isClosing ? content.offsetHeight : 0;
+		const startHeight = currentHeight ?? (isClosing ? content.offsetHeight : 0);
 		const endHeight = isClosing ? 0 : content.scrollHeight;
+		content.style.overflow = 'clip';
 		const animation = content.animate(
 			isClosing
 				? [
@@ -563,31 +572,46 @@ function getMotionRuntimeScript() {
 					],
 			{ duration, easing }
 		);
+		sidebarDisclosureAnimations.set(details, { animation, closing: isClosing });
 
 		animation.finished
 			.catch(() => {})
 			.finally(() => {
+				const active = sidebarDisclosureAnimations.get(details);
+				if (!active || active.animation !== animation) return;
 				if (isClosing) {
 					details.open = false;
+				} else {
+					details.open = true;
 				}
+				content.style.removeProperty('overflow');
 				delete details.dataset.md3DisclosureState;
+				sidebarDisclosureAnimations.delete(details);
 		});
 		return true;
 	};
 
-	const animateMobileTocDisclosure = (summary) => {
+	const animateMobileTocDisclosure = (summary, desiredOpen) => {
 		const details = summary.closest('mobile-starlight-toc details');
-		if (!(details instanceof HTMLDetailsElement)) return false;
+		if (!(details instanceof HTMLDetailsElement)) return null;
 		const content = getMobileTocContent(details);
-		if (!content) return false;
-		if (details.dataset.md3TocState) return true;
+		if (!content) return null;
 
-		const isClosing = details.open;
+		const active = mobileTocAnimations.get(details);
+		const currentHeight = active ? content.getBoundingClientRect().height : null;
+		const isClosing =
+			typeof desiredOpen === 'boolean' ? !desiredOpen : active ? !active.closing : details.open;
+		if (active && active.closing === isClosing) return { handled: true, finished: active.finished };
+		if (active) {
+			active.animation.cancel();
+			mobileTocAnimations.delete(details);
+		}
+
 		const duration = getMotionDuration(
 			isClosing ? '--md3-motion-duration-sidebar-collapse' : '--md3-motion-duration-sidebar-expand',
 			isClosing ? 250 : 360
 		);
-		if (duration <= 0) return false;
+		if (duration <= 0) return null;
 
 		const easing = isClosing
 			? getMotionEasing('--md-sys-motion-easing-emphasized-accelerate', 'cubic-bezier(0.3, 0, 0.8, 0.15)')
@@ -598,7 +622,7 @@ function getMotionRuntimeScript() {
 			details.open = true;
 		}
 
-		const startHeight = isClosing ? content.offsetHeight : 0;
+		const startHeight = currentHeight ?? (isClosing ? content.offsetHeight : 0);
 		const endHeight = isClosing ? 0 : content.scrollHeight;
 		content.style.overflow = 'clip';
 
@@ -617,16 +641,58 @@ function getMotionRuntimeScript() {
 			{ duration, easing }
 		);
 
-		animation.finished
+		const finished = animation.finished
 			.catch(() => {})
 			.finally(() => {
+				const active = mobileTocAnimations.get(details);
+				if (!active || active.animation !== animation) return;
 				if (isClosing) {
 					details.open = false;
+				} else {
+					details.open = true;
 				}
 				content.style.removeProperty('overflow');
 				delete details.dataset.md3TocState;
+				mobileTocAnimations.delete(details);
 			});
-		return true;
+		mobileTocAnimations.set(details, { animation, closing: isClosing, finished });
+		return { handled: true, finished };
+	};
+
+	const getHashTarget = (hash) => {
+		if (!hash || hash === '#') return null;
+		const id = decodeURIComponent(hash.slice(1));
+		return document.getElementById(id);
+	};
+
+	const scrollToHashTarget = (url, target) => {
+		const path = url.pathname + url.search + url.hash;
+		if (window.location.pathname + window.location.search + window.location.hash !== path) {
+			history.pushState(null, '', path);
+		}
+		if (target instanceof HTMLElement) {
+			const hadTabIndex = target.hasAttribute('tabindex');
+			target.setAttribute('tabindex', '-1');
+			target.focus({ preventScroll: true });
+			if (!hadTabIndex) {
+				window.setTimeout(() => target.removeAttribute('tabindex'), 1000);
+			}
+		}
+		target.scrollIntoView({
+			behavior: reducedMotion() ? 'auto' : 'smooth',
+			block: 'start',
+		});
+	};
+
+	const closeMobileTocWithAnimation = (details) => {
+		const summary = details.querySelector(':scope > summary');
+		if (!(summary instanceof HTMLElement) || !details.open) return Promise.resolve();
+		if (reducedMotion()) {
+			details.open = false;
+			return Promise.resolve();
+		}
+		const result = animateMobileTocDisclosure(summary, false);
+		return result?.finished ?? Promise.resolve();
 	};
 
 	const createRipple = (surface, positionEvent) => {
@@ -837,11 +903,49 @@ function getMotionRuntimeScript() {
 	});
 
 	document.addEventListener('click', (event) => {
+		if (event.defaultPrevented || event.button !== 0) return;
+		if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+		const link = event.target instanceof Element
+			? event.target.closest('starlight-toc a[href], mobile-starlight-toc .dropdown a[href]')
+			: null;
+		if (!(link instanceof HTMLAnchorElement)) return;
+		if (link.target || link.hasAttribute('download') || link.getAttribute('aria-disabled') === 'true') return;
+
+		const url = new URL(link.href, window.location.href);
+		const current = new URL(window.location.href);
+		if (url.origin !== current.origin || url.pathname !== current.pathname || url.search !== current.search || !url.hash) {
+			return;
+		}
+
+		const target = getHashTarget(url.hash);
+		if (!target) return;
+
+		event.preventDefault();
+		event.stopPropagation();
+		link.classList.add('md3-navigation-pending');
+
+		const mobileToc = link.closest('mobile-starlight-toc details');
+		if (mobileToc instanceof HTMLDetailsElement) {
+			closeMobileTocWithAnimation(mobileToc).finally(() => {
+				link.classList.remove('md3-navigation-pending');
+				scrollToHashTarget(url, target);
+			});
+			return;
+		}
+
+		link.classList.remove('md3-navigation-pending');
+		scrollToHashTarget(url, target);
+	}, { capture: true });
+
+	document.addEventListener('click', (event) => {
 		if (event.defaultPrevented || reducedMotion()) return;
 		const mobileTocSummary = event.target instanceof Element
 			? event.target.closest('mobile-starlight-toc details > summary')
 			: null;
-		if (mobileTocSummary instanceof HTMLElement && animateMobileTocDisclosure(mobileTocSummary)) {
+		const mobileTocAnimation =
+			mobileTocSummary instanceof HTMLElement ? animateMobileTocDisclosure(mobileTocSummary) : null;
+		if (mobileTocAnimation?.handled) {
 			event.preventDefault();
 			return;
 		}

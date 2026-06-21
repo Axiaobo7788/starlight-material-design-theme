@@ -977,6 +977,46 @@ test.describe('Theme MD3 component contracts', () => {
 		await expect.poll(() => details.evaluate((element) => (element as HTMLDetailsElement).open)).toBe(true);
 	});
 
+	test('sidebar disclosure reverses rapid repeated clicks', async ({ page }) => {
+		await page.emulateMedia({ reducedMotion: 'no-preference' });
+		await setThemeBeforeNavigation(page, 'dark');
+		await page.goto('/guides/theme-lab/');
+		await page.locator('main').waitFor({ state: 'visible' });
+
+		const details = page.locator('.sidebar-content details').first();
+		const summary = details.locator('summary').first();
+		await expect(summary).toBeVisible();
+		await expect(details).toHaveAttribute('open', '');
+
+		await summary.evaluate((element) => {
+			const first = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 });
+			const second = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 });
+			element.dispatchEvent(first);
+			element.dispatchEvent(second);
+		});
+
+		await expect.poll(() => details.evaluate((element) => element.dataset.md3DisclosureState ?? '')).toBe('opening');
+		await expect.poll(() => details.evaluate((element) => element.dataset.md3DisclosureState ?? '')).toBe('');
+		await expect.poll(() => details.evaluate((element) => (element as HTMLDetailsElement).open)).toBe(true);
+	});
+
+	test('desktop table of contents anchors use smooth same-page scrolling', async ({ page }) => {
+		await page.emulateMedia({ reducedMotion: 'no-preference' });
+		await setThemeBeforeNavigation(page, 'light');
+		await page.goto('/guides/theme-lab/');
+		await page.locator('main').waitFor({ state: 'visible' });
+		await page.evaluate(() => window.scrollTo(0, 0));
+
+		const tocLink = page.locator('starlight-toc a[href="#tables"]').first();
+		await expect(tocLink).toBeVisible();
+		await tocLink.click();
+
+		await expect.poll(() => page.evaluate(() => window.location.hash)).toBe('#tables');
+		await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(250);
+		const activeElementId = await page.evaluate(() => document.activeElement?.id ?? '');
+		expect(activeElementId).toBe('tables');
+	});
+
 	test('mobile drawer theme button keeps the active icon and label aligned', async ({ page }) => {
 		await page.setViewportSize(viewports.find((viewport) => viewport.name === 'mobile')!.size);
 		await page.emulateMedia({ reducedMotion: 'no-preference' });
@@ -1141,6 +1181,31 @@ test.describe('Theme MD3 component contracts', () => {
 		await expect.poll(() => toc.evaluate((details) => details.dataset.md3TocState ?? '')).toBe('opening');
 		await expect.poll(() => toc.evaluate((details) => details.dataset.md3TocState ?? '')).toBe('');
 		await expect.poll(() => toc.evaluate((details) => (details as HTMLDetailsElement).open)).toBe(true);
+	});
+
+	test('mobile table of contents link closes with MD3 exit motion before scrolling', async ({ page }) => {
+		await page.setViewportSize(viewports.find((viewport) => viewport.name === 'mobile')!.size);
+		await page.emulateMedia({ reducedMotion: 'no-preference' });
+		await setThemeBeforeNavigation(page, 'light');
+		await page.goto('/guides/theme-concept/');
+		await page.locator('main').waitFor({ state: 'visible' });
+		await page.evaluate(() => window.scrollTo(0, 0));
+
+		const toc = page.locator('#starlight__mobile-toc');
+		const summary = toc.locator('summary');
+		await summary.click();
+		await expect(toc).toHaveAttribute('open', '');
+		await expect.poll(() => toc.evaluate((details) => details.dataset.md3TocState ?? '')).toBe('');
+
+		const principlesLink = toc.locator('.dropdown a[href="#principles"]').first();
+		await expect(principlesLink).toBeVisible();
+		await principlesLink.click();
+
+		await expect.poll(() => toc.evaluate((details) => details.dataset.md3TocState ?? '')).toBe('closing');
+		await expect.poll(() => toc.evaluate((details) => details.dataset.md3TocState ?? '')).toBe('');
+		await expect.poll(() => toc.evaluate((details) => (details as HTMLDetailsElement).open)).toBe(false);
+		await expect.poll(() => page.evaluate(() => window.location.hash)).toBe('#principles');
+		await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(120);
 	});
 
 	test('medium table of contents keeps MD3 disclosure styling with desktop sidebar', async ({ page }) => {

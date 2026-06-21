@@ -20,6 +20,10 @@
 		scroll-margin-top: calc(var(--sl-nav-height) + var(--sl-mobile-toc-height) + 1.25rem);
 	}
 
+	.sl-markdown-content :is(h1, h2, h3, h4, h5, h6)[id]:not(:where(.not-content *)) {
+		scroll-margin-top: calc(var(--sl-nav-height) + var(--sl-mobile-toc-height) + 1.25rem);
+	}
+
 	.sl-markdown-content .sl-heading-wrapper.level-h2:not(:where(.not-content *)) {
 		margin-top: var(--md3-density-prose-heading-gap-lg);
 	}
