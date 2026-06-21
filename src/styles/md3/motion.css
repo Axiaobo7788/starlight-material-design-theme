@@ -38,14 +38,14 @@
 		html[data-md3-route-state='leaving'] :where(main > .content-panel, .right-sidebar-panel) {
 			opacity: 0;
 			pointer-events: none;
-			transform: translateY(-2px);
+			transform: translateY(-8px);
 			transition-duration: var(--md3-motion-duration-route-leave);
 			transition-timing-function: var(--md-sys-motion-easing-standard-accelerate);
 		}
 
 		html[data-md3-route-state='entering'] :where(main > .content-panel, .right-sidebar-panel) {
 			opacity: 0;
-			transform: translateY(4px);
+			transform: translateY(16px);
 		}
 
 		.sidebar-content details > summary .caret {
@@ -110,6 +110,41 @@
 					transform var(--md-sys-motion-duration-medium1) var(--md-sys-motion-easing-emphasized);
 			}
 
+			.sidebar-pane {
+				transition:
+					visibility 0s linear var(--md3-motion-duration-sidebar-collapse),
+					opacity var(--md3-motion-duration-sidebar-collapse)
+						var(--md-sys-motion-easing-emphasized-accelerate),
+					transform var(--md3-motion-duration-sidebar-collapse)
+						var(--md-sys-motion-easing-emphasized-accelerate),
+					background-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard),
+					box-shadow var(--md3-motion-duration-control) var(--md-sys-motion-easing-standard);
+			}
+
+			starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane {
+				transition:
+					visibility 0s linear 0s,
+					opacity var(--md3-motion-duration-sidebar-expand)
+						var(--md-sys-motion-easing-emphasized-decelerate),
+					transform var(--md3-motion-duration-sidebar-expand)
+						var(--md-sys-motion-easing-emphasized-decelerate),
+					background-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard),
+					box-shadow var(--md3-motion-duration-control) var(--md-sys-motion-easing-standard);
+			}
+
+			@starting-style {
+				starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane {
+					opacity: 0;
+					transform: translateX(calc(-1 * var(--md3-mobile-drawer-offset, min(1.25rem, 4vw))))
+						scaleX(0.985);
+				}
+
+				:root[dir='rtl'] starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane {
+					transform: translateX(var(--md3-mobile-drawer-offset, min(1.25rem, 4vw)))
+						scaleX(0.985);
+				}
+			}
+
 			mobile-starlight-toc details {
 				transition:
 					background-color var(--md3-motion-duration-control) var(--md-sys-motion-easing-standard),
@@ -143,6 +178,11 @@
 						var(--md-sys-motion-easing-emphasized-decelerate),
 					background-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard);
 				will-change: opacity, transform;
+			}
+
+			mobile-starlight-toc details[data-md3-toc-state] .dropdown {
+				overflow: clip;
+				will-change: block-size, opacity, transform;
 			}
 
 			@starting-style {
@@ -204,11 +244,13 @@
 			opacity: 0;
 		}
 
-		.sidebar-pane {
-			transition:
-				background-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard),
-				border-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard),
-				box-shadow var(--md3-motion-duration-control) var(--md-sys-motion-easing-standard);
+		@media (min-width: 50rem) {
+			.sidebar-pane {
+				transition:
+					background-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard),
+					border-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard),
+					box-shadow var(--md3-motion-duration-control) var(--md-sys-motion-easing-standard);
+			}
 		}
 
 		dialog {

@@ -452,13 +452,17 @@
 	}
 
 	@media (max-width: 49.999rem) {
+		.page > .header {
+			--sl-nav-gap: 1.25rem;
+		}
+
 		.page > .header .right-group {
-			gap: 0.5rem;
+			gap: 0.75rem;
 			padding-inline-end: 1rem;
 		}
 
 		.page > .header site-search {
-			margin-inline-end: 0.5rem;
+			margin-inline-end: 0;
 		}
 
 		.page > .header button[data-open-modal] {
@@ -493,6 +497,8 @@
 		starlight-menu-button button :where(.open-menu, .close-menu) {
 			grid-area: 1 / 1;
 			display: block;
+			inline-size: 1.5rem;
+			block-size: 1.5rem;
 			transform-origin: center;
 		}
 
@@ -518,7 +524,26 @@
 		}
 
 		.sidebar-pane {
+			--md3-mobile-drawer-offset: min(1.25rem, 4vw);
 			background-color: var(--md-sys-color-surface-container-low);
+			opacity: 0;
+			pointer-events: none;
+			transform: translateX(calc(-1 * var(--md3-mobile-drawer-offset))) scaleX(0.985);
+			transform-origin: left center;
+			visibility: hidden;
+			will-change: opacity, transform;
+		}
+
+		:root[dir='rtl'] .sidebar-pane {
+			transform: translateX(var(--md3-mobile-drawer-offset)) scaleX(0.985);
+			transform-origin: right center;
+		}
+
+		starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane {
+			opacity: 1;
+			pointer-events: auto;
+			transform: translateX(0) scaleX(1);
+			visibility: visible;
 		}
 
 		.sidebar-content {
@@ -613,7 +638,8 @@
 			overflow: clip;
 		}
 
-		mobile-starlight-toc details[open] {
+		mobile-starlight-toc details[open],
+		mobile-starlight-toc details[data-md3-toc-state] {
 			background-color: var(--md-sys-color-surface-container);
 			box-shadow: var(--md-sys-elevation-level1);
 		}
@@ -649,7 +675,8 @@
 			line-height: var(--md-sys-typescale-label-large-line-height);
 		}
 
-		mobile-starlight-toc details[open] summary .toggle {
+		mobile-starlight-toc details[open] summary .toggle,
+		mobile-starlight-toc details[data-md3-toc-state] summary .toggle {
 			background-color: var(--md-sys-color-secondary-container);
 			color: var(--md-sys-color-on-secondary-container);
 		}
@@ -676,6 +703,10 @@
 			background-color: var(--md-sys-color-surface-container);
 			padding: 0.25rem;
 			transform-origin: top center;
+		}
+
+		mobile-starlight-toc details[data-md3-toc-state] .dropdown {
+			pointer-events: none;
 		}
 
 		mobile-starlight-toc .dropdown ul {

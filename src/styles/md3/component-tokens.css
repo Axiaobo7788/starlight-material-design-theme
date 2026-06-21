@@ -7,11 +7,7 @@
 		--md3-comp-nav-item-focus-container-color: var(--md3-state-on-surface-focus);
 		--md3-comp-nav-item-pressed-container-color: var(--md3-state-on-surface-pressed);
 		--md3-comp-nav-item-disabled-label-color: var(--md3-state-disabled-label);
-		--md3-comp-nav-item-selected-container-color: color-mix(
-			in srgb,
-			var(--md-sys-color-secondary-container) 68%,
-			var(--md-sys-color-surface-container-low)
-		);
+		--md3-comp-nav-item-selected-container-color: var(--md-sys-color-secondary-container);
 		--md3-comp-nav-item-selected-label-color: var(--md-sys-color-on-secondary-container);
 		--md3-comp-nav-item-selected-indicator-color: transparent;
 		--md3-comp-nav-item-shape: var(--md-sys-shape-full);

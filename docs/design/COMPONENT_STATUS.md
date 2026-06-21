@@ -16,7 +16,7 @@ Status: `accepted`
 Current notes:
 
 - Header uses tonal surface and compact controls.
-- Header background is opaque `surface-container-low`; glass/backdrop blur is intentionally removed.
+- Header background is opaque `surface-container`; glass/backdrop blur is intentionally removed.
 - Search loading color flash was fixed.
 - Search field keeps full-pill shape because MD3 Search Bar anatomy is fully rounded.
 - Desktop homepage and docs search fields share the same top app bar anchor.
@@ -44,7 +44,7 @@ Status: `accepted`
 Current notes:
 
 - TOC has compact link rows and active indicator.
-- Active state uses primary color, medium weight, and one runtime-enhanced 4px floating tracker.
+- Active state uses tertiary color, medium weight, and one runtime-enhanced 4px floating tracker.
 - The old per-link internal indicator remains only as a no-motion fallback.
 - Gemini rejected a square/block tracker because it would feel too much like primary navigation.
 
@@ -136,8 +136,9 @@ Validation:
 Current notes:
 
 - Page-entry and hover-transform effects are intentionally avoided.
-- Ripple, sidebar disclosure, theme menu, search dialog, homepage hero entrance, TOC tracker, and short navigation pending feedback exist.
+- Ripple, sidebar disclosure, mobile drawer, mobile TOC disclosure, theme menu, search dialog, homepage hero entrance, TOC tracker, and short navigation pending feedback exist.
 - Gemini accepted the functional-only motion direction: ripple, state layers, menu/search open feedback, TOC continuity, short navigation feedback, and restrained homepage entrance motion.
+- A later Gemini 3.1 Pro flavor review found the route transition too subtle; the content-only transition now keeps the same behavior but uses a larger vertical offset so emphasized easing reads as intentional navigation continuity.
 - Homepage entrance now extends to first content sections, cards, and showcase panels with smaller surface motion and staggered hierarchy.
 
 ## Dark Mode
@@ -160,7 +161,7 @@ Current notes:
 
 - Mobile screenshots are covered by Playwright.
 - Gemini reviewed mobile layout density and returned `NO_PATCH`.
-- Mobile navigation defaults use 40px rows and header controls use 44px height; desktop restores compact density at `50rem`.
+- Mobile top app bar actions use 48px hit targets with 24px icons; mobile drawer and mobile TOC disclosure use restrained MD3 open/close motion.
 - Image-backed Gemini review accepted current mobile density and readable spacing.
 
 ## Homepage
@@ -269,6 +270,6 @@ Status: `accepted after human review and regression checks`
 - Gemini 3.1 Pro reviewed the color-role problem and recommended keeping broad layout areas on surface roles instead of filling them with primary, secondary, or tertiary.
 - Follow-up review accepted two viable header strategies: `surface` plus a divider, or a chrome-frame approach where the fixed header and left drawer share `surface-container-low`.
 - Human review chose the chrome-frame approach because the previous header/article same-surface treatment visually collapsed the Starlight shell.
-- Header and sidebar now share `surface-container-low`; the article remains `surface`.
+- Header and sidebar now share `surface-container`; the article remains `surface`.
 - TOC active marker and active label now use tertiary so primary, secondary, and tertiary have distinct document roles.
-- Sidebar selected items keep secondary semantics but use a component-level mix with `surface-container-low` to reduce teal seed brightness.
+- Sidebar selected items use the full `secondary-container` / `on-secondary-container` role pair after human review found the earlier mixed state too visually diluted.

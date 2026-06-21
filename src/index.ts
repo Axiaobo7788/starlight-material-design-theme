@@ -474,6 +474,8 @@ function getMotionRuntimeScript() {
 		'.sidebar-content a[href]',
 		'.sidebar-content summary',
 		'starlight-toc a[href]',
+		'mobile-starlight-toc summary',
+		'mobile-starlight-toc .dropdown a[href]',
 		'.pagination-links a[href]',
 		'starlight-tabs [role="tab"]:not([aria-disabled="true"])',
 		'.sl-link-card[href]',
@@ -514,6 +516,11 @@ function getMotionRuntimeScript() {
 
 	const getDisclosureContent = (details) => {
 		const content = details.querySelector(':scope > ul');
+		return content instanceof HTMLElement ? content : null;
+	};
+
+	const getMobileTocContent = (details) => {
+		const content = details.querySelector(':scope > .dropdown');
 		return content instanceof HTMLElement ? content : null;
 	};
 
@@ -564,6 +571,60 @@ function getMotionRuntimeScript() {
 					details.open = false;
 				}
 				delete details.dataset.md3DisclosureState;
+		});
+		return true;
+	};
+
+	const animateMobileTocDisclosure = (summary) => {
+		const details = summary.closest('mobile-starlight-toc details');
+		if (!(details instanceof HTMLDetailsElement)) return false;
+		const content = getMobileTocContent(details);
+		if (!content) return false;
+		if (details.dataset.md3TocState) return true;
+
+		const isClosing = details.open;
+		const duration = getMotionDuration(
+			isClosing ? '--md3-motion-duration-sidebar-collapse' : '--md3-motion-duration-sidebar-expand',
+			isClosing ? 250 : 360
+		);
+		if (duration <= 0) return false;
+
+		const easing = isClosing
+			? getMotionEasing('--md-sys-motion-easing-emphasized-accelerate', 'cubic-bezier(0.3, 0, 0.8, 0.15)')
+			: getMotionEasing('--md-sys-motion-easing-emphasized-decelerate', 'cubic-bezier(0.05, 0.7, 0.1, 1)');
+		details.dataset.md3TocState = isClosing ? 'closing' : 'opening';
+
+		if (!isClosing) {
+			details.open = true;
+		}
+
+		const startHeight = isClosing ? content.offsetHeight : 0;
+		const endHeight = isClosing ? 0 : content.scrollHeight;
+		content.style.overflow = 'clip';
+
+		const animation = content.animate(
+			isClosing
+				? [
+						{ blockSize: startHeight + 'px', opacity: 1, transform: 'translateY(0) scaleY(1)', offset: 0 },
+						{ blockSize: Math.round(startHeight * 0.36) + 'px', opacity: 0.92, transform: 'translateY(-0.125rem) scaleY(0.98)', offset: 0.72 },
+						{ blockSize: endHeight + 'px', opacity: 0, transform: 'translateY(-0.25rem) scaleY(0.96)', offset: 1 },
+					]
+				: [
+						{ blockSize: startHeight + 'px', opacity: 0, transform: 'translateY(-0.25rem) scaleY(0.96)', offset: 0 },
+						{ blockSize: Math.round(endHeight * 0.74) + 'px', opacity: 1, transform: 'translateY(0) scaleY(1)', offset: 0.42 },
+						{ blockSize: endHeight + 'px', opacity: 1, transform: 'translateY(0) scaleY(1)', offset: 1 },
+					],
+			{ duration, easing }
+		);
+
+		animation.finished
+			.catch(() => {})
+			.finally(() => {
+				if (isClosing) {
+					details.open = false;
+				}
+				content.style.removeProperty('overflow');
+				delete details.dataset.md3TocState;
 			});
 		return true;
 	};
@@ -761,6 +822,14 @@ function getMotionRuntimeScript() {
 
 	document.addEventListener('click', (event) => {
 		if (event.defaultPrevented || reducedMotion()) return;
+		const mobileTocSummary = event.target instanceof Element
+			? event.target.closest('mobile-starlight-toc details > summary')
+			: null;
+		if (mobileTocSummary instanceof HTMLElement && animateMobileTocDisclosure(mobileTocSummary)) {
+			event.preventDefault();
+			return;
+		}
+
 		const summary = event.target instanceof Element
 			? event.target.closest('.sidebar-content details > summary')
 			: null;

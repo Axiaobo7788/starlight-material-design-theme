@@ -301,7 +301,7 @@ test.describe('Theme motion behavior', () => {
 		await page.goto('/');
 		await page.locator('main').waitFor({ state: 'visible' });
 
-		const link = page.locator('.sl-link-button[href="/guides/theme-concept/"]').first();
+		const link = page.locator('.sl-link-button[href$="guides/theme-concept/"]').first();
 		const clickResult = await link.evaluate((element) => {
 			const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 });
 			element.dispatchEvent(event);
@@ -469,8 +469,7 @@ test.describe('Theme MD3 component contracts', () => {
 		expect(lightRoles.primary).toBe('#006a62');
 		expect(lightRoles.secondary).toBe('#4a6360');
 		expect(lightRoles.tertiary).toBe('#47617a');
-		expect(lightRoles.navSelectedContainer).toContain('#cce8e3');
-		expect(lightRoles.navSelectedContainer).toContain('#f2f4f2');
+		expect(lightRoles.navSelectedContainer).toBe(lightRoles.secondaryContainer);
 		expect(lightRoles.navSelectedLabel).toBe('#051f1d');
 		expect(lightRoles.activeNavBackgroundColor).not.toBe('rgb(114, 247, 233)');
 		expect(lightRoles.secondaryContainer).toBe('#cce8e3');
@@ -574,8 +573,8 @@ test.describe('Theme MD3 component contracts', () => {
 			document.body.append(probe);
 			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface').trim();
 			const resolvedSurfaceColor = getComputedStyle(probe).backgroundColor;
-			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface-container-low').trim();
-			const resolvedSurfaceContainerLowColor = getComputedStyle(probe).backgroundColor;
+			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface-container').trim();
+			const resolvedSurfaceContainerColor = getComputedStyle(probe).backgroundColor;
 			probe.remove();
 			return {
 				contentBorderTopColor: contentStyles.borderTopColor,
@@ -583,7 +582,7 @@ test.describe('Theme MD3 component contracts', () => {
 				headerBorderBottomColor: headerStyles.borderBottomColor,
 				headerBoxShadow: headerStyles.boxShadow,
 				resolvedSurfaceColor,
-				resolvedSurfaceContainerLowColor,
+				resolvedSurfaceContainerColor,
 				sidebarBackgroundColor: sidebarStyles.backgroundColor,
 				sidebarBorderInlineEndColor: sidebarStyles.borderInlineEndColor,
 			};
@@ -591,7 +590,7 @@ test.describe('Theme MD3 component contracts', () => {
 
 		expect(layoutContract.headerBackgroundColor).not.toBe(layoutContract.resolvedSurfaceColor);
 		expect(layoutContract.headerBackgroundColor).toBe(layoutContract.sidebarBackgroundColor);
-		expect(layoutContract.headerBackgroundColor).toBe(layoutContract.resolvedSurfaceContainerLowColor);
+		expect(layoutContract.headerBackgroundColor).toBe(layoutContract.resolvedSurfaceContainerColor);
 		expect(layoutContract.headerBorderBottomColor).toBe('rgba(0, 0, 0, 0)');
 		expect(layoutContract.headerBoxShadow).toBe('none');
 		expect(layoutContract.contentBorderTopColor).toBe('rgba(0, 0, 0, 0)');
@@ -858,17 +857,27 @@ test.describe('Theme MD3 component contracts', () => {
 			const menuBox = menu.getBoundingClientRect();
 			const searchStyles = getComputedStyle(search);
 			const menuStyles = getComputedStyle(menu);
+			const searchIcon = search.querySelector('svg');
 			const openIcon = menu.querySelector('.open-menu');
+			if (!(searchIcon instanceof Element) || !(openIcon instanceof Element)) {
+				throw new Error('Expected mobile search and menu icons.');
+			}
+			const searchIconBox = searchIcon.getBoundingClientRect();
+			const menuIconBox = openIcon.getBoundingClientRect();
 			return {
 				gap: menuBox.left - searchBox.right,
 				menuBackgroundColor: menuStyles.backgroundColor,
 				menuBlockSize: menuBox.height,
+				menuIconBlockSize: menuIconBox.height,
+				menuIconInlineSize: menuIconBox.width,
 				menuInlineSize: menuBox.width,
 				menuTransitionProperty: menuStyles.transitionProperty,
 				searchBackgroundColor: searchStyles.backgroundColor,
 				searchBlockSize: searchBox.height,
+				searchIconBlockSize: searchIconBox.height,
+				searchIconInlineSize: searchIconBox.width,
 				searchInlineSize: searchBox.width,
-				openIconTransitionProperty: openIcon ? getComputedStyle(openIcon).transitionProperty : '',
+				openIconTransitionProperty: getComputedStyle(openIcon).transitionProperty,
 			};
 		});
 
@@ -876,11 +885,29 @@ test.describe('Theme MD3 component contracts', () => {
 		expect(contract.searchBlockSize).toBe(48);
 		expect(contract.menuInlineSize).toBe(48);
 		expect(contract.menuBlockSize).toBe(48);
-		expect(contract.gap).toBeGreaterThanOrEqual(8);
+		expect(contract.searchIconInlineSize).toBe(24);
+		expect(contract.searchIconBlockSize).toBe(24);
+		expect(contract.menuIconInlineSize).toBe(24);
+		expect(contract.menuIconBlockSize).toBe(24);
+		expect(contract.gap).toBeGreaterThanOrEqual(12);
 		expect(contract.searchBackgroundColor).not.toBe('rgba(0, 0, 0, 0)');
 		expect(contract.menuBackgroundColor).not.toBe('rgba(0, 0, 0, 0)');
 		expect(contract.menuTransitionProperty).toContain('background-color');
 		expect(contract.openIconTransitionProperty).toContain('transform');
+
+		const closedDrawer = await page.locator('#starlight__sidebar').evaluate((sidebar) => {
+			const styles = getComputedStyle(sidebar);
+			return {
+				opacity: styles.opacity,
+				transform: styles.transform,
+				transitionProperty: styles.transitionProperty,
+				visibility: styles.visibility,
+			};
+		});
+		expect(closedDrawer.transitionProperty).toContain('opacity');
+		expect(closedDrawer.transitionProperty).toContain('transform');
+		expect(closedDrawer.visibility).toBe('hidden');
+		expect(closedDrawer.transform).not.toBe('none');
 
 		const box = await menuButton.boundingBox();
 		expect(box).not.toBeNull();
@@ -888,6 +915,20 @@ test.describe('Theme MD3 component contracts', () => {
 		await page.mouse.down();
 		await expect(menuButton.locator('.md3-ripple')).toHaveCount(1);
 		await page.mouse.up();
+		await expect(page.locator('starlight-menu-button')).toHaveAttribute('aria-expanded', 'true');
+		const openDrawer = await page.locator('#starlight__sidebar').evaluate((sidebar) => {
+			const styles = getComputedStyle(sidebar);
+			return {
+				opacity: Number.parseFloat(styles.opacity),
+				transform: styles.transform,
+				transitionProperty: styles.transitionProperty,
+				visibility: styles.visibility,
+			};
+		});
+		expect(openDrawer.transitionProperty).toContain('opacity');
+		expect(openDrawer.transitionProperty).toContain('transform');
+		expect(openDrawer.visibility).toBe('visible');
+		expect(openDrawer.opacity).toBeGreaterThan(0);
 	});
 
 	test('sidebar disclosure uses opening and closing runtime states', async ({ page }) => {
@@ -955,8 +996,8 @@ test.describe('Theme MD3 component contracts', () => {
 			};
 		});
 
-		expect(contract.buttonInlineSize).toBe(48);
-		expect(contract.buttonBlockSize).toBe(48);
+		expect(contract.buttonInlineSize).toBeCloseTo(48, 2);
+		expect(contract.buttonBlockSize).toBeCloseTo(48, 2);
 		expect(contract.visibleIcons).toBe(1);
 		expect(contract.centerDeltaX).toBeLessThanOrEqual(0.5);
 		expect(contract.centerDeltaY).toBeLessThanOrEqual(0.5);
@@ -1021,6 +1062,8 @@ test.describe('Theme MD3 component contracts', () => {
 
 		await summary.click();
 		await expect(toc).toHaveAttribute('open', '');
+		await expect.poll(() => toc.evaluate((details) => details.dataset.md3TocState ?? '')).toBe('opening');
+		await expect.poll(() => toc.evaluate((details) => details.dataset.md3TocState ?? '')).toBe('');
 		const firstLink = toc.locator('.dropdown a').first();
 		await expect(firstLink).toBeVisible();
 
@@ -1055,6 +1098,16 @@ test.describe('Theme MD3 component contracts', () => {
 		expect(openContract.firstLinkTextDecorationLine).toBe('none');
 		expect(openContract.currentBackgroundColor).not.toBe('rgba(0, 0, 0, 0)');
 		expect(openContract.currentColor).not.toBe('');
+
+		await summary.click();
+		await expect.poll(() => toc.evaluate((details) => details.dataset.md3TocState ?? '')).toBe('closing');
+		await expect.poll(() => toc.evaluate((details) => details.dataset.md3TocState ?? '')).toBe('');
+		await expect.poll(() => toc.evaluate((details) => (details as HTMLDetailsElement).open)).toBe(false);
+
+		await summary.click();
+		await expect.poll(() => toc.evaluate((details) => details.dataset.md3TocState ?? '')).toBe('opening');
+		await expect.poll(() => toc.evaluate((details) => details.dataset.md3TocState ?? '')).toBe('');
+		await expect.poll(() => toc.evaluate((details) => (details as HTMLDetailsElement).open)).toBe(true);
 	});
 });
 

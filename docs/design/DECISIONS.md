@@ -208,13 +208,13 @@ Reason:
 
 ### 2026-06-18: Use Content-Only Route Transition
 
-Internal same-origin documentation navigation should use a short content-only transition: the current content fades and shifts up slightly before navigation, and the next page content settles in from a small downward offset.
+Internal same-origin documentation navigation should use a short content-only transition: the current content fades and shifts up before navigation, and the next page content settles in from a downward offset.
 
 Reason:
 
 - Gemini confirmed this is navigation continuity rather than a generic page-entry reveal because it only runs after internal theme navigation.
 - Header, search, and primary chrome remain stable to avoid color or layout flashes during page changes.
-- Leaving uses 80ms with standard accelerate easing; entering uses 180ms with emphasized decelerate easing.
+- Leaving uses 80ms with standard accelerate easing and a small upward offset; entering uses 180ms with emphasized decelerate easing and a larger downward offset so the curve reads as Material navigation continuity rather than a flicker.
 - The transition is disabled for reduced motion and for `motion: false`.
 
 ### 2026-06-18: Keep Desktop Search Vertical Spacing
@@ -278,6 +278,17 @@ Reason:
 - The motion is limited to opacity plus a small upward settle on hero title, tagline, actions, and preview.
 - It remains under 500ms, uses emphasized decelerate easing, and respects `prefers-reduced-motion`.
 - Interior documentation pages should not receive this entry animation.
+
+### 2026-06-21: Strengthen Tonal Material You Expression
+
+Header and sidebar chrome should use `surface-container` rather than `surface-container-low`, and selected sidebar items should use the full `secondary-container` / `on-secondary-container` role pair.
+
+Reason:
+
+- Human review found the previous implementation correct but too visually diluted to read as Material You.
+- Gemini 3.1 Pro agreed that the main issue was weak tonal step contrast and over-softened selected navigation.
+- The article remains on `surface`; broad layout areas still avoid primary, secondary, or tertiary fills.
+- This change restores MD3 color-role expression without adding hard dividers, heavy shadows, or decorative animation.
 
 ### 2026-06-18: Use Canonical MD3 Purple As The Baseline
 

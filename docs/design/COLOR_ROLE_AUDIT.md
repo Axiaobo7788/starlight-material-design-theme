@@ -7,8 +7,8 @@ This document records the current color-role decisions for the Starlight MD3 the
 The theme uses a docs-shell frame:
 
 - Main article plane: `surface`
-- Top app bar: `surface-container-low`
-- Left navigation drawer: `surface-container-low`
+- Top app bar: `surface-container`
+- Left navigation drawer: `surface-container`
 - Right table of contents rail: `surface`, with tertiary active feedback
 - Filled search field: `surface-container-high`
 - Static cards and demo panels: `surface-container-low` or `surface-container`
@@ -30,17 +30,17 @@ Avoid using primary, secondary, or tertiary as broad layout backgrounds. MD3 lay
 
 Gemini noted that a `surface` top app bar plus an `outline-variant` divider is the lighter, standard MD3 option. For this Starlight docs shell, the human review identified a stronger problem: the header and article collapsed into one flat plane.
 
-Decision: use `surface-container-low` for the top app bar and keep article content on `surface`.
+Decision: use `surface-container` for the top app bar and keep article content on `surface`.
 
 Expected result: header and sidebar become a quiet chrome frame, while the article remains the cleanest reading surface.
 
 ### Sidebar Selected State
 
-MD3 navigation drawer selected state maps to `secondary-container` / `on-secondary-container`, but the teal tonalSpot palette makes the raw selected container visually bright.
+MD3 navigation drawer selected state maps to `secondary-container` / `on-secondary-container`. The earlier component-level mix made the selected state quieter, but also diluted the Material You color relationship too far.
 
-Decision: keep the secondary semantic role but soften the component token by mixing `secondary-container` with `surface-container-low`.
+Decision: use the full `secondary-container` role for persistent selected navigation.
 
-Expected result: selected navigation remains visible without competing with primary CTAs.
+Expected result: selected navigation becomes a clear Material You tonal pill while primary remains reserved for CTAs, links, and focus.
 
 ### TOC Active State
 
@@ -52,7 +52,7 @@ Expected result: primary handles links and CTAs, secondary handles site navigati
 
 ## Verification Targets
 
-- Header background resolves to `surface-container-low`.
+- Header background resolves to `surface-container`.
 - Main content background remains `surface`.
 - Sidebar background matches the header chrome plane.
 - Selected sidebar items are not primary-container colored.

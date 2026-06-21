@@ -20,7 +20,7 @@ This file is the contract for all visual work in `starlight-theme-md3`.
 ### Page and Chrome
 
 - Main page background: `--md-sys-color-background` or `--md-sys-color-surface`.
-- Header/sidebar chrome: `--md-sys-color-surface-container-low`.
+- Header/sidebar chrome: `--md-sys-color-surface-container` when the docs shell needs a clear chrome frame around a `surface` article plane.
 - Elevated or floating menu/dialog surfaces: `--md-sys-color-surface-container` or `--md-sys-color-surface-container-high`.
 - Dividers and quiet borders: `--md-sys-color-outline-variant`.
 - Stronger focus outlines: `--md-sys-color-primary` only when an actual focus ring is needed.
@@ -29,7 +29,7 @@ This file is the contract for all visual work in `starlight-theme-md3`.
 
 - Navigation label: `--md-sys-color-on-surface-variant`.
 - Navigation hover/focus/pressed: state layers based on `on-surface`, not a global primary wash.
-- Active navigation container: prefer `--md-sys-color-secondary-container` so persistent location state stays quieter than high-emphasis actions.
+- Active navigation container: prefer the full `--md-sys-color-secondary-container` role so persistent location state remains recognizably Material You without becoming a primary CTA.
 - Active navigation label: prefer `--md-sys-color-on-secondary-container`.
 - Primary should be reserved for high-emphasis actions, links, focus rings, and lightweight active indicators.
 
