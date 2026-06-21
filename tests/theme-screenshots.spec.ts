@@ -345,7 +345,7 @@ test.describe('Theme motion behavior', () => {
 			};
 		});
 		expect(heroMotion.animationName).toBe('md3-home-hero-enter');
-		expect(heroMotion.animationDuration).toBe('0.45s');
+		expect(heroMotion.animationDuration).toBe('0.5s');
 		expect(heroMotion.animationFillMode).toBe('both');
 		expect(heroMotion.animationDelay).toBe('0s');
 
@@ -359,9 +359,9 @@ test.describe('Theme motion behavior', () => {
 			};
 		});
 		expect(surfaceMotion.animationName).toBe('md3-home-surface-enter');
-		expect(surfaceMotion.animationDuration).toBe('0.45s');
+		expect(surfaceMotion.animationDuration).toBe('0.5s');
 		expect(surfaceMotion.animationFillMode).toBe('both');
-		expect(surfaceMotion.animationDelay).toBe('0.15s');
+		expect(surfaceMotion.animationDelay).toBe('0.1s');
 
 		await page.goto('/guides/theme-concept/');
 		await page.locator('h1#_top').waitFor({ state: 'visible' });
@@ -499,20 +499,29 @@ test.describe('Theme MD3 component contracts', () => {
 		const cardContract = await page.locator('.card').first().evaluate((card) => {
 			const title = card.querySelector('.title');
 			const body = card.querySelector('.body');
-			if (!title || !body) throw new Error('Expected Starlight card title and body elements.');
+			const icon = card.querySelector('.icon');
+			if (!title || !body || !icon) throw new Error('Expected Starlight card title, body, and icon elements.');
 
 			const cardStyles = getComputedStyle(card);
 			const titleStyles = getComputedStyle(title);
 			const bodyStyles = getComputedStyle(body);
+			const iconStyles = getComputedStyle(icon);
 			return {
 				borderColor: cardStyles.borderColor,
 				display: cardStyles.display,
 				flexDirection: cardStyles.flexDirection,
 				gap: cardStyles.gap,
+				iconBlockSize: iconStyles.blockSize,
+				iconBorderColor: iconStyles.borderColor,
+				iconInlineSize: iconStyles.inlineSize,
+				iconPadding: iconStyles.paddingBlockStart,
+				iconBackgroundColor: iconStyles.backgroundColor,
 				titleFontWeight: titleStyles.fontWeight,
+				titleGap: titleStyles.gap,
 				titleMarginBlockEnd: titleStyles.marginBlockEnd,
 				titleMarginBlockStart: titleStyles.marginBlockStart,
 				bodyMarginBlockEnd: bodyStyles.marginBlockEnd,
+				bodyMarginInlineStart: bodyStyles.marginInlineStart,
 				bodyMarginBlockStart: bodyStyles.marginBlockStart,
 			};
 		});
@@ -521,11 +530,18 @@ test.describe('Theme MD3 component contracts', () => {
 		expect(cardContract.display).toBe('flex');
 		expect(cardContract.flexDirection).toBe('column');
 		expect(cardContract.gap).toBe('12px');
+		expect(cardContract.iconInlineSize).toBe('40px');
+		expect(cardContract.iconBlockSize).toBe('40px');
+		expect(cardContract.iconPadding).toBe('8px');
+		expect(cardContract.iconBorderColor).toBe('rgba(0, 0, 0, 0)');
+		expect(cardContract.iconBackgroundColor).not.toBe('rgba(0, 0, 0, 0)');
 		expect(cardContract.titleFontWeight).toBe('500');
+		expect(cardContract.titleGap).toBe('12px');
 		expect(cardContract.titleMarginBlockStart).toBe('0px');
 		expect(cardContract.titleMarginBlockEnd).toBe('0px');
 		expect(cardContract.bodyMarginBlockStart).toBe('0px');
 		expect(cardContract.bodyMarginBlockEnd).toBe('0px');
+		expect(cardContract.bodyMarginInlineStart).toBe('52px');
 	});
 
 	test('demo panels use filled MD3 surfaces instead of outlined cards', async ({ page }) => {
@@ -732,11 +748,11 @@ test.describe('Theme MD3 component contracts', () => {
 				visibleText: button.textContent?.trim() ?? '',
 			};
 		});
-		expect(buttonRestContract.backgroundColor).toBe('rgba(0, 0, 0, 0)');
-		expect(buttonRestContract.blockSize).toBe('48px');
+		expect(buttonRestContract.backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+		expect(buttonRestContract.blockSize).toBe('40px');
 		expect(buttonRestContract.borderTopWidth).toBe('0px');
-		expect(buttonRestContract.inlineSize).toBe('48px');
-		expect(Number.parseFloat(buttonRestContract.minBlockSize)).toBeGreaterThanOrEqual(48);
+		expect(Number.parseFloat(buttonRestContract.inlineSize)).toBeGreaterThanOrEqual(108);
+		expect(Number.parseFloat(buttonRestContract.minBlockSize)).toBeGreaterThanOrEqual(40);
 		expect(buttonRestContract.visibleIcons).toBe(1);
 		expect(buttonRestContract.visibleText).toBe('Light');
 
@@ -813,7 +829,7 @@ test.describe('Theme MD3 component contracts', () => {
 		expect(unselectedWeight).toBe('400');
 		expect(Number.parseFloat(selectedContract.selectedHeight)).toBeGreaterThanOrEqual(48);
 		expect(menuContract.transformOrigin.split(' ').at(-1)).toBe('0px');
-		expect(menuContract.transitionDuration).toContain('0.3s');
+		expect(menuContract.transitionDuration).toContain('0.25s');
 		expect(menuContract.transitionProperty).toContain('opacity');
 		expect(menuContract.transitionProperty).toContain('transform');
 
@@ -837,7 +853,7 @@ test.describe('Theme MD3 component contracts', () => {
 		});
 		expect(closeMotion.hidden).toBe(false);
 		expect(closeMotion.state).toBe('closing');
-		expect(closeMotion.transitionDuration).toContain('0.2s');
+		expect(closeMotion.transitionDuration).toContain('0.15s');
 		expect(closeMotion.transitionProperty).toContain('opacity');
 		expect(closeMotion.transitionProperty).toContain('transform');
 		await expect(menu).toBeHidden();
@@ -961,7 +977,7 @@ test.describe('Theme MD3 component contracts', () => {
 		await expect.poll(() => details.evaluate((element) => (element as HTMLDetailsElement).open)).toBe(true);
 	});
 
-	test('mobile drawer theme button keeps the active icon centered', async ({ page }) => {
+	test('mobile drawer theme button keeps the active icon and label aligned', async ({ page }) => {
 		await page.setViewportSize(viewports.find((viewport) => viewport.name === 'mobile')!.size);
 		await page.emulateMedia({ reducedMotion: 'no-preference' });
 		await setThemeBeforeNavigation(page, 'light');
@@ -989,26 +1005,35 @@ test.describe('Theme MD3 component contracts', () => {
 			const visibleIcon = [...button.querySelectorAll('.md3-theme-select__button-icon')].find(
 				(icon) => Number.parseFloat(getComputedStyle(icon).opacity) > 0.99
 			);
+			const current = button.querySelector('.md3-theme-select__current');
+			const caret = button.querySelector('.md3-theme-select__caret');
 			if (!(visibleIcon instanceof Element)) throw new Error('Expected one visible theme icon.');
+			if (!(current instanceof HTMLElement) || !(caret instanceof Element)) {
+				throw new Error('Expected visible theme label and caret.');
+			}
 			const iconBox = visibleIcon.getBoundingClientRect();
+			const labelBox = current.getBoundingClientRect();
+			const caretBox = caret.getBoundingClientRect();
 			const styles = getComputedStyle(button);
 			return {
 				backgroundColor: styles.backgroundColor,
 				buttonBlockSize: buttonBox.height,
 				buttonInlineSize: buttonBox.width,
-				centerDeltaX: Math.abs(buttonBox.left + buttonBox.width / 2 - (iconBox.left + iconBox.width / 2)),
-				centerDeltaY: Math.abs(buttonBox.top + buttonBox.height / 2 - (iconBox.top + iconBox.height / 2)),
+				caretAfterLabel: caretBox.left >= labelBox.right,
+				gapIconToLabel: Math.round(labelBox.left - iconBox.right),
+				labelText: current.textContent?.trim() ?? '',
 				visibleIcons: [...button.querySelectorAll('.md3-theme-select__button-icon')].filter(
 					(icon) => Number.parseFloat(getComputedStyle(icon).opacity) > 0.99
 				).length,
 			};
 		});
 
-		expect(contract.buttonInlineSize).toBeCloseTo(48, 2);
-		expect(contract.buttonBlockSize).toBeCloseTo(48, 2);
+		expect(contract.buttonInlineSize).toBeGreaterThanOrEqual(108);
+		expect(contract.buttonBlockSize).toBeCloseTo(44, 2);
 		expect(contract.visibleIcons).toBe(1);
-		expect(contract.centerDeltaX).toBeLessThanOrEqual(0.5);
-		expect(contract.centerDeltaY).toBeLessThanOrEqual(0.5);
+		expect(contract.labelText).toBe('Light');
+		expect(contract.gapIconToLabel).toBe(8);
+		expect(contract.caretAfterLabel).toBe(true);
 		expect(contract.backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
 
 		await themeButton.click();

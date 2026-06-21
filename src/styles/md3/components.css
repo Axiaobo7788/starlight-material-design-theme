@@ -37,6 +37,7 @@
 
 	.card .title {
 		margin: 0;
+		gap: 0.75rem;
 		font-size: var(--md-sys-typescale-title-medium-size);
 		font-weight: var(--md-sys-typescale-title-medium-weight);
 		line-height: var(--md-sys-typescale-title-medium-line-height);
@@ -50,9 +51,56 @@
 	}
 
 	.card .icon {
+		box-sizing: border-box;
+		display: inline-grid;
+		place-items: center;
+		inline-size: 2.5rem;
+		block-size: 2.5rem;
+		padding: 0.5rem;
 		border-radius: var(--md3-comp-card-icon-shape);
-		border-color: color-mix(in srgb, var(--sl-card-border) 36%, transparent);
-		background-color: color-mix(in srgb, var(--sl-card-bg) 56%, var(--md-sys-color-surface-container));
+		border-color: transparent;
+		background-color: var(--md-sys-color-primary-container);
+		color: var(--md-sys-color-on-primary-container);
+	}
+
+	.card:nth-child(4n + 2) .icon {
+		background-color: var(--md-sys-color-secondary-container);
+		color: var(--md-sys-color-on-secondary-container);
+	}
+
+	.card:nth-child(4n + 3) .icon {
+		background-color: var(--md-sys-color-tertiary-container);
+		color: var(--md-sys-color-on-tertiary-container);
+	}
+
+	.card:nth-child(4n + 4) .icon {
+		background-color: var(--md-sys-color-surface-container-highest);
+		color: var(--md-sys-color-primary);
+	}
+
+	:root[data-has-hero] .card-grid {
+		gap: 1.25rem;
+	}
+
+	:root[data-has-hero] .card {
+		min-height: 9rem;
+		padding: clamp(1rem, 1.5vw, 1.25rem);
+	}
+
+	:root[data-has-hero] .card .title {
+		align-items: center;
+		gap: 0.75rem;
+	}
+
+	:root[data-has-hero] .card .body {
+		max-inline-size: 42ch;
+		margin-inline-start: calc(2.5rem + 0.75rem);
+	}
+
+	@media (max-width: 34.999rem) {
+		:root[data-has-hero] .card .body {
+			margin-inline-start: 0;
+		}
 	}
 
 	.sl-link-card:hover {

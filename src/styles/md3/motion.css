@@ -110,6 +110,18 @@
 					transform var(--md-sys-motion-duration-medium1) var(--md-sys-motion-easing-emphasized);
 			}
 
+			.sidebar::before {
+				transition:
+					opacity var(--md3-motion-duration-sidebar-collapse)
+						var(--md-sys-motion-easing-emphasized-accelerate);
+			}
+
+			.sidebar:has(starlight-menu-button[aria-expanded='true'])::before {
+				transition:
+					opacity var(--md3-motion-duration-sidebar-expand)
+						var(--md-sys-motion-easing-emphasized-decelerate);
+			}
+
 			.sidebar-pane {
 				transition:
 					visibility 0s linear var(--md3-motion-duration-sidebar-collapse),
@@ -132,16 +144,49 @@
 					box-shadow var(--md3-motion-duration-control) var(--md-sys-motion-easing-standard);
 			}
 
+			.sidebar-pane .sidebar-content {
+				transition:
+					opacity var(--md3-motion-duration-sidebar-collapse)
+						var(--md-sys-motion-easing-emphasized-accelerate),
+					transform var(--md3-motion-duration-sidebar-collapse)
+						var(--md-sys-motion-easing-emphasized-accelerate);
+			}
+
+			starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane .sidebar-content {
+				transition:
+					opacity var(--md-sys-motion-duration-medium4)
+						var(--md-sys-motion-easing-emphasized-decelerate),
+					transform var(--md-sys-motion-duration-medium4)
+						var(--md-sys-motion-easing-emphasized-decelerate);
+				transition-delay: var(--md-sys-motion-duration-short1);
+			}
+
 			@starting-style {
 				starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane {
 					opacity: 0;
 					transform: translateX(calc(-1 * var(--md3-mobile-drawer-offset, min(1.25rem, 4vw))))
-						scaleX(0.985);
+						scaleX(0.96);
 				}
 
 				:root[dir='rtl'] starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane {
 					transform: translateX(var(--md3-mobile-drawer-offset, min(1.25rem, 4vw)))
-						scaleX(0.985);
+						scaleX(0.96);
+				}
+
+				.sidebar:has(starlight-menu-button[aria-expanded='true'])::before {
+					opacity: 0;
+				}
+
+				starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane .sidebar-content {
+					opacity: 0.72;
+					transform: translateX(-0.375rem);
+				}
+
+				:root[dir='rtl']
+					starlight-menu-button[aria-expanded='true']
+					~ .sidebar-pane
+					.sidebar-content {
+					transform: translateX(0.375rem);
 				}
 			}
 
@@ -353,7 +398,7 @@
 		}
 
 		:root[data-has-hero] .hero :where(h1, .tagline, .actions, .hero-image, .material-hero-preview) {
-			animation: md3-home-hero-enter var(--md-sys-motion-duration-long1)
+			animation: md3-home-hero-enter var(--md-sys-motion-duration-long2)
 				var(--md-sys-motion-easing-emphasized-decelerate) both;
 		}
 
@@ -370,7 +415,7 @@
 		}
 
 		:root[data-has-hero] .sl-markdown-content > :where(h2, .card-grid, .md3-showcase) {
-			animation: md3-home-section-enter var(--md-sys-motion-duration-long1)
+			animation: md3-home-section-enter var(--md-sys-motion-duration-long2)
 				var(--md-sys-motion-easing-emphasized-decelerate) both;
 			animation-delay: var(--md-sys-motion-duration-short2);
 		}
@@ -382,24 +427,24 @@
 
 		:root[data-has-hero] .card-grid > .card,
 		:root[data-has-hero] .md3-showcase > .md3-showcase-panel {
-			animation: md3-home-surface-enter var(--md-sys-motion-duration-long1)
+			animation: md3-home-surface-enter var(--md-sys-motion-duration-long2)
 				var(--md-sys-motion-easing-emphasized-decelerate) both;
-			animation-delay: var(--md-sys-motion-duration-short3);
+			animation-delay: var(--md-sys-motion-duration-short2);
 		}
 
 		:root[data-has-hero] .card-grid > .card:nth-child(2),
 		:root[data-has-hero] .md3-showcase > .md3-showcase-panel:nth-child(2) {
-			animation-delay: var(--md-sys-motion-duration-short4);
+			animation-delay: var(--md-sys-motion-duration-short3);
 		}
 
 		:root[data-has-hero] .card-grid > .card:nth-child(3),
 		:root[data-has-hero] .md3-showcase > .md3-showcase-panel:nth-child(3) {
-			animation-delay: var(--md-sys-motion-duration-medium1);
+			animation-delay: var(--md-sys-motion-duration-short4);
 		}
 
 		:root[data-has-hero] .card-grid > .card:nth-child(4),
 		:root[data-has-hero] .md3-showcase > .md3-showcase-panel:nth-child(4) {
-			animation-delay: var(--md-sys-motion-duration-medium2);
+			animation-delay: var(--md-sys-motion-duration-medium1);
 		}
 	}
 
@@ -472,7 +517,7 @@
 	@keyframes md3-home-surface-enter {
 		0% {
 			opacity: 0;
-			transform: translateY(0.25rem);
+			transform: translateY(0.75rem);
 		}
 
 		100% {

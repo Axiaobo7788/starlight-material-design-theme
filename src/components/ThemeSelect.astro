@@ -27,12 +27,15 @@ const defaultOption = options.find((option) => option.value === 'auto')!;
 		title={`${Astro.locals.t('themeSelect.accessibleLabel')}: ${defaultOption.label}`}
 		data-theme-value={defaultOption.value}
 	>
-		<span class="sr-only md3-theme-select__current">{defaultOption.label}</span>
-		{
-			options.map((option) => (
-				<Icon name={option.icon} class={`icon label-icon md3-theme-select__button-icon md3-theme-select__button-icon--${option.value}`} />
-			))
-		}
+		<span class="md3-theme-select__button-icon-stack" aria-hidden="true">
+			{
+				options.map((option) => (
+					<Icon name={option.icon} class={`icon label-icon md3-theme-select__button-icon md3-theme-select__button-icon--${option.value}`} />
+				))
+			}
+		</span>
+		<span class="md3-theme-select__current">{defaultOption.label}</span>
+		<Icon name="down-caret" class="icon md3-theme-select__caret" />
 	</button>
 	<div class="md3-theme-select__menu" role="menu" hidden>
 		{
@@ -252,26 +255,35 @@ const defaultOption = options.find((option) => option.value === 'auto')!;
 			position: relative;
 			display: inline-flex;
 			align-items: center;
-			justify-content: center;
+			justify-content: flex-start;
+			gap: 0.5rem;
 			box-sizing: border-box;
-			inline-size: var(--md3-density-header-control-height, 3rem);
-			block-size: var(--md3-density-header-control-height, 3rem);
-			min-block-size: var(--md3-density-header-control-height, 3rem);
+			inline-size: auto;
+			min-inline-size: 6.75rem;
+			block-size: 2.5rem;
+			min-block-size: 2.5rem;
 			border: none;
 			border-radius: var(--md-sys-shape-full);
-			background-color: transparent;
+			background-color: var(--md3-comp-header-control-container-color);
 			color: var(--md3-comp-header-control-label-color);
 			cursor: pointer;
-			padding: 0;
+			font-size: var(--md-sys-typescale-label-large-size);
+			font-weight: var(--md-sys-typescale-label-large-weight);
+			letter-spacing: var(--md-sys-typescale-label-large-tracking);
+			line-height: var(--md-sys-typescale-label-large-line-height);
+			padding-block: 0;
+			padding-inline: 0.75rem 0.875rem;
 		}
 
 		:global(.mobile-preferences) .md3-theme-select__button {
-			inline-size: 3rem;
-			block-size: 3rem;
-			min-block-size: 3rem;
+			inline-size: 100%;
+			min-inline-size: 0;
+			block-size: 2.75rem;
+			min-block-size: 2.75rem;
 			background-color: var(--md-sys-color-surface-container-high);
 			color: var(--md-sys-color-on-surface-variant);
 			box-shadow: var(--md-sys-elevation-level0);
+			padding-inline: 1rem 0.875rem;
 		}
 
 		.md3-theme-select__button:hover {
@@ -289,6 +301,20 @@ const defaultOption = options.find((option) => option.value === 'auto')!;
 		.md3-theme-select__button:active,
 		.md3-theme-select__button[aria-expanded='true'] {
 			background-color: var(--md3-comp-header-control-pressed-container-color);
+		}
+
+		.md3-theme-select__button[aria-expanded='true'] {
+			background-color: var(--md-sys-color-secondary-container);
+			color: var(--md-sys-color-on-secondary-container);
+		}
+
+		.md3-theme-select__button-icon-stack {
+			position: relative;
+			flex: 0 0 auto;
+			display: inline-grid;
+			inline-size: 1.25rem;
+			block-size: 1.25rem;
+			place-items: center;
 		}
 
 		.md3-theme-select__button-icon {
@@ -311,8 +337,27 @@ const defaultOption = options.find((option) => option.value === 'auto')!;
 			transform: scale(1) rotate(0);
 		}
 
+		.md3-theme-select__current {
+			min-inline-size: 0;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		.md3-theme-select__caret {
+			margin-inline-start: 0.125rem;
+			color: currentColor;
+			opacity: 0.84;
+			transform-origin: center;
+		}
+
+		.md3-theme-select__button[aria-expanded='true'] .md3-theme-select__caret {
+			transform: rotate(180deg);
+		}
+
 		.label-icon,
 		.md3-theme-select__button-icon,
+		.md3-theme-select__caret,
 		.md3-theme-select__option-icon,
 		.md3-theme-select__check {
 			flex: 0 0 auto;
@@ -415,18 +460,23 @@ const defaultOption = options.find((option) => option.value === 'auto')!;
 					transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-emphasized);
 			}
 
+			.md3-theme-select__caret {
+				transition: transform var(--md-sys-motion-duration-short4)
+					var(--md-sys-motion-easing-emphasized);
+			}
+
 			.md3-theme-select__menu {
 				opacity: 1;
 				transform: translateY(0) scale(1);
 				transition:
-					opacity var(--md-sys-motion-duration-medium2)
+					opacity var(--md-sys-motion-duration-medium1)
 						var(--md-sys-motion-easing-emphasized-decelerate),
-					transform var(--md-sys-motion-duration-medium2)
+					transform var(--md-sys-motion-duration-medium1)
 						var(--md-sys-motion-easing-emphasized-decelerate),
 					background-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard),
 					border-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard),
 					box-shadow var(--md3-motion-duration-control) var(--md-sys-motion-easing-standard),
-					display var(--md-sys-motion-duration-medium2) allow-discrete;
+					display var(--md-sys-motion-duration-medium1) allow-discrete;
 				transition-behavior: allow-discrete;
 				will-change: opacity, transform;
 			}
@@ -434,20 +484,20 @@ const defaultOption = options.find((option) => option.value === 'auto')!;
 			.md3-theme-select__menu[hidden],
 			.md3-theme-select__menu[data-md3-menu-state='closing'] {
 				opacity: 0;
-				transform: translateY(-0.25rem) scale(0.82);
+				transform: translateY(-0.1875rem) scale(0.88);
 			}
 
 			:global(.mobile-preferences) .md3-theme-select__menu[hidden],
 			:global(.mobile-preferences) .md3-theme-select__menu[data-md3-menu-state='closing'] {
-				transform: translateY(0.25rem) scale(0.82);
+				transform: translateY(0.1875rem) scale(0.88);
 			}
 
 			.md3-theme-select__menu[data-md3-menu-state='closing'] {
 				pointer-events: none;
 				transition:
-					opacity var(--md-sys-motion-duration-short4)
+					opacity var(--md-sys-motion-duration-short3)
 						var(--md-sys-motion-easing-emphasized-accelerate),
-					transform var(--md-sys-motion-duration-short4)
+					transform var(--md-sys-motion-duration-short3)
 						var(--md-sys-motion-easing-emphasized-accelerate),
 					background-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard),
 					border-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard),
@@ -457,12 +507,12 @@ const defaultOption = options.find((option) => option.value === 'auto')!;
 			@starting-style {
 				.md3-theme-select__menu:not([hidden]) {
 					opacity: 0;
-					transform: translateY(-0.25rem) scale(0.82);
+					transform: translateY(-0.1875rem) scale(0.88);
 				}
 
 				:global(.mobile-preferences) .md3-theme-select__menu:not([hidden]) {
 					opacity: 0;
-					transform: translateY(0.25rem) scale(0.82);
+					transform: translateY(0.1875rem) scale(0.88);
 				}
 			}
 		}

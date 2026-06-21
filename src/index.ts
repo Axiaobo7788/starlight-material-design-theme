@@ -786,8 +786,24 @@ function getMotionRuntimeScript() {
 	}
 
 	document.addEventListener('pointerdown', (event) => {
+		const targetElement = event.target instanceof Element ? event.target : null;
+		const openMobileMenu = document.querySelector('starlight-menu-button[aria-expanded="true"]');
+		if (
+			openMobileMenu &&
+			targetElement &&
+			!targetElement.closest('#starlight__sidebar') &&
+			!targetElement.closest('starlight-menu-button')
+		) {
+			if (typeof openMobileMenu.setExpanded === 'function') {
+				openMobileMenu.setExpanded(false);
+			} else {
+				openMobileMenu.setAttribute('aria-expanded', 'false');
+				document.body.removeAttribute('data-mobile-menu-expanded');
+			}
+		}
+
 		if (event.button !== 0 || !event.isPrimary || reducedMotion()) return;
-		const surface = event.target instanceof Element ? event.target.closest(rippleSelector) : null;
+		const surface = targetElement ? targetElement.closest(rippleSelector) : null;
 		const record = createRipple(surface, event);
 		if (record) {
 			activeRipples.set(event.pointerId, record);
