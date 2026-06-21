@@ -817,18 +817,23 @@ test.describe('Theme MD3 component contracts', () => {
 		expect(menuContract.transitionProperty).toContain('opacity');
 		expect(menuContract.transitionProperty).toContain('transform');
 
-		await themeButton.click();
-		await expect(menu).toHaveAttribute('data-md3-menu-state', 'closing');
-		const closeMotion = await menu.evaluate((element) => {
+		const closeMotion = await themeButton.evaluate((button) => {
+			button.click();
+			const element = button
+				.closest('starlight-theme-select')
+				?.querySelector<HTMLElement>('.md3-theme-select__menu');
+			if (!element) throw new Error('Expected theme menu after closing trigger.');
 			const styles = getComputedStyle(element);
 			return {
 				hidden: element.hasAttribute('hidden'),
 				opacity: styles.opacity,
+				state: element.dataset.md3MenuState ?? '',
 				transitionDuration: styles.transitionDuration,
 				transitionProperty: styles.transitionProperty,
 			};
 		});
 		expect(closeMotion.hidden).toBe(false);
+		expect(closeMotion.state).toBe('closing');
 		expect(closeMotion.transitionDuration).toContain('0.2s');
 		expect(closeMotion.transitionProperty).toContain('opacity');
 		expect(closeMotion.transitionProperty).toContain('transform');
@@ -1108,6 +1113,77 @@ test.describe('Theme MD3 component contracts', () => {
 		await expect.poll(() => toc.evaluate((details) => details.dataset.md3TocState ?? '')).toBe('opening');
 		await expect.poll(() => toc.evaluate((details) => details.dataset.md3TocState ?? '')).toBe('');
 		await expect.poll(() => toc.evaluate((details) => (details as HTMLDetailsElement).open)).toBe(true);
+	});
+
+	test('medium table of contents keeps MD3 disclosure styling with desktop sidebar', async ({ page }) => {
+		await page.setViewportSize({ width: 820, height: 844 });
+		await page.emulateMedia({ reducedMotion: 'no-preference' });
+		await setThemeBeforeNavigation(page, 'light');
+		await page.goto('/guides/theme-concept/');
+		await page.locator('main').waitFor({ state: 'visible' });
+
+		await expect(page.locator('#starlight__sidebar')).toBeVisible();
+		await expect(page.locator('.right-sidebar-panel')).toBeHidden();
+
+		const toc = page.locator('#starlight__mobile-toc');
+		const summary = toc.locator('summary');
+		await expect(summary).toBeVisible();
+
+		const restContract = await toc.evaluate((details) => {
+			const summary = details.querySelector('summary');
+			const toggle = details.querySelector('.toggle');
+			if (!(summary instanceof HTMLElement) || !(toggle instanceof HTMLElement)) {
+				throw new Error('Expected medium TOC summary and toggle.');
+			}
+			const detailsRect = details.getBoundingClientRect();
+			const summaryRect = summary.getBoundingClientRect();
+			const detailsStyles = getComputedStyle(details);
+			const toggleStyles = getComputedStyle(toggle);
+			return {
+				detailsBackgroundColor: detailsStyles.backgroundColor,
+				detailsBorderRadius: detailsStyles.borderRadius,
+				detailsInlineSize: detailsRect.width,
+				summaryCursor: getComputedStyle(summary).cursor,
+				summaryInlineSize: summaryRect.width,
+				toggleBackgroundColor: toggleStyles.backgroundColor,
+				toggleBorderRadius: toggleStyles.borderRadius,
+			};
+		});
+
+		expect(restContract.detailsBackgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+		expect(restContract.detailsBorderRadius).toBe('16px');
+		expect(restContract.summaryCursor).toBe('pointer');
+		expect(restContract.summaryInlineSize).toBeCloseTo(restContract.detailsInlineSize, 1);
+		expect(restContract.toggleBackgroundColor).not.toBe('rgb(250, 253, 251)');
+		expect(Number.parseFloat(restContract.toggleBorderRadius)).toBeGreaterThan(1000);
+
+		const summaryBox = await summary.boundingBox();
+		expect(summaryBox).not.toBeNull();
+		await page.mouse.click(summaryBox!.x + summaryBox!.width - 24, summaryBox!.y + summaryBox!.height / 2);
+		await expect(toc).toHaveAttribute('open', '');
+		await expect.poll(() => toc.evaluate((details) => details.dataset.md3TocState ?? '')).toBe('opening');
+		await expect.poll(() => toc.evaluate((details) => details.dataset.md3TocState ?? '')).toBe('');
+
+		const openContract = await toc.evaluate((details) => {
+			const dropdown = details.querySelector('.dropdown');
+			const current =
+				details.querySelector('.dropdown a[aria-current="true"]') ??
+				details.querySelector('.dropdown a[aria-current="page"]');
+			if (!(dropdown instanceof HTMLElement) || !(current instanceof HTMLElement)) {
+				throw new Error('Expected open medium TOC dropdown and current link.');
+			}
+			const dropdownStyles = getComputedStyle(dropdown);
+			const currentStyles = getComputedStyle(current);
+			return {
+				currentBackgroundColor: currentStyles.backgroundColor,
+				currentBorderRadius: currentStyles.borderRadius,
+				dropdownBackgroundColor: dropdownStyles.backgroundColor,
+			};
+		});
+
+		expect(openContract.dropdownBackgroundColor).not.toBe('rgb(250, 253, 251)');
+		expect(openContract.currentBackgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+		expect(Number.parseFloat(openContract.currentBorderRadius)).toBeGreaterThan(1000);
 	});
 });
 
