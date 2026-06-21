@@ -818,6 +818,9 @@ test.describe('Theme MD3 component contracts', () => {
 		expect(menuContract.transitionProperty).toContain('transform');
 
 		const closeMotion = await themeButton.evaluate((button) => {
+			if (!(button instanceof HTMLButtonElement)) {
+				throw new Error('Expected theme menu trigger button.');
+			}
 			button.click();
 			const element = button
 				.closest('starlight-theme-select')
