@@ -222,21 +222,24 @@ function generateOptionsCss(options: ResolvedMd3ThemeOptions, cssOptions: { laye
 	];
 
 	if (!options.tonalSurface) {
-		chunks.push(wrapTokenCss(
-			`
+		chunks.push(
+			wrapTokenCss(
+				`
 	:root {
 		--md-sys-color-surface-container-low: var(--md-sys-color-surface);
 		--md-sys-color-surface-container: var(--md-sys-color-surface);
 		--md-sys-color-surface-container-high: var(--md-sys-color-surface);
 	}
 `,
-			layered
-		));
+				layered,
+			),
+		);
 	}
 
 	if (!options.motion) {
-		chunks.push(wrapTokenCss(
-			`
+		chunks.push(
+			wrapTokenCss(
+				`
 	:root {
 		--md-sys-motion-duration-short1: 0ms;
 		--md-sys-motion-duration-short2: 0ms;
@@ -269,8 +272,9 @@ function generateOptionsCss(options: ResolvedMd3ThemeOptions, cssOptions: { laye
 		--md3-motion-route-delay: 0ms;
 	}
 `,
-			layered
-		));
+				layered,
+			),
+		);
 	}
 
 	return chunks.filter(Boolean).join('\n');
@@ -291,7 +295,7 @@ ${formatCssTokens(scheme.dark)}
 ${formatCssTokens(scheme.light)}
 	}
 `,
-		layered
+		layered,
 	);
 }
 
@@ -315,7 +319,7 @@ function generateAccentCss(accent: ResolvedMd3ThemeOptions['accent'], layered: b
 		--md-sys-color-on-primary-container: ${preset.light.onPrimaryContainer};
 	}
 `,
-		layered
+		layered,
 	);
 }
 
@@ -340,7 +344,7 @@ function generateDensityCss(density: ResolvedMd3ThemeOptions['density'], layered
 		--md3-density-control-height: 2.75rem;
 	}
 `,
-		layered
+		layered,
 	);
 }
 
@@ -374,7 +378,7 @@ function generateShapeCss(shape: ResolvedMd3ThemeOptions['shape'], layered: bool
 		--md-sys-shape-corner-extra-large: ${scale.extraLarge};
 	}
 `,
-		layered
+		layered,
 	);
 }
 
@@ -419,7 +423,7 @@ function generateContrastCss(contrast: ResolvedMd3ThemeOptions['contrast'], laye
 		--md3-comp-pagination-outline-color: var(--md-sys-color-outline);
 	}
 `,
-		layered
+		layered,
 	);
 }
 
@@ -432,11 +436,15 @@ function getRouteTransitionBootstrapScript() {
 	return `
 (() => {
 	const storageKey = 'md3-route-transition';
+	const sidebarStorageKey = 'md3-sidebar-route-transition';
 	let shouldEnter = false;
+	let shouldEnterSidebar = false;
 
 	try {
 		shouldEnter = sessionStorage.getItem(storageKey) === 'true';
+		shouldEnterSidebar = sessionStorage.getItem(sidebarStorageKey) === 'true';
 		sessionStorage.removeItem(storageKey);
+		sessionStorage.removeItem(sidebarStorageKey);
 	} catch {
 		return;
 	}
@@ -444,12 +452,18 @@ function getRouteTransitionBootstrapScript() {
 	if (!shouldEnter || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
 	document.documentElement.setAttribute('data-md3-route-state', 'entering');
+	if (shouldEnterSidebar) {
+		document.documentElement.setAttribute('data-md3-sidebar-route-state', 'entering');
+	}
 
 	const clearRouteState = () => {
 		requestAnimationFrame(() => {
 			requestAnimationFrame(() => {
 				if (document.documentElement.getAttribute('data-md3-route-state') === 'entering') {
 					document.documentElement.removeAttribute('data-md3-route-state');
+				}
+				if (document.documentElement.getAttribute('data-md3-sidebar-route-state') === 'entering') {
+					document.documentElement.removeAttribute('data-md3-sidebar-route-state');
 				}
 			});
 		});
@@ -468,19 +482,20 @@ function getMotionRuntimeScript() {
 	return `
 (() => {
 	const routeTransitionStorageKey = 'md3-route-transition';
-	const rippleSelector = [
-		'button:not([disabled])',
-		'.sl-link-button:not([aria-disabled="true"])',
-		'.sidebar-content a[href]',
-		'.sidebar-content summary',
-		'starlight-toc a[href]',
-		'mobile-starlight-toc summary',
-		'mobile-starlight-toc .dropdown a[href]',
-		'.pagination-links a[href]',
-		'starlight-tabs [role="tab"]:not([aria-disabled="true"])',
-		'.sl-link-card[href]',
-		'starlight-menu-button button',
-		'.right-group label'
+	const sidebarRouteTransitionStorageKey = 'md3-sidebar-route-transition';
+		const rippleSelector = [
+			'button:not([disabled])',
+			'.sl-link-button:not([aria-disabled="true"])',
+			'.sidebar-content a[href]',
+			'.sidebar-content summary',
+			'starlight-toc a[href]',
+			'mobile-starlight-toc summary .toggle',
+			'mobile-starlight-toc .dropdown a[href]',
+			'.pagination-links a[href]',
+			'starlight-tabs [role="tab"]:not([aria-disabled="true"])',
+			'.sl-link-card[href]',
+			'starlight-menu-button button',
+			'.right-group label'
 	].join(',');
 	const navigationSelector = [
 		'.sidebar-content a[href]',
@@ -502,9 +517,10 @@ function getMotionRuntimeScript() {
 		return Number.parseFloat(token) || 0;
 	};
 
-	const activeRipples = new Map();
-	const sidebarDisclosureAnimations = new WeakMap();
-	const mobileTocAnimations = new WeakMap();
+		const activeRipples = new Map();
+		const sidebarDisclosureAnimations = new WeakMap();
+		const mobileTocAnimations = new WeakMap();
+		const tocNavigationLocks = new WeakMap();
 
 	const getMotionDuration = (tokenName, fallback) => {
 		const styles = getComputedStyle(document.documentElement);
@@ -744,10 +760,18 @@ function getMotionRuntimeScript() {
 		}, delayMs);
 	};
 
-	const syncTocIndicator = (nav) => {
-		if (!(nav instanceof HTMLElement)) return;
-		const activeLink = nav.querySelector('a[aria-current="true"]');
-		nav.dataset.md3TocTracker = 'true';
+		const getLockedTocLink = (nav) => {
+			const record = tocNavigationLocks.get(nav);
+			if (!record || !record.link.isConnected || !nav.contains(record.link)) {
+				return null;
+			}
+			return record.link;
+		};
+
+		const syncTocIndicator = (nav) => {
+			if (!(nav instanceof HTMLElement)) return;
+			const activeLink = getLockedTocLink(nav) || nav.querySelector('a[aria-current="true"]');
+			nav.dataset.md3TocTracker = 'true';
 
 		if (!(activeLink instanceof HTMLElement)) {
 			nav.style.setProperty('--md3-toc-indicator-opacity', '0');
@@ -762,6 +786,47 @@ function getMotionRuntimeScript() {
 		nav.style.setProperty('--md3-toc-indicator-y', indicatorY + 'px');
 		nav.style.setProperty('--md3-toc-indicator-opacity', '1');
 	};
+
+	const setTocActiveLink = (link) => {
+		const nav = link.closest('starlight-toc nav');
+		if (!(nav instanceof HTMLElement)) return;
+
+		nav.querySelectorAll('a[aria-current="true"]').forEach((activeLink) => {
+			if (activeLink !== link) {
+				activeLink.removeAttribute('aria-current');
+			}
+		});
+			link.setAttribute('aria-current', 'true');
+			syncTocIndicator(nav);
+		};
+
+		const lockTocActiveLink = (link, lockMs = 1200) => {
+			const nav = link.closest('starlight-toc nav');
+			if (!(nav instanceof HTMLElement)) return false;
+
+			const previous = tocNavigationLocks.get(nav);
+			if (previous) {
+				window.clearTimeout(previous.timeout);
+				previous.link.classList.remove('md3-toc-navigation-target');
+			}
+
+			nav.dataset.md3TocNavigationLock = 'true';
+			link.classList.add('md3-toc-navigation-target');
+			setTocActiveLink(link);
+
+			const timeout = window.setTimeout(() => {
+				const active = tocNavigationLocks.get(nav);
+				if (!active || active.link !== link) return;
+				setTocActiveLink(link);
+				link.classList.remove('md3-toc-navigation-target');
+				delete nav.dataset.md3TocNavigationLock;
+				tocNavigationLocks.delete(nav);
+				syncTocIndicator(nav);
+			}, lockMs);
+
+			tocNavigationLocks.set(nav, { link, timeout });
+			return true;
+		};
 
 	const setupTocIndicators = () => {
 		const navs = document.querySelectorAll('starlight-toc nav');
@@ -801,6 +866,10 @@ function getMotionRuntimeScript() {
 
 			document.querySelectorAll('starlight-toc nav').forEach((nav) => {
 				if (!(nav instanceof HTMLElement)) return;
+				if (getLockedTocLink(nav)) {
+					syncTocIndicator(nav);
+					return;
+				}
 				const links = Array.from(nav.querySelectorAll('a[href]')).filter(
 					(link) => link instanceof HTMLElement
 				);
@@ -921,30 +990,42 @@ function getMotionRuntimeScript() {
 		const target = getHashTarget(url.hash);
 		if (!target) return;
 
-		event.preventDefault();
-		event.stopPropagation();
-		link.classList.add('md3-navigation-pending');
+			event.preventDefault();
+			event.stopPropagation();
+			link.classList.add('md3-navigation-pending');
+			const hasLockedTocTarget = lockTocActiveLink(link);
+			if (!hasLockedTocTarget) {
+				setTocActiveLink(link);
+			}
 
 		const mobileToc = link.closest('mobile-starlight-toc details');
 		if (mobileToc instanceof HTMLDetailsElement) {
-			closeMobileTocWithAnimation(mobileToc).finally(() => {
-				link.classList.remove('md3-navigation-pending');
-				scrollToHashTarget(url, target);
-			});
-			return;
-		}
+				closeMobileTocWithAnimation(mobileToc).finally(() => {
+					link.classList.remove('md3-navigation-pending');
+					scrollToHashTarget(url, target);
+				});
+				return;
+			}
 
-		link.classList.remove('md3-navigation-pending');
-		scrollToHashTarget(url, target);
-	}, { capture: true });
+			link.classList.remove('md3-navigation-pending');
+			scrollToHashTarget(url, target);
+		}, { capture: true });
 
 	document.addEventListener('click', (event) => {
 		if (event.defaultPrevented || reducedMotion()) return;
-		const mobileTocSummary = event.target instanceof Element
-			? event.target.closest('mobile-starlight-toc details > summary')
-			: null;
-		const mobileTocAnimation =
-			mobileTocSummary instanceof HTMLElement ? animateMobileTocDisclosure(mobileTocSummary) : null;
+			const mobileTocSummary = event.target instanceof Element
+				? event.target.closest('mobile-starlight-toc details > summary')
+				: null;
+			if (
+				mobileTocSummary instanceof HTMLElement &&
+				event.detail > 0 &&
+				!(event.target instanceof Element && event.target.closest('mobile-starlight-toc summary .toggle'))
+			) {
+				event.preventDefault();
+				return;
+			}
+			const mobileTocAnimation =
+				mobileTocSummary instanceof HTMLElement ? animateMobileTocDisclosure(mobileTocSummary) : null;
 		if (mobileTocAnimation?.handled) {
 			event.preventDefault();
 			return;
@@ -977,6 +1058,9 @@ function getMotionRuntimeScript() {
 		if (url.origin !== current.origin) return;
 		if (url.pathname === current.pathname && url.search === current.search && url.hash) return;
 		if (url.href === current.href) return;
+		const shouldAnimateSidebarRoute =
+			document.documentElement.hasAttribute('data-has-hero') &&
+			!document.documentElement.hasAttribute('data-has-sidebar');
 
 		const delay = durationToMs(
 			getComputedStyle(document.documentElement).getPropertyValue('--md3-motion-route-delay')
@@ -988,6 +1072,11 @@ function getMotionRuntimeScript() {
 		document.documentElement.setAttribute('data-md3-route-state', 'leaving');
 		try {
 			sessionStorage.setItem(routeTransitionStorageKey, 'true');
+			if (shouldAnimateSidebarRoute) {
+				sessionStorage.setItem(sidebarRouteTransitionStorageKey, 'true');
+			} else {
+				sessionStorage.removeItem(sidebarRouteTransitionStorageKey);
+			}
 		} catch {}
 		window.setTimeout(() => {
 			window.location.href = url.href;

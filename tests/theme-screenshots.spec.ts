@@ -21,8 +21,8 @@ const scenarios = pages.flatMap((page) =>
 			path: page.path,
 			theme,
 			viewport: viewport.size,
-		}))
-	)
+		})),
+	),
 );
 
 const searchDialogScenarios = viewports.flatMap((viewport) =>
@@ -31,7 +31,7 @@ const searchDialogScenarios = viewports.flatMap((viewport) =>
 		path: '/guides/theme-lab/',
 		theme,
 		viewport: viewport.size,
-	}))
+	})),
 );
 
 const mobileDrawerScenarios = themes.map((theme) => ({
@@ -110,7 +110,7 @@ test.describe('Theme interaction screenshots', () => {
 			await page.goto(scenario.path);
 			await settlePage(page, scenario.theme);
 
-			await page.locator('#starlight__mobile-toc summary').click();
+			await page.locator('#starlight__mobile-toc summary .toggle').click();
 			await expect(page.locator('#starlight__mobile-toc')).toHaveAttribute('open', '');
 			await expect(page.locator('#starlight__mobile-toc .dropdown a').first()).toBeVisible();
 			await page.evaluate(() => window.getSelection()?.removeAllRanges());
@@ -147,9 +147,9 @@ test.describe('Theme motion behavior', () => {
 		await page.goto('/guides/theme-lab/');
 		await page.locator('main').waitFor({ state: 'visible' });
 
-		const stateDuration = await page.locator('html').evaluate((element) =>
-			getComputedStyle(element).getPropertyValue('--md3-motion-duration-state').trim()
-		);
+		const stateDuration = await page
+			.locator('html')
+			.evaluate((element) => getComputedStyle(element).getPropertyValue('--md3-motion-duration-state').trim());
 		const routeDurations = await page.locator('html').evaluate((element) => {
 			const styles = getComputedStyle(element);
 			return {
@@ -157,9 +157,9 @@ test.describe('Theme motion behavior', () => {
 				leave: styles.getPropertyValue('--md3-motion-duration-route-leave').trim(),
 			};
 		});
-		const buttonDuration = await page.locator('button[data-open-modal]').evaluate((element) =>
-			getComputedStyle(element).transitionDuration
-		);
+		const buttonDuration = await page
+			.locator('button[data-open-modal]')
+			.evaluate((element) => getComputedStyle(element).transitionDuration);
 
 		expect(stateDuration).not.toBe('0ms');
 		expect(routeDurations.enter).not.toBe('0ms');
@@ -173,9 +173,9 @@ test.describe('Theme motion behavior', () => {
 		await page.goto('/guides/theme-lab/');
 		await page.locator('main').waitFor({ state: 'visible' });
 
-		const stateDuration = await page.locator('html').evaluate((element) =>
-			getComputedStyle(element).getPropertyValue('--md3-motion-duration-state').trim()
-		);
+		const stateDuration = await page
+			.locator('html')
+			.evaluate((element) => getComputedStyle(element).getPropertyValue('--md3-motion-duration-state').trim());
 		const routeDurations = await page.locator('html').evaluate((element) => {
 			const styles = getComputedStyle(element);
 			return {
@@ -269,13 +269,18 @@ test.describe('Theme motion behavior', () => {
 
 		const link = page.locator('.sidebar-content a[href="/guides/implementation-plan/"]').first();
 		const clickResult = await link.evaluate((element) => {
-			const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 });
+			const event = new MouseEvent('click', {
+				bubbles: true,
+				cancelable: true,
+				button: 0,
+			});
 			element.dispatchEvent(event);
 			return {
 				defaultPrevented: event.defaultPrevented,
 				className: element.className,
 				routeState: document.documentElement.getAttribute('data-md3-route-state'),
 				routeFlag: sessionStorage.getItem('md3-route-transition'),
+				sidebarRouteFlag: sessionStorage.getItem('md3-sidebar-route-transition'),
 			};
 		});
 
@@ -283,16 +288,21 @@ test.describe('Theme motion behavior', () => {
 		expect(clickResult.className).toContain('md3-navigation-pending');
 		expect(clickResult.routeState).toBe('leaving');
 		expect(clickResult.routeFlag).toBe('true');
+		expect(clickResult.sidebarRouteFlag).toBeNull();
 		await page.waitForURL(/\/guides\/implementation-plan\/$/);
-		await expect.poll(() =>
-			page.evaluate(() => ({
-				routeState: document.documentElement.getAttribute('data-md3-route-state'),
-				routeFlag: sessionStorage.getItem('md3-route-transition'),
-			}))
-		).toEqual({
-			routeState: null,
-			routeFlag: null,
-		});
+		await expect
+			.poll(() =>
+				page.evaluate(() => ({
+					routeState: document.documentElement.getAttribute('data-md3-route-state'),
+					routeFlag: sessionStorage.getItem('md3-route-transition'),
+					sidebarRouteFlag: sessionStorage.getItem('md3-sidebar-route-transition'),
+				})),
+			)
+			.toEqual({
+				routeState: null,
+				routeFlag: null,
+				sidebarRouteFlag: null,
+			});
 	});
 
 	test('homepage CTA uses the same content-only route transition', async ({ page }) => {
@@ -303,13 +313,18 @@ test.describe('Theme motion behavior', () => {
 
 		const link = page.locator('.sl-link-button[href$="guides/theme-concept/"]').first();
 		const clickResult = await link.evaluate((element) => {
-			const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 });
+			const event = new MouseEvent('click', {
+				bubbles: true,
+				cancelable: true,
+				button: 0,
+			});
 			element.dispatchEvent(event);
 			return {
 				defaultPrevented: event.defaultPrevented,
 				className: element.className,
 				routeState: document.documentElement.getAttribute('data-md3-route-state'),
 				routeFlag: sessionStorage.getItem('md3-route-transition'),
+				sidebarRouteFlag: sessionStorage.getItem('md3-sidebar-route-transition'),
 			};
 		});
 
@@ -317,16 +332,59 @@ test.describe('Theme motion behavior', () => {
 		expect(clickResult.className).toContain('md3-navigation-pending');
 		expect(clickResult.routeState).toBe('leaving');
 		expect(clickResult.routeFlag).toBe('true');
+		expect(clickResult.sidebarRouteFlag).toBe('true');
 		await page.waitForURL(/\/guides\/theme-concept\/$/);
-		await expect.poll(() =>
-			page.evaluate(() => ({
-				routeState: document.documentElement.getAttribute('data-md3-route-state'),
-				routeFlag: sessionStorage.getItem('md3-route-transition'),
-			}))
-		).toEqual({
-			routeState: null,
-			routeFlag: null,
+		await expect
+			.poll(() =>
+				page.evaluate(() => ({
+					routeState: document.documentElement.getAttribute('data-md3-route-state'),
+					routeFlag: sessionStorage.getItem('md3-route-transition'),
+					sidebarRouteFlag: sessionStorage.getItem('md3-sidebar-route-transition'),
+				})),
+			)
+			.toEqual({
+				routeState: null,
+				routeFlag: null,
+				sidebarRouteFlag: null,
+			});
+	});
+
+	test('desktop sidebar enters only for hero-to-docs layout changes', async ({ page }) => {
+		await page.emulateMedia({ reducedMotion: 'no-preference' });
+		await setThemeBeforeNavigation(page, 'light');
+		await page.goto('/guides/theme-concept/');
+		await expect(page.locator('#starlight__sidebar')).toBeVisible();
+
+		const sidebarMotion = await page.locator('#starlight__sidebar').evaluate((element) => {
+			document.documentElement.setAttribute('data-md3-route-state', 'entering');
+			const genericRouteStyles = getComputedStyle(element);
+			const genericRouteOpacity = genericRouteStyles.opacity;
+			const genericRouteTransform = genericRouteStyles.transform;
+			document.documentElement.setAttribute('data-md3-sidebar-route-state', 'entering');
+			let styles = getComputedStyle(element);
+			const transitionProperty = styles.transitionProperty;
+			element.style.transition = 'none';
+			element.getBoundingClientRect();
+			styles = getComputedStyle(element);
+			const result = {
+				genericRouteOpacity,
+				genericRouteTransform,
+				opacity: styles.opacity,
+				transform: styles.transform,
+				transitionProperty,
+			};
+			element.style.removeProperty('transition');
+			document.documentElement.removeAttribute('data-md3-route-state');
+			document.documentElement.removeAttribute('data-md3-sidebar-route-state');
+			return result;
 		});
+
+		expect(sidebarMotion.genericRouteOpacity).toBe('1');
+		expect(sidebarMotion.genericRouteTransform).toBe('none');
+		expect(sidebarMotion.opacity).toBe('0');
+		expect(sidebarMotion.transform).not.toBe('none');
+		expect(sidebarMotion.transitionProperty).toContain('opacity');
+		expect(sidebarMotion.transitionProperty).toContain('transform');
 	});
 
 	test('homepage hero uses restrained MD3 entrance motion on navigation', async ({ page }) => {
@@ -349,15 +407,18 @@ test.describe('Theme motion behavior', () => {
 		expect(heroMotion.animationFillMode).toBe('both');
 		expect(heroMotion.animationDelay).toBe('0s');
 
-		const surfaceMotion = await page.locator('.card').first().evaluate((element) => {
-			const styles = getComputedStyle(element);
-			return {
-				animationDelay: styles.animationDelay,
-				animationDuration: styles.animationDuration,
-				animationFillMode: styles.animationFillMode,
-				animationName: styles.animationName,
-			};
-		});
+		const surfaceMotion = await page
+			.locator('.card')
+			.first()
+			.evaluate((element) => {
+				const styles = getComputedStyle(element);
+				return {
+					animationDelay: styles.animationDelay,
+					animationDuration: styles.animationDuration,
+					animationFillMode: styles.animationFillMode,
+					animationName: styles.animationName,
+				};
+			});
 		expect(surfaceMotion.animationName).toBe('md3-home-surface-enter');
 		expect(surfaceMotion.animationDuration).toBe('0.5s');
 		expect(surfaceMotion.animationFillMode).toBe('both');
@@ -374,17 +435,19 @@ test.describe('Theme motion behavior', () => {
 
 test.describe('Theme transient states', () => {
 	for (const theme of themes) {
-		test(`search field uses surface-container-high in ${theme} mode`, async ({ page }) => {
+		test(`search field uses theme-specific filled surface in ${theme} mode`, async ({ page }) => {
 			await setThemeBeforeNavigation(page, theme);
 			await page.goto('/guides/theme-lab/');
 			await settlePage(page, theme);
 
 			const colors = await page.locator('button[data-open-modal]').evaluate((element) => {
 				const rootStyles = getComputedStyle(document.documentElement);
+				const expectedToken =
+					document.documentElement.dataset.theme === 'light'
+						? '--md-sys-color-surface-container'
+						: '--md-sys-color-surface-container-highest';
 				const probe = document.createElement('span');
-				probe.style.backgroundColor = rootStyles
-					.getPropertyValue('--md-sys-color-surface-container-high')
-					.trim();
+				probe.style.backgroundColor = rootStyles.getPropertyValue(expectedToken).trim();
 				document.body.append(probe);
 				const expectedBackgroundColor = getComputedStyle(probe).backgroundColor;
 				probe.remove();
@@ -496,35 +559,38 @@ test.describe('Theme MD3 component contracts', () => {
 		await page.goto('/');
 		await page.locator('main').waitFor({ state: 'visible' });
 
-		const cardContract = await page.locator('.card').first().evaluate((card) => {
-			const title = card.querySelector('.title');
-			const body = card.querySelector('.body');
-			const icon = card.querySelector('.icon');
-			if (!title || !body || !icon) throw new Error('Expected Starlight card title, body, and icon elements.');
+		const cardContract = await page
+			.locator('.card')
+			.first()
+			.evaluate((card) => {
+				const title = card.querySelector('.title');
+				const body = card.querySelector('.body');
+				const icon = card.querySelector('.icon');
+				if (!title || !body || !icon) throw new Error('Expected Starlight card title, body, and icon elements.');
 
-			const cardStyles = getComputedStyle(card);
-			const titleStyles = getComputedStyle(title);
-			const bodyStyles = getComputedStyle(body);
-			const iconStyles = getComputedStyle(icon);
-			return {
-				borderColor: cardStyles.borderColor,
-				display: cardStyles.display,
-				flexDirection: cardStyles.flexDirection,
-				gap: cardStyles.gap,
-				iconBlockSize: iconStyles.blockSize,
-				iconBorderColor: iconStyles.borderColor,
-				iconInlineSize: iconStyles.inlineSize,
-				iconPadding: iconStyles.paddingBlockStart,
-				iconBackgroundColor: iconStyles.backgroundColor,
-				titleFontWeight: titleStyles.fontWeight,
-				titleGap: titleStyles.gap,
-				titleMarginBlockEnd: titleStyles.marginBlockEnd,
-				titleMarginBlockStart: titleStyles.marginBlockStart,
-				bodyMarginBlockEnd: bodyStyles.marginBlockEnd,
-				bodyMarginInlineStart: bodyStyles.marginInlineStart,
-				bodyMarginBlockStart: bodyStyles.marginBlockStart,
-			};
-		});
+				const cardStyles = getComputedStyle(card);
+				const titleStyles = getComputedStyle(title);
+				const bodyStyles = getComputedStyle(body);
+				const iconStyles = getComputedStyle(icon);
+				return {
+					borderColor: cardStyles.borderColor,
+					display: cardStyles.display,
+					flexDirection: cardStyles.flexDirection,
+					gap: cardStyles.gap,
+					iconBlockSize: iconStyles.blockSize,
+					iconBorderColor: iconStyles.borderColor,
+					iconInlineSize: iconStyles.inlineSize,
+					iconPadding: iconStyles.paddingBlockStart,
+					iconBackgroundColor: iconStyles.backgroundColor,
+					titleFontWeight: titleStyles.fontWeight,
+					titleGap: titleStyles.gap,
+					titleMarginBlockEnd: titleStyles.marginBlockEnd,
+					titleMarginBlockStart: titleStyles.marginBlockStart,
+					bodyMarginBlockEnd: bodyStyles.marginBlockEnd,
+					bodyMarginInlineStart: bodyStyles.marginInlineStart,
+					bodyMarginBlockStart: bodyStyles.marginBlockStart,
+				};
+			});
 
 		expect(cardContract.borderColor).toBe('rgba(0, 0, 0, 0)');
 		expect(cardContract.display).toBe('flex');
@@ -549,20 +615,23 @@ test.describe('Theme MD3 component contracts', () => {
 		await page.goto('/');
 		await page.locator('main').waitFor({ state: 'visible' });
 
-		const panelContract = await page.locator('.md3-showcase-panel').first().evaluate((panel) => {
-			const styles = getComputedStyle(panel);
-			const probe = document.createElement('span');
-			const rootStyles = getComputedStyle(document.documentElement);
-			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface-container').trim();
-			document.body.append(probe);
-			const expectedBackgroundColor = getComputedStyle(probe).backgroundColor;
-			probe.remove();
-			return {
-				backgroundColor: styles.backgroundColor,
-				borderColor: styles.borderColor,
-				expectedBackgroundColor,
-			};
-		});
+		const panelContract = await page
+			.locator('.md3-showcase-panel')
+			.first()
+			.evaluate((panel) => {
+				const styles = getComputedStyle(panel);
+				const probe = document.createElement('span');
+				const rootStyles = getComputedStyle(document.documentElement);
+				probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface-container').trim();
+				document.body.append(probe);
+				const expectedBackgroundColor = getComputedStyle(probe).backgroundColor;
+				probe.remove();
+				return {
+					backgroundColor: styles.backgroundColor,
+					borderColor: styles.borderColor,
+					expectedBackgroundColor,
+				};
+			});
 
 		expect(panelContract.backgroundColor).toBe(panelContract.expectedBackgroundColor);
 		expect(panelContract.borderColor).toBe('rgba(0, 0, 0, 0)');
@@ -577,7 +646,11 @@ test.describe('Theme MD3 component contracts', () => {
 			const header = document.querySelector('.page > .header');
 			const contentDivider = document.querySelector('.content-panel + .content-panel');
 			const sidebar = document.querySelector('.sidebar-pane');
-			if (!(header instanceof HTMLElement) || !(contentDivider instanceof HTMLElement) || !(sidebar instanceof HTMLElement)) {
+			if (
+				!(header instanceof HTMLElement) ||
+				!(contentDivider instanceof HTMLElement) ||
+				!(sidebar instanceof HTMLElement)
+			) {
 				throw new Error('Expected Starlight header, sidebar, and content panel divider.');
 			}
 
@@ -589,6 +662,8 @@ test.describe('Theme MD3 component contracts', () => {
 			document.body.append(probe);
 			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface').trim();
 			const resolvedSurfaceColor = getComputedStyle(probe).backgroundColor;
+			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface-container-low').trim();
+			const resolvedSurfaceContainerLowColor = getComputedStyle(probe).backgroundColor;
 			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface-container').trim();
 			const resolvedSurfaceContainerColor = getComputedStyle(probe).backgroundColor;
 			probe.remove();
@@ -598,6 +673,7 @@ test.describe('Theme MD3 component contracts', () => {
 				headerBorderBottomColor: headerStyles.borderBottomColor,
 				headerBoxShadow: headerStyles.boxShadow,
 				resolvedSurfaceColor,
+				resolvedSurfaceContainerLowColor,
 				resolvedSurfaceContainerColor,
 				sidebarBackgroundColor: sidebarStyles.backgroundColor,
 				sidebarBorderInlineEndColor: sidebarStyles.borderInlineEndColor,
@@ -605,12 +681,56 @@ test.describe('Theme MD3 component contracts', () => {
 		});
 
 		expect(layoutContract.headerBackgroundColor).not.toBe(layoutContract.resolvedSurfaceColor);
-		expect(layoutContract.headerBackgroundColor).toBe(layoutContract.sidebarBackgroundColor);
-		expect(layoutContract.headerBackgroundColor).toBe(layoutContract.resolvedSurfaceContainerColor);
+		expect(layoutContract.headerBackgroundColor).toBe(layoutContract.resolvedSurfaceContainerLowColor);
+		expect(layoutContract.sidebarBackgroundColor).toBe(layoutContract.resolvedSurfaceContainerLowColor);
+		expect(layoutContract.sidebarBackgroundColor).not.toBe(layoutContract.resolvedSurfaceContainerColor);
 		expect(layoutContract.headerBorderBottomColor).toBe('rgba(0, 0, 0, 0)');
 		expect(layoutContract.headerBoxShadow).toBe('none');
 		expect(layoutContract.contentBorderTopColor).toBe('rgba(0, 0, 0, 0)');
 		expect(layoutContract.sidebarBorderInlineEndColor).toBe('rgba(0, 0, 0, 0)');
+	});
+
+	test('dark top app bar uses a crisp MD3 container hierarchy', async ({ page }) => {
+		await setThemeBeforeNavigation(page, 'dark');
+		await page.goto('/guides/theme-lab/');
+		await page.locator('main').waitFor({ state: 'visible' });
+
+		const hierarchy = await page.evaluate(() => {
+			const header = document.querySelector('.page > .header');
+			const pageElement = document.querySelector('.page');
+			const search = document.querySelector('button[data-open-modal]');
+			if (
+				!(header instanceof HTMLElement) ||
+				!(pageElement instanceof HTMLElement) ||
+				!(search instanceof HTMLElement)
+			) {
+				throw new Error('Expected top app bar, page, and search field.');
+			}
+
+			const rootStyles = getComputedStyle(document.documentElement);
+			const probe = document.createElement('span');
+			document.body.append(probe);
+			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface').trim();
+			const resolvedSurfaceColor = getComputedStyle(probe).backgroundColor;
+			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface-container').trim();
+			const resolvedSurfaceContainerColor = getComputedStyle(probe).backgroundColor;
+			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface-container-highest').trim();
+			const resolvedSurfaceContainerHighestColor = getComputedStyle(probe).backgroundColor;
+			probe.remove();
+
+			return {
+				headerBackgroundColor: getComputedStyle(header).backgroundColor,
+				pageBackgroundColor: getComputedStyle(pageElement).backgroundColor,
+				resolvedSurfaceColor,
+				resolvedSurfaceContainerColor,
+				resolvedSurfaceContainerHighestColor,
+				searchBackgroundColor: getComputedStyle(search).backgroundColor,
+			};
+		});
+
+		expect(hierarchy.pageBackgroundColor).toBe(hierarchy.resolvedSurfaceColor);
+		expect(hierarchy.headerBackgroundColor).toBe(hierarchy.resolvedSurfaceContainerColor);
+		expect(hierarchy.searchBackgroundColor).toBe(hierarchy.resolvedSurfaceContainerHighestColor);
 	});
 
 	test('chrome typography keeps a quiet MD3 hierarchy', async ({ page }) => {
@@ -622,7 +742,11 @@ test.describe('Theme MD3 component contracts', () => {
 			const siteTitle = document.querySelector('.site-title');
 			const activeNav = document.querySelector('.sidebar-content [aria-current="page"]');
 			const tocTitle = document.querySelector('starlight-toc h2');
-			if (!(siteTitle instanceof HTMLElement) || !(activeNav instanceof HTMLElement) || !(tocTitle instanceof HTMLElement)) {
+			if (
+				!(siteTitle instanceof HTMLElement) ||
+				!(activeNav instanceof HTMLElement) ||
+				!(tocTitle instanceof HTMLElement)
+			) {
 				throw new Error('Expected site title, active sidebar link, and TOC heading.');
 			}
 
@@ -651,11 +775,20 @@ test.describe('Theme MD3 component contracts', () => {
 		const marker = await tocNav.evaluate((element) => {
 			const styles = getComputedStyle(element, '::before');
 			const matrix = new DOMMatrixReadOnly(styles.transform);
+			const activeLink = element.querySelector('a[aria-current="true"]');
+			const rootStyles = getComputedStyle(document.documentElement);
+			const probe = document.createElement('span');
+			document.body.append(probe);
+			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-primary').trim();
+			const resolvedPrimaryColor = getComputedStyle(probe).backgroundColor;
+			probe.remove();
 			return {
 				inlineStart: styles.insetInlineStart,
+				activeLinkColor: activeLink instanceof HTMLElement ? getComputedStyle(activeLink).color : '',
 				backgroundColor: styles.backgroundColor,
 				height: styles.blockSize,
 				opacity: styles.opacity,
+				resolvedPrimaryColor,
 				translateY: matrix.m42,
 				width: styles.inlineSize,
 			};
@@ -666,7 +799,8 @@ test.describe('Theme MD3 component contracts', () => {
 		expect(marker.height).toBe('16px');
 		expect(marker.translateY).toBeGreaterThanOrEqual(0);
 		expect(marker.width).toBe('4px');
-		expect(marker.backgroundColor).toBe('rgb(71, 97, 122)');
+		expect(marker.backgroundColor).toBe(marker.resolvedPrimaryColor);
+		expect(marker.activeLinkColor).toBe(marker.resolvedPrimaryColor);
 	});
 
 	test('TOC selects the final heading at the page bottom', async ({ page }) => {
@@ -684,7 +818,7 @@ test.describe('Theme MD3 component contracts', () => {
 			.poll(() =>
 				page
 					.locator('starlight-toc a[aria-current="true"]')
-					.evaluateAll((links) => links.map((link) => link.textContent?.trim()))
+					.evaluateAll((links) => links.map((link) => link.textContent?.trim())),
 			)
 			.toEqual(['Final Scrollspy Check']);
 	});
@@ -734,6 +868,16 @@ test.describe('Theme MD3 component contracts', () => {
 		await page.locator('main').waitFor({ state: 'visible' });
 
 		const themeButton = page.locator('starlight-theme-select .md3-theme-select__button').first();
+		await expect
+			.poll(() =>
+				themeButton.evaluate(
+					(button) =>
+						[...button.querySelectorAll('.md3-theme-select__button-icon')].filter(
+							(icon) => Number.parseFloat(getComputedStyle(icon).opacity) > 0.99,
+						).length,
+				),
+			)
+			.toBe(1);
 		const buttonRestContract = await themeButton.evaluate((button) => {
 			const styles = getComputedStyle(button);
 			return {
@@ -743,7 +887,7 @@ test.describe('Theme MD3 component contracts', () => {
 				inlineSize: styles.inlineSize,
 				minBlockSize: styles.minBlockSize,
 				visibleIcons: [...button.querySelectorAll('.md3-theme-select__button-icon')].filter(
-					(icon) => Number.parseFloat(getComputedStyle(icon).opacity) > 0.99
+					(icon) => Number.parseFloat(getComputedStyle(icon).opacity) > 0.99,
 				).length,
 				visibleText: button.textContent?.trim() ?? '',
 			};
@@ -838,9 +982,7 @@ test.describe('Theme MD3 component contracts', () => {
 				throw new Error('Expected theme menu trigger button.');
 			}
 			button.click();
-			const element = button
-				.closest('starlight-theme-select')
-				?.querySelector<HTMLElement>('.md3-theme-select__menu');
+			const element = button.closest('starlight-theme-select')?.querySelector<HTMLElement>('.md3-theme-select__menu');
 			if (!element) throw new Error('Expected theme menu after closing trigger.');
 			const styles = getComputedStyle(element);
 			return {
@@ -989,8 +1131,16 @@ test.describe('Theme MD3 component contracts', () => {
 		await expect(details).toHaveAttribute('open', '');
 
 		await summary.evaluate((element) => {
-			const first = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 });
-			const second = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 });
+			const first = new MouseEvent('click', {
+				bubbles: true,
+				cancelable: true,
+				button: 0,
+			});
+			const second = new MouseEvent('click', {
+				bubbles: true,
+				cancelable: true,
+				button: 0,
+			});
 			element.dispatchEvent(first);
 			element.dispatchEvent(second);
 		});
@@ -1015,6 +1165,45 @@ test.describe('Theme MD3 component contracts', () => {
 		await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(250);
 		const activeElementId = await page.evaluate(() => document.activeElement?.id ?? '');
 		expect(activeElementId).toBe('tables');
+
+		const finalTocLink = page.locator('starlight-toc a[href="#final-scrollspy-check"]').first();
+		await expect(finalTocLink).toBeVisible();
+		await finalTocLink.click();
+
+		const lockedContract = await page
+			.locator('starlight-toc nav')
+			.first()
+			.evaluate((nav) => ({
+				locked: (nav as HTMLElement).dataset.md3TocNavigationLock,
+				targetHref: nav.querySelector('.md3-toc-navigation-target')?.getAttribute('href') ?? '',
+			}));
+		expect(lockedContract.locked).toBe('true');
+		expect(lockedContract.targetHref).toBe('#final-scrollspy-check');
+
+		await page
+			.locator('starlight-toc a[href="#tables"]')
+			.first()
+			.evaluate((link) => {
+				link.setAttribute('aria-current', 'true');
+			});
+		const lockedAfterScrollspyInterference = await page
+			.locator('starlight-toc nav')
+			.first()
+			.evaluate((nav) => ({
+				targetHref: nav.querySelector('.md3-toc-navigation-target')?.getAttribute('href') ?? '',
+				targetStillCurrent: nav.querySelector('.md3-toc-navigation-target')?.getAttribute('aria-current') === 'true',
+			}));
+		expect(lockedAfterScrollspyInterference.targetHref).toBe('#final-scrollspy-check');
+		expect(lockedAfterScrollspyInterference.targetStillCurrent).toBe(true);
+
+		await expect.poll(() => page.evaluate(() => window.location.hash)).toBe('#final-scrollspy-check');
+		await expect
+			.poll(() =>
+				page
+					.locator('starlight-toc a[aria-current="true"]')
+					.evaluateAll((links) => links.map((link) => link.getAttribute('href'))),
+			)
+			.toEqual(['#final-scrollspy-check']);
 	});
 
 	test('mobile drawer theme button keeps the active icon and label aligned', async ({ page }) => {
@@ -1034,16 +1223,16 @@ test.describe('Theme MD3 component contracts', () => {
 				themeButton.evaluate(
 					(button) =>
 						[...button.querySelectorAll('.md3-theme-select__button-icon')].filter(
-							(icon) => Number.parseFloat(getComputedStyle(icon).opacity) > 0.99
-						).length
-				)
+							(icon) => Number.parseFloat(getComputedStyle(icon).opacity) > 0.99,
+						).length,
+				),
 			)
 			.toBe(1);
 
 		const contract = await themeButton.evaluate((button) => {
 			const buttonBox = button.getBoundingClientRect();
 			const visibleIcon = [...button.querySelectorAll('.md3-theme-select__button-icon')].find(
-				(icon) => Number.parseFloat(getComputedStyle(icon).opacity) > 0.99
+				(icon) => Number.parseFloat(getComputedStyle(icon).opacity) > 0.99,
 			);
 			const current = button.querySelector('.md3-theme-select__current');
 			const caret = button.querySelector('.md3-theme-select__caret');
@@ -1063,7 +1252,7 @@ test.describe('Theme MD3 component contracts', () => {
 				gapIconToLabel: Math.round(labelBox.left - iconBox.right),
 				labelText: current.textContent?.trim() ?? '',
 				visibleIcons: [...button.querySelectorAll('.md3-theme-select__button-icon')].filter(
-					(icon) => Number.parseFloat(getComputedStyle(icon).opacity) > 0.99
+					(icon) => Number.parseFloat(getComputedStyle(icon).opacity) > 0.99,
 				).length,
 			};
 		});
@@ -1106,6 +1295,8 @@ test.describe('Theme MD3 component contracts', () => {
 
 		const toc = page.locator('#starlight__mobile-toc');
 		const summary = toc.locator('summary');
+		const toggle = summary.locator('.toggle');
+		const displayCurrent = summary.locator('.display-current');
 		await expect(summary).toBeVisible();
 
 		const restContract = await toc.evaluate((details) => {
@@ -1133,7 +1324,19 @@ test.describe('Theme MD3 component contracts', () => {
 		expect(restContract.toggleBackgroundColor).not.toBe('rgba(0, 0, 0, 0)');
 		expect(restContract.toggleBorderTopWidth).toBe('0px');
 
-		await summary.click();
+		await displayCurrent.click();
+		await expect.poll(() => toc.evaluate((details) => (details as HTMLDetailsElement).open)).toBe(false);
+
+		const toggleBox = await toggle.boundingBox();
+		expect(toggleBox).not.toBeNull();
+		await page.mouse.move(toggleBox!.x + toggleBox!.width / 2, toggleBox!.y + toggleBox!.height / 2);
+		await page.mouse.down();
+		await expect(toggle.locator('.md3-ripple')).toHaveCount(1);
+		const directSummaryRipples = await summary.evaluate(
+			(element) => [...element.children].filter((child) => child.classList.contains('md3-ripple')).length,
+		);
+		expect(directSummaryRipples).toBe(0);
+		await page.mouse.up();
 		await expect(toc).toHaveAttribute('open', '');
 		await expect.poll(() => toc.evaluate((details) => details.dataset.md3TocState ?? '')).toBe('opening');
 		await expect.poll(() => toc.evaluate((details) => details.dataset.md3TocState ?? '')).toBe('');
@@ -1147,24 +1350,37 @@ test.describe('Theme MD3 component contracts', () => {
 				details.querySelector('.dropdown a[aria-current="true"]') ??
 				details.querySelector('.dropdown a[aria-current="page"]') ??
 				firstLink;
-			if (!(dropdown instanceof HTMLElement) || !(firstLink instanceof HTMLElement) || !(currentLink instanceof HTMLElement)) {
+			if (
+				!(dropdown instanceof HTMLElement) ||
+				!(firstLink instanceof HTMLElement) ||
+				!(currentLink instanceof HTMLElement)
+			) {
 				throw new Error('Expected mobile TOC dropdown links.');
 			}
+			const detailsStyles = getComputedStyle(details);
 			const dropdownStyles = getComputedStyle(dropdown);
 			const firstLinkStyles = getComputedStyle(firstLink);
 			const currentLinkStyles = getComputedStyle(currentLink);
 			return {
 				currentBackgroundColor: currentLinkStyles.backgroundColor,
 				currentColor: currentLinkStyles.color,
+				detailsBackgroundColor: detailsStyles.backgroundColor,
+				dropdownMaxBlockSize: dropdownStyles.maxBlockSize,
 				dropdownOpacity: dropdownStyles.opacity,
+				dropdownOverscrollBehaviorY: dropdownStyles.overscrollBehaviorY,
 				dropdownTransform: dropdownStyles.transform,
+				dropdownOverflowY: dropdownStyles.overflowY,
 				firstLinkBlockSize: firstLink.getBoundingClientRect().height,
 				firstLinkBorderRadius: firstLinkStyles.borderRadius,
 				firstLinkTextDecorationLine: firstLinkStyles.textDecorationLine,
 			};
 		});
 
+		expect(openContract.detailsBackgroundColor).toBe(restContract.backgroundColor);
+		expect(openContract.dropdownMaxBlockSize).not.toBe('none');
 		expect(openContract.dropdownOpacity).toBe('1');
+		expect(openContract.dropdownOverflowY).toBe('auto');
+		expect(openContract.dropdownOverscrollBehaviorY).toBe('contain');
 		expect(openContract.dropdownTransform).toBe('matrix(1, 0, 0, 1, 0, 0)');
 		expect(openContract.firstLinkBlockSize).toBeGreaterThanOrEqual(44);
 		expect(Number.parseFloat(openContract.firstLinkBorderRadius)).toBeGreaterThanOrEqual(20);
@@ -1172,12 +1388,12 @@ test.describe('Theme MD3 component contracts', () => {
 		expect(openContract.currentBackgroundColor).not.toBe('rgba(0, 0, 0, 0)');
 		expect(openContract.currentColor).not.toBe('');
 
-		await summary.click();
+		await toggle.click();
 		await expect.poll(() => toc.evaluate((details) => details.dataset.md3TocState ?? '')).toBe('closing');
 		await expect.poll(() => toc.evaluate((details) => details.dataset.md3TocState ?? '')).toBe('');
 		await expect.poll(() => toc.evaluate((details) => (details as HTMLDetailsElement).open)).toBe(false);
 
-		await summary.click();
+		await toggle.click();
 		await expect.poll(() => toc.evaluate((details) => details.dataset.md3TocState ?? '')).toBe('opening');
 		await expect.poll(() => toc.evaluate((details) => details.dataset.md3TocState ?? '')).toBe('');
 		await expect.poll(() => toc.evaluate((details) => (details as HTMLDetailsElement).open)).toBe(true);
@@ -1192,8 +1408,8 @@ test.describe('Theme MD3 component contracts', () => {
 		await page.evaluate(() => window.scrollTo(0, 0));
 
 		const toc = page.locator('#starlight__mobile-toc');
-		const summary = toc.locator('summary');
-		await summary.click();
+		const toggle = toc.locator('summary .toggle');
+		await toggle.click();
 		await expect(toc).toHaveAttribute('open', '');
 		await expect.poll(() => toc.evaluate((details) => details.dataset.md3TocState ?? '')).toBe('');
 
@@ -1220,6 +1436,7 @@ test.describe('Theme MD3 component contracts', () => {
 
 		const toc = page.locator('#starlight__mobile-toc');
 		const summary = toc.locator('summary');
+		const toggle = summary.locator('.toggle');
 		await expect(summary).toBeVisible();
 
 		const restContract = await toc.evaluate((details) => {
@@ -1250,9 +1467,7 @@ test.describe('Theme MD3 component contracts', () => {
 		expect(restContract.toggleBackgroundColor).not.toBe('rgb(250, 253, 251)');
 		expect(Number.parseFloat(restContract.toggleBorderRadius)).toBeGreaterThan(1000);
 
-		const summaryBox = await summary.boundingBox();
-		expect(summaryBox).not.toBeNull();
-		await page.mouse.click(summaryBox!.x + summaryBox!.width - 24, summaryBox!.y + summaryBox!.height / 2);
+		await toggle.click();
 		await expect(toc).toHaveAttribute('open', '');
 		await expect.poll(() => toc.evaluate((details) => details.dataset.md3TocState ?? '')).toBe('opening');
 		await expect.poll(() => toc.evaluate((details) => details.dataset.md3TocState ?? '')).toBe('');
@@ -1271,10 +1486,14 @@ test.describe('Theme MD3 component contracts', () => {
 				currentBackgroundColor: currentStyles.backgroundColor,
 				currentBorderRadius: currentStyles.borderRadius,
 				dropdownBackgroundColor: dropdownStyles.backgroundColor,
+				dropdownOverflowY: dropdownStyles.overflowY,
+				dropdownOverscrollBehaviorY: dropdownStyles.overscrollBehaviorY,
 			};
 		});
 
 		expect(openContract.dropdownBackgroundColor).not.toBe('rgb(250, 253, 251)');
+		expect(openContract.dropdownOverflowY).toBe('auto');
+		expect(openContract.dropdownOverscrollBehaviorY).toBe('contain');
 		expect(openContract.currentBackgroundColor).not.toBe('rgba(0, 0, 0, 0)');
 		expect(Number.parseFloat(openContract.currentBorderRadius)).toBeGreaterThan(1000);
 	});
@@ -1327,7 +1546,7 @@ async function getSearchButtonColors(searchButton: ReturnType<Page['locator']>) 
 async function takeScreenshot(
 	page: Page,
 	name: string,
-	options: { fullPage?: boolean; maxDiffPixelRatio?: number } = {}
+	options: { fullPage?: boolean; maxDiffPixelRatio?: number } = {},
 ) {
 	const ciMaxDiffPixelRatio = Number.parseFloat(process.env.MD3_SCREENSHOT_MAX_DIFF_PIXEL_RATIO ?? '');
 

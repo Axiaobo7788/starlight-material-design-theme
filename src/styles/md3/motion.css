@@ -1,17 +1,18 @@
 @layer md3.motion {
 	@media (prefers-reduced-motion: no-preference) {
 		:where(
-				button:not([disabled]),
-				.sl-link-button:not([aria-disabled='true']),
-				.sidebar-content a,
-				.sidebar-content summary,
-				starlight-toc a,
-				.pagination-links a,
-				starlight-tabs [role='tab'],
-				.sl-link-card,
-				starlight-menu-button button,
-				.right-group label
-			) {
+			button:not([disabled]),
+			.sl-link-button:not([aria-disabled='true']),
+			.sidebar-content a,
+			.sidebar-content summary,
+			starlight-toc a,
+			mobile-starlight-toc summary .toggle,
+			.pagination-links a,
+			starlight-tabs [role='tab'],
+			.sl-link-card,
+			starlight-menu-button button,
+			.right-group label
+		) {
 			position: relative;
 			overflow: hidden;
 			isolation: isolate;
@@ -29,10 +30,8 @@
 
 		:where(main > .content-panel, .right-sidebar-panel) {
 			transition:
-				opacity var(--md3-motion-duration-route-enter)
-					var(--md-sys-motion-easing-emphasized-decelerate),
-				transform var(--md3-motion-duration-route-enter)
-					var(--md-sys-motion-easing-emphasized-decelerate);
+				opacity var(--md3-motion-duration-route-enter) var(--md-sys-motion-easing-emphasized-decelerate),
+				transform var(--md3-motion-duration-route-enter) var(--md-sys-motion-easing-emphasized-decelerate);
 		}
 
 		html[data-md3-route-state='leaving'] :where(main > .content-panel, .right-sidebar-panel) {
@@ -49,8 +48,7 @@
 		}
 
 		.sidebar-content details > summary .caret {
-			transition: transform var(--md3-motion-duration-sidebar-collapse)
-				var(--md-sys-motion-easing-standard);
+			transition: transform var(--md3-motion-duration-sidebar-collapse) var(--md-sys-motion-easing-standard);
 		}
 
 		.sidebar-content details[data-md3-disclosure-state] > ul {
@@ -73,12 +71,9 @@
 
 		starlight-toc nav::before {
 			transition:
-				transform var(--md3-motion-duration-toc-marker)
-					var(--md-sys-motion-easing-emphasized-decelerate),
-				block-size var(--md3-motion-duration-toc-marker)
-					var(--md-sys-motion-easing-emphasized-decelerate),
-				inline-size var(--md3-motion-duration-toc-marker)
-					var(--md-sys-motion-easing-emphasized-decelerate),
+				transform var(--md3-motion-duration-toc-marker) var(--md-sys-motion-easing-emphasized-decelerate),
+				block-size var(--md3-motion-duration-toc-marker) var(--md-sys-motion-easing-emphasized-decelerate),
+				inline-size var(--md3-motion-duration-toc-marker) var(--md-sys-motion-easing-emphasized-decelerate),
 				opacity var(--md3-motion-duration-toc-color) var(--md-sys-motion-easing-linear);
 		}
 
@@ -111,24 +106,19 @@
 			}
 
 			.sidebar::before {
-				transition:
-					opacity var(--md3-motion-duration-sidebar-collapse)
-						var(--md-sys-motion-easing-emphasized-accelerate);
+				transition: opacity var(--md3-motion-duration-sidebar-collapse)
+					var(--md-sys-motion-easing-emphasized-accelerate);
 			}
 
 			.sidebar:has(starlight-menu-button[aria-expanded='true'])::before {
-				transition:
-					opacity var(--md3-motion-duration-sidebar-expand)
-						var(--md-sys-motion-easing-emphasized-decelerate);
+				transition: opacity var(--md3-motion-duration-sidebar-expand) var(--md-sys-motion-easing-emphasized-decelerate);
 			}
 
 			.sidebar-pane {
 				transition:
 					visibility 0s linear var(--md3-motion-duration-sidebar-collapse),
-					opacity var(--md3-motion-duration-sidebar-collapse)
-						var(--md-sys-motion-easing-emphasized-accelerate),
-					transform var(--md3-motion-duration-sidebar-collapse)
-						var(--md-sys-motion-easing-emphasized-accelerate),
+					opacity var(--md3-motion-duration-sidebar-collapse) var(--md-sys-motion-easing-emphasized-accelerate),
+					transform var(--md3-motion-duration-sidebar-collapse) var(--md-sys-motion-easing-emphasized-accelerate),
 					background-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard),
 					box-shadow var(--md3-motion-duration-control) var(--md-sys-motion-easing-standard);
 			}
@@ -136,41 +126,33 @@
 			starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane {
 				transition:
 					visibility 0s linear 0s,
-					opacity var(--md3-motion-duration-sidebar-expand)
-						var(--md-sys-motion-easing-emphasized-decelerate),
-					transform var(--md3-motion-duration-sidebar-expand)
-						var(--md-sys-motion-easing-emphasized-decelerate),
+					opacity var(--md3-motion-duration-sidebar-expand) var(--md-sys-motion-easing-emphasized-decelerate),
+					transform var(--md3-motion-duration-sidebar-expand) var(--md-sys-motion-easing-emphasized-decelerate),
 					background-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard),
 					box-shadow var(--md3-motion-duration-control) var(--md-sys-motion-easing-standard);
 			}
 
 			.sidebar-pane .sidebar-content {
 				transition:
-					opacity var(--md3-motion-duration-sidebar-collapse)
-						var(--md-sys-motion-easing-emphasized-accelerate),
-					transform var(--md3-motion-duration-sidebar-collapse)
-						var(--md-sys-motion-easing-emphasized-accelerate);
+					opacity var(--md3-motion-duration-sidebar-collapse) var(--md-sys-motion-easing-emphasized-accelerate),
+					transform var(--md3-motion-duration-sidebar-collapse) var(--md-sys-motion-easing-emphasized-accelerate);
 			}
 
 			starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane .sidebar-content {
 				transition:
-					opacity var(--md-sys-motion-duration-medium4)
-						var(--md-sys-motion-easing-emphasized-decelerate),
-					transform var(--md-sys-motion-duration-medium4)
-						var(--md-sys-motion-easing-emphasized-decelerate);
+					opacity var(--md-sys-motion-duration-medium4) var(--md-sys-motion-easing-emphasized-decelerate),
+					transform var(--md-sys-motion-duration-medium4) var(--md-sys-motion-easing-emphasized-decelerate);
 				transition-delay: var(--md-sys-motion-duration-short1);
 			}
 
 			@starting-style {
 				starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane {
 					opacity: 0;
-					transform: translateX(calc(-1 * var(--md3-mobile-drawer-offset, min(1.25rem, 4vw))))
-						scaleX(0.96);
+					transform: translateX(calc(-1 * var(--md3-mobile-drawer-offset, min(1.25rem, 4vw)))) scaleX(0.96);
 				}
 
 				:root[dir='rtl'] starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane {
-					transform: translateX(var(--md3-mobile-drawer-offset, min(1.25rem, 4vw)))
-						scaleX(0.96);
+					transform: translateX(var(--md3-mobile-drawer-offset, min(1.25rem, 4vw))) scaleX(0.96);
 				}
 
 				.sidebar:has(starlight-menu-button[aria-expanded='true'])::before {
@@ -182,21 +164,11 @@
 					transform: translateX(-0.375rem);
 				}
 
-				:root[dir='rtl']
-					starlight-menu-button[aria-expanded='true']
-					~ .sidebar-pane
-					.sidebar-content {
+				:root[dir='rtl'] starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane .sidebar-content {
 					transform: translateX(0.375rem);
 				}
 			}
 
-			mobile-starlight-toc details {
-				transition:
-					background-color var(--md3-motion-duration-control) var(--md-sys-motion-easing-standard),
-					box-shadow var(--md3-motion-duration-control) var(--md-sys-motion-easing-standard);
-			}
-
-			mobile-starlight-toc summary,
 			mobile-starlight-toc summary .toggle,
 			mobile-starlight-toc .dropdown a {
 				transition:
@@ -206,8 +178,7 @@
 			}
 
 			mobile-starlight-toc summary .toggle .caret {
-				transition: transform var(--md-sys-motion-duration-medium1)
-					var(--md-sys-motion-easing-emphasized);
+				transition: transform var(--md-sys-motion-duration-medium1) var(--md-sys-motion-easing-emphasized);
 			}
 
 			mobile-starlight-toc details[open] summary .toggle .caret {
@@ -219,8 +190,7 @@
 				transform: translateY(0) scaleY(1);
 				transition:
 					opacity var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-linear),
-					transform var(--md-sys-motion-duration-medium2)
-						var(--md-sys-motion-easing-emphasized-decelerate),
+					transform var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-decelerate),
 					background-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard);
 				will-change: opacity, transform;
 			}
@@ -239,13 +209,6 @@
 		}
 
 		@media (min-width: 50rem) and (max-width: 71.999rem) {
-			mobile-starlight-toc details {
-				transition:
-					background-color var(--md3-motion-duration-control) var(--md-sys-motion-easing-standard),
-					box-shadow var(--md3-motion-duration-control) var(--md-sys-motion-easing-standard);
-			}
-
-			mobile-starlight-toc summary,
 			mobile-starlight-toc summary .toggle,
 			mobile-starlight-toc .dropdown a {
 				transition:
@@ -255,8 +218,7 @@
 			}
 
 			mobile-starlight-toc summary .toggle .caret {
-				transition: transform var(--md-sys-motion-duration-medium1)
-					var(--md-sys-motion-easing-emphasized);
+				transition: transform var(--md-sys-motion-duration-medium1) var(--md-sys-motion-easing-emphasized);
 			}
 
 			mobile-starlight-toc details[open] summary .toggle .caret {
@@ -268,8 +230,7 @@
 				transform: translateY(0) scaleY(1);
 				transition:
 					opacity var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-linear),
-					transform var(--md-sys-motion-duration-medium2)
-						var(--md-sys-motion-easing-emphasized-decelerate),
+					transform var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-decelerate),
 					background-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard);
 				will-change: opacity, transform;
 			}
@@ -307,12 +268,12 @@
 		}
 
 		:where(
-				.sidebar-content a,
-				starlight-toc a,
-				.pagination-links a,
-				.sl-link-button,
-				.sl-link-card
-			).md3-navigation-pending {
+			.sidebar-content a,
+			starlight-toc a,
+			.pagination-links a,
+			.sl-link-button,
+			.sl-link-card
+		).md3-navigation-pending {
 			background-color: var(--md3-state-pressed);
 		}
 
@@ -328,10 +289,8 @@
 			pointer-events: none;
 			transform: translate(var(--md3-ripple-start-x), var(--md3-ripple-start-y)) scale(1);
 			transform-origin: center;
-			transition: opacity var(--md3-motion-duration-ripple-fade)
-				var(--md-sys-motion-easing-standard-accelerate);
-			animation: md3-ripple-expand var(--md3-motion-duration-ripple-grow)
-				var(--md-sys-motion-easing-standard) forwards;
+			transition: opacity var(--md3-motion-duration-ripple-fade) var(--md-sys-motion-easing-standard-accelerate);
+			animation: md3-ripple-expand var(--md3-motion-duration-ripple-grow) var(--md-sys-motion-easing-standard) forwards;
 		}
 
 		.md3-ripple--releasing {
@@ -341,9 +300,21 @@
 		@media (min-width: 50rem) {
 			.sidebar-pane {
 				transition:
+					opacity var(--md3-motion-duration-route-enter) var(--md-sys-motion-easing-emphasized-decelerate),
+					transform var(--md3-motion-duration-route-enter) var(--md-sys-motion-easing-emphasized-decelerate),
 					background-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard),
 					border-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard),
 					box-shadow var(--md3-motion-duration-control) var(--md-sys-motion-easing-standard);
+				will-change: transform, opacity;
+			}
+
+			html[data-md3-sidebar-route-state='entering'] .sidebar-pane {
+				opacity: 0;
+				transform: translateX(-0.75rem);
+			}
+
+			html[dir='rtl'][data-md3-sidebar-route-state='entering'] .sidebar-pane {
+				transform: translateX(0.75rem);
 			}
 		}
 
@@ -351,10 +322,8 @@
 			opacity: 0;
 			transform: scale(0.9) translateY(-4%);
 			transition:
-				opacity var(--md-sys-motion-duration-medium2)
-					var(--md-sys-motion-easing-emphasized-decelerate),
-				transform var(--md-sys-motion-duration-medium2)
-					var(--md-sys-motion-easing-emphasized-decelerate),
+				opacity var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-decelerate),
+				transform var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-decelerate),
 				background-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard),
 				border-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard),
 				box-shadow var(--md3-motion-duration-control) var(--md-sys-motion-easing-standard),
@@ -485,8 +454,7 @@
 		}
 
 		100% {
-			transform: translate(var(--md3-ripple-end-x), var(--md3-ripple-end-y))
-				scale(var(--md3-ripple-scale));
+			transform: translate(var(--md3-ripple-end-x), var(--md3-ripple-end-y)) scale(var(--md3-ripple-scale));
 		}
 	}
 

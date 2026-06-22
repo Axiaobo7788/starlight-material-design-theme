@@ -386,6 +386,8 @@
 		padding-block: 0.2rem;
 		padding-inline: 0.875rem;
 		text-decoration: none;
+		outline: 0;
+		-webkit-tap-highlight-color: transparent;
 	}
 
 	starlight-toc a::before {
@@ -411,9 +413,25 @@
 		background-color: var(--md3-comp-toc-link-pressed-container-color);
 	}
 
+	starlight-toc a:focus-visible {
+		background-color: var(--md3-state-focus);
+		outline: 2px solid var(--md-sys-color-primary);
+		outline-offset: 2px;
+	}
+
 	starlight-toc a[aria-current='true'] {
 		color: var(--md3-comp-toc-link-active-label-color);
 		font-weight: 500;
+	}
+
+	starlight-toc a.md3-toc-navigation-target {
+		color: var(--md3-comp-toc-link-active-label-color);
+		font-weight: 500;
+	}
+
+	starlight-toc nav[data-md3-toc-navigation-lock='true'] a[aria-current='true']:not(.md3-toc-navigation-target) {
+		color: var(--md3-comp-toc-link-label-color);
+		font-weight: var(--md-sys-typescale-body-medium-weight);
 	}
 
 	starlight-toc a[aria-current='true']::before {
@@ -473,8 +491,8 @@
 
 		mobile-starlight-toc details[open],
 		mobile-starlight-toc details[data-md3-toc-state] {
-			background-color: var(--md-sys-color-surface-container);
-			box-shadow: var(--md-sys-elevation-level1);
+			background-color: var(--md-sys-color-surface-container-low);
+			box-shadow: var(--md-sys-elevation-level0);
 		}
 
 		mobile-starlight-toc summary {
@@ -534,8 +552,13 @@
 		mobile-starlight-toc .dropdown {
 			border-block-start: 0;
 			background-color: var(--md-sys-color-surface-container);
+			max-block-size: min(62vh, calc(100dvh - var(--sl-nav-height) - 7rem));
+			overflow-y: auto;
+			overscroll-behavior-y: contain;
 			padding: 0.25rem;
+			scrollbar-gutter: stable;
 			transform-origin: top center;
+			-webkit-overflow-scrolling: touch;
 		}
 
 		mobile-starlight-toc details[data-md3-toc-state] .dropdown {
@@ -726,22 +749,14 @@
 
 		.sidebar-content details {
 			border-radius: var(--md-sys-shape-lg);
-			background-color: color-mix(
-				in srgb,
-				var(--md-sys-color-surface-container) 52%,
-				transparent
-			);
+			background-color: color-mix(in srgb, var(--md-sys-color-surface-container) 52%, transparent);
 			padding-block: 0.25rem 0.375rem;
 			padding-inline: 0.375rem;
 		}
 
 		.sidebar-content details[open],
 		.sidebar-content details[data-md3-disclosure-state='opening'] {
-			background-color: color-mix(
-				in srgb,
-				var(--md-sys-color-surface-container) 72%,
-				transparent
-			);
+			background-color: color-mix(in srgb, var(--md-sys-color-surface-container) 72%, transparent);
 		}
 
 		.sidebar-content summary {
@@ -812,8 +827,8 @@
 
 		mobile-starlight-toc details[open],
 		mobile-starlight-toc details[data-md3-toc-state] {
-			background-color: var(--md-sys-color-surface-container);
-			box-shadow: var(--md-sys-elevation-level1);
+			background-color: var(--md-sys-color-surface-container-low);
+			box-shadow: var(--md-sys-elevation-level0);
 		}
 
 		mobile-starlight-toc summary {
@@ -873,8 +888,13 @@
 		mobile-starlight-toc .dropdown {
 			border-block-start: 0;
 			background-color: var(--md-sys-color-surface-container);
+			max-block-size: min(62vh, calc(100dvh - var(--sl-nav-height) - 7rem));
+			overflow-y: auto;
+			overscroll-behavior-y: contain;
 			padding: 0.25rem;
+			scrollbar-gutter: stable;
 			transform-origin: top center;
+			-webkit-overflow-scrolling: touch;
 		}
 
 		mobile-starlight-toc details[data-md3-toc-state] .dropdown {

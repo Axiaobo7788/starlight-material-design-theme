@@ -26,7 +26,7 @@
 		--sl-color-text-invert: var(--md-sys-color-on-primary);
 		--sl-color-bg: var(--md-sys-color-surface);
 		--sl-color-bg-nav: var(--md-sys-color-surface-container);
-		--sl-color-bg-sidebar: var(--md-sys-color-surface-container);
+		--sl-color-bg-sidebar: var(--md-sys-color-surface-container-low);
 		--sl-color-bg-inline-code: var(--md-sys-color-surface-container-high);
 		--sl-color-bg-accent: var(--md-sys-color-primary);
 		--sl-color-hairline-light: var(--md-sys-color-outline-variant);
@@ -75,8 +75,8 @@
 	[data-theme='light'] ::backdrop {
 		--sl-color-gray-7: var(--md-sys-color-surface-container-low);
 		--sl-color-black: var(--md-sys-color-surface);
-		--sl-color-bg-nav: var(--md-sys-color-surface-container);
-		--sl-color-bg-sidebar: var(--md-sys-color-surface-container);
+		--sl-color-bg-nav: var(--md-sys-color-surface-container-low);
+		--sl-color-bg-sidebar: var(--md-sys-color-surface-container-low);
 		--sl-color-backdrop-overlay: hsl(190 16% 18% / 0.42);
 		--sl-color-green-low: hsl(140, 56%, 88%);
 		--sl-color-green: hsl(148, 50%, 32%);
