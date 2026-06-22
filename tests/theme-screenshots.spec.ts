@@ -1,12 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
 
-const pages = [
-	{ name: 'home', path: '/' },
-	{ name: 'theme-lab', path: '/guides/theme-lab/' },
-	{ name: 'implementation-plan', path: '/guides/implementation-plan/' },
-	{ name: 'plugin-options', path: '/reference/plugin-options/' },
-] as const;
-
 const themes = ['dark', 'light'] as const;
 
 const viewports = [
@@ -14,15 +7,30 @@ const viewports = [
 	{ name: 'mobile', size: { width: 390, height: 844 } },
 ] as const;
 
-const scenarios = pages.flatMap((page) =>
-	viewports.flatMap((viewport) =>
-		themes.map((theme) => ({
-			name: `${page.name}-${viewport.name}-${theme}`,
-			path: page.path,
-			theme,
-			viewport: viewport.size,
-		})),
-	),
+type ViewportName = (typeof viewports)[number]['name'];
+
+const pageScreenshotTargets: ReadonlyArray<{
+	name: string;
+	path: string;
+	viewports: readonly ViewportName[];
+}> = [
+	{ name: 'home', path: '/', viewports: ['desktop', 'mobile'] },
+	{ name: 'theme-lab', path: '/guides/theme-lab/', viewports: ['desktop', 'mobile'] },
+	{ name: 'implementation-plan', path: '/guides/implementation-plan/', viewports: ['desktop'] },
+	{ name: 'plugin-options', path: '/reference/plugin-options/', viewports: ['desktop'] },
+];
+
+const scenarios = pageScreenshotTargets.flatMap((target) =>
+	viewports
+		.filter((viewport) => target.viewports.includes(viewport.name))
+		.flatMap((viewport) =>
+			themes.map((theme) => ({
+				name: `${target.name}-${viewport.name}-${theme}`,
+				path: target.path,
+				theme,
+				viewport: viewport.size,
+			})),
+		),
 );
 
 const searchDialogScenarios = viewports.flatMap((viewport) =>
@@ -917,6 +925,42 @@ test.describe('Theme MD3 component contracts', () => {
 		expect(bottomMarker.linkMarkerDisplay).toBe('none');
 	});
 
+	test('mobile TOC selects the final heading at the page bottom', async ({ page }) => {
+		await page.setViewportSize(viewports.find((viewport) => viewport.name === 'mobile')!.size);
+		await setThemeBeforeNavigation(page, 'light');
+
+		for (const scenario of [
+			{ path: '/guides/component-samples/', expected: 'Blockquote' },
+			{ path: '/reference/plugin-options/', expected: 'experimentalComponents' },
+			{ path: '/guides/theme-lab/', expected: 'Final Scrollspy Check' },
+		]) {
+			await page.goto(scenario.path);
+			await page.locator('main').waitFor({ state: 'visible' });
+			await page.evaluate(() => {
+				const scrollingElement = document.scrollingElement || document.documentElement;
+				scrollingElement.scrollTop = scrollingElement.scrollHeight;
+			});
+			await page.waitForTimeout(180);
+
+			const contract = await page.locator('#starlight__mobile-toc').evaluate((details) => {
+				const active =
+					details.querySelector('.dropdown a[aria-current="true"]') ??
+					details.querySelector('.dropdown a[aria-current="page"]');
+				const current = details.querySelector('.display-current');
+				const links = [...details.querySelectorAll('.dropdown a[href]')];
+				return {
+					activeText: active?.textContent?.trim() ?? '',
+					currentText: current?.textContent?.trim() ?? '',
+					lastText: links.at(-1)?.textContent?.trim() ?? '',
+				};
+			});
+
+			expect(contract.lastText).toBe(scenario.expected);
+			expect(contract.activeText).toBe(scenario.expected);
+			expect(contract.currentText).toBe(scenario.expected);
+		}
+	});
+
 	test('TOC tracker stays aligned with the active item after wheel scrolling', async ({ page }) => {
 		await page.setViewportSize(viewports.find((viewport) => viewport.name === 'desktop')!.size);
 		await setThemeBeforeNavigation(page, 'light');
@@ -1020,6 +1064,158 @@ test.describe('Theme MD3 component contracts', () => {
 		expect(contract.transitionDuration).toContain('0.3s');
 		expect(contract.transitionProperty).toContain('opacity');
 		expect(contract.transitionProperty).toContain('transform');
+	});
+
+	test('search dialog Pagefind internals use MD3 search and list styling', async ({ page }) => {
+		await page.emulateMedia({ reducedMotion: 'no-preference' });
+		await setThemeBeforeNavigation(page, 'dark');
+		await page.goto('/guides/theme-lab/');
+		await page.locator('main').waitFor({ state: 'visible' });
+
+		await page.locator('button[data-open-modal]').click();
+		const dialog = page.locator('dialog[open]');
+		await expect(dialog).toBeVisible();
+		await dialog.evaluate((element) => {
+			const frame = element.querySelector('.dialog-frame');
+			if (!(frame instanceof HTMLElement)) {
+				throw new Error('Expected search dialog frame.');
+			}
+			frame.innerHTML = `
+				<div id="starlight__search">
+					<div class="pagefind-ui">
+						<form class="pagefind-ui__form">
+							<input class="pagefind-ui__search-input" placeholder="Search" value="theme" />
+							<button class="pagefind-ui__search-clear" type="button">Clear</button>
+							<div class="pagefind-ui__drawer">
+								<div class="pagefind-ui__results-area">
+									<p class="pagefind-ui__message">2 results for theme</p>
+									<ol class="pagefind-ui__results">
+										<li class="pagefind-ui__result">
+											<div class="pagefind-ui__result-inner">
+												<p class="pagefind-ui__result-title">
+													<a class="pagefind-ui__result-link" href="#">Theme Lab</a>
+												</p>
+												<div class="pagefind-ui__result-nested">
+													<p class="pagefind-ui__result-title">
+														<a class="pagefind-ui__result-link" href="#">Code Blocks</a>
+													</p>
+													<p class="pagefind-ui__result-excerpt">
+														Use <mark>theme</mark> tokens without a runtime component.
+													</p>
+												</div>
+											</div>
+										</li>
+									</ol>
+									<button class="pagefind-ui__button" type="button">Load more</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			`;
+		});
+
+		const contract = await dialog.evaluate((element) => {
+			const rootStyles = getComputedStyle(document.documentElement);
+			const probe = document.createElement('span');
+			document.body.append(probe);
+			const resolveColor = (token: string) => {
+				probe.style.backgroundColor = rootStyles.getPropertyValue(token).trim();
+				return getComputedStyle(probe).backgroundColor;
+			};
+			const input = element.querySelector<HTMLInputElement>('.pagefind-ui__search-input');
+			const clear = element.querySelector<HTMLButtonElement>('.pagefind-ui__search-clear');
+			const result = element.querySelector<HTMLElement>('.pagefind-ui__result');
+			const nested = element.querySelector<HTMLElement>('.pagefind-ui__result-nested');
+			const title = element.querySelector<HTMLElement>('.pagefind-ui__result-title');
+			const link = element.querySelector<HTMLElement>('.pagefind-ui__result-link');
+			const excerpt = element.querySelector<HTMLElement>('.pagefind-ui__result-excerpt');
+			const mark = element.querySelector<HTMLElement>('mark');
+			const button = element.querySelector<HTMLButtonElement>('.pagefind-ui__button');
+			const message = element.querySelector<HTMLElement>('.pagefind-ui__message');
+			if (!input || !clear || !result || !nested || !title || !link || !excerpt || !mark || !button || !message) {
+				throw new Error('Expected the synthetic Pagefind fixture to be complete.');
+			}
+			const inputStyles = getComputedStyle(input);
+			const clearStyles = getComputedStyle(clear);
+			const titleBeforeStyles = getComputedStyle(title, '::before');
+			const nestedBeforeStyles = getComputedStyle(nested, '::before');
+			const resultStyles = getComputedStyle(result);
+			const nestedStyles = getComputedStyle(nested);
+			const titleStyles = getComputedStyle(title);
+			const linkStyles = getComputedStyle(link);
+			const excerptStyles = getComputedStyle(excerpt);
+			const markStyles = getComputedStyle(mark);
+			const buttonStyles = getComputedStyle(button);
+			const messageStyles = getComputedStyle(message);
+			const expected = {
+				searchContainer: resolveColor('--md-sys-color-surface-container-highest'),
+				secondaryContainer: resolveColor('--md-sys-color-secondary-container'),
+				onSecondaryContainer: (() => {
+					probe.style.color = rootStyles.getPropertyValue('--md-sys-color-on-secondary-container').trim();
+					return getComputedStyle(probe).color;
+				})(),
+			};
+			probe.remove();
+			return {
+				buttonBackgroundColor: buttonStyles.backgroundColor,
+				buttonBorderRadius: buttonStyles.borderRadius,
+				buttonColor: buttonStyles.color,
+				clearBlockSize: clearStyles.blockSize,
+				clearBorderRadius: clearStyles.borderRadius,
+				clearFontSize: clearStyles.fontSize,
+				clearInsetInlineEnd: clearStyles.insetInlineEnd,
+				clearPosition: clearStyles.position,
+				excerptColor: excerptStyles.color,
+				expected,
+				inputBackgroundColor: inputStyles.backgroundColor,
+				inputBlockSize: inputStyles.blockSize,
+				inputBorderRadius: inputStyles.borderRadius,
+				inputBorderTopWidth: inputStyles.borderTopWidth,
+				linkDisplay: linkStyles.display,
+				messageFontSize: messageStyles.fontSize,
+				nestedBorderInlineStartWidth: nestedStyles.borderInlineStartWidth,
+				nestedBeforeContent: nestedBeforeStyles.content,
+				nestedBeforeDisplay: nestedBeforeStyles.display,
+				nestedMarginInlineStart: nestedStyles.marginInlineStart,
+				resultBackgroundColor: resultStyles.backgroundColor,
+				resultBorderTopWidth: resultStyles.borderTopWidth,
+				titleBeforeContent: titleBeforeStyles.content,
+				titleBeforeDisplay: titleBeforeStyles.display,
+				titleFontSize: titleStyles.fontSize,
+				titleFontWeight: titleStyles.fontWeight,
+				markBackgroundColor: markStyles.backgroundColor,
+				markColor: markStyles.color,
+			};
+		});
+
+		expect(contract.inputBackgroundColor).toBe(contract.expected.searchContainer);
+		expect(contract.inputBlockSize).toBe('56px');
+		expect(contract.inputBorderTopWidth).toBe('0px');
+		expect(Number.parseFloat(contract.inputBorderRadius)).toBeGreaterThan(1000);
+		expect(contract.clearBlockSize).toBe('40px');
+		expect(Number.parseFloat(contract.clearBorderRadius)).toBeGreaterThan(1000);
+		expect(contract.clearFontSize).toBe('0px');
+		expect(contract.clearPosition).toBe('absolute');
+		expect(contract.clearInsetInlineEnd).toBe('8px');
+		expect(contract.resultBackgroundColor).toBe('rgba(0, 0, 0, 0)');
+		expect(contract.resultBorderTopWidth).toBe('0px');
+		expect(contract.linkDisplay).toBe('block');
+		expect(contract.titleFontSize).toBe('16px');
+		expect(contract.titleFontWeight).toBe('500');
+		expect(contract.titleBeforeContent).toBe('none');
+		expect(contract.titleBeforeDisplay).toBe('none');
+		expect(contract.messageFontSize).toBe('14px');
+		expect(contract.nestedBorderInlineStartWidth).toBe('4px');
+		expect(contract.nestedBeforeContent).toBe('none');
+		expect(contract.nestedBeforeDisplay).toBe('none');
+		expect(contract.nestedMarginInlineStart).toBe('16px');
+		expect(contract.markBackgroundColor).toBe(contract.expected.secondaryContainer);
+		expect(contract.markColor).toBe(contract.expected.onSecondaryContainer);
+		expect(contract.buttonBackgroundColor).toBe(contract.expected.secondaryContainer);
+		expect(contract.buttonColor).toBe(contract.expected.onSecondaryContainer);
+		expect(Number.parseFloat(contract.buttonBorderRadius)).toBeGreaterThan(1000);
+		expect(contract.excerptColor).not.toBe(contract.markColor);
 	});
 
 	test('theme menu uses a quiet MD3 selected state', async ({ page }) => {
@@ -1486,13 +1682,31 @@ test.describe('Theme MD3 component contracts', () => {
 		await expect(summary).toBeVisible();
 
 		const restContract = await toc.evaluate((details) => {
+			const host = details.closest('mobile-starlight-toc');
+			const nav = host?.querySelector('nav');
+			const contentPanel = document.querySelector('main > .content-panel');
+			const firstHeading = document.querySelector('h1#_top');
 			const summary = details.querySelector('summary');
 			const toggle = details.querySelector('.toggle');
-			if (!(summary instanceof HTMLElement) || !(toggle instanceof HTMLElement)) {
-				throw new Error('Expected mobile TOC summary and toggle.');
+			if (
+				!(host instanceof HTMLElement) ||
+				!(nav instanceof HTMLElement) ||
+				!(contentPanel instanceof HTMLElement) ||
+				!(firstHeading instanceof HTMLElement) ||
+				!(summary instanceof HTMLElement) ||
+				!(toggle instanceof HTMLElement)
+			) {
+				throw new Error('Expected mobile TOC host, nav, summary, and toggle.');
 			}
 			const detailsStyles = getComputedStyle(details);
+			const hostStyles = getComputedStyle(host);
+			const navBox = nav.getBoundingClientRect();
+			const firstHeadingBox = firstHeading.getBoundingClientRect();
+			const contentPanelStyles = getComputedStyle(contentPanel);
+			const navStyles = getComputedStyle(nav);
 			const summaryBox = summary.getBoundingClientRect();
+			const summaryStyles = getComputedStyle(summary);
+			const toggleBox = toggle.getBoundingClientRect();
 			const toggleStyles = getComputedStyle(toggle);
 			const rootStyles = getComputedStyle(document.documentElement);
 			const probe = document.createElement('span');
@@ -1504,8 +1718,17 @@ test.describe('Theme MD3 component contracts', () => {
 				backgroundColor: detailsStyles.backgroundColor,
 				borderTopWidth: detailsStyles.borderTopWidth,
 				borderRadius: detailsStyles.borderRadius,
+				contentPanelBorderTopColor: contentPanelStyles.borderTopColor,
 				expectedToggleBackgroundColor,
+				firstHeadingIsBelowNav: firstHeadingBox.top > navBox.bottom,
+				hostBlockSize: host.getBoundingClientRect().height,
+				hostDisplay: hostStyles.display,
+				navBorderBottomColor: navStyles.borderBottomColor,
+				navBorderBottomWidth: navStyles.borderBottomWidth,
+				navPaddingInlineStart: Number.parseFloat(getComputedStyle(nav).paddingInlineStart),
+				summaryBorderBottomWidth: summaryStyles.borderBottomWidth,
 				summaryBlockSize: summaryBox.height,
+				toggleInlineStart: Math.round(toggleBox.left - navBox.left),
 				toggleBackgroundColor: toggleStyles.backgroundColor,
 				toggleBorderTopWidth: toggleStyles.borderTopWidth,
 			};
@@ -1513,7 +1736,14 @@ test.describe('Theme MD3 component contracts', () => {
 		expect(restContract.backgroundColor).toBe('rgba(0, 0, 0, 0)');
 		expect(restContract.borderTopWidth).toBe('0px');
 		expect(restContract.borderRadius).toBe('0px');
-		expect(restContract.summaryBlockSize).toBeGreaterThanOrEqual(52);
+		expect(restContract.hostDisplay).toBe('block');
+		expect(restContract.contentPanelBorderTopColor).toBe('rgba(0, 0, 0, 0)');
+		expect(restContract.firstHeadingIsBelowNav).toBe(true);
+		expect(restContract.navBorderBottomWidth).toBe('1px');
+		expect(restContract.navBorderBottomColor).not.toBe(restContract.contentPanelBorderTopColor);
+		expect(restContract.summaryBorderBottomWidth).toBe('0px');
+		expect(restContract.summaryBlockSize).toBeGreaterThanOrEqual(40);
+		expect(restContract.toggleInlineStart).toBeCloseTo(restContract.navPaddingInlineStart, 1);
 		expect(restContract.toggleBackgroundColor).toBe(restContract.expectedToggleBackgroundColor);
 		expect(restContract.toggleBorderTopWidth).toBe('0px');
 
@@ -1572,6 +1802,7 @@ test.describe('Theme MD3 component contracts', () => {
 				dropdownOpacity: dropdownStyles.opacity,
 				dropdownOverscrollBehaviorY: dropdownStyles.overscrollBehaviorY,
 				dropdownTransform: dropdownStyles.transform,
+				dropdownTransformOrigin: dropdownStyles.transformOrigin,
 				dropdownOverflowY: dropdownStyles.overflowY,
 				expectedCurrentBackgroundColor,
 				expectedDropdownBackgroundColor,
@@ -1589,6 +1820,7 @@ test.describe('Theme MD3 component contracts', () => {
 		expect(openContract.dropdownOverflowY).toBe('auto');
 		expect(openContract.dropdownOverscrollBehaviorY).toBe('contain');
 		expect(openContract.dropdownTransform).toBe('matrix(1, 0, 0, 1, 0, 0)');
+		expect(openContract.dropdownTransformOrigin).toContain('0px');
 		expect(openContract.firstLinkBlockSize).toBeGreaterThanOrEqual(44);
 		expect(Number.parseFloat(openContract.firstLinkBorderRadius)).toBeGreaterThanOrEqual(20);
 		expect(openContract.firstLinkTextDecorationLine).toBe('none');

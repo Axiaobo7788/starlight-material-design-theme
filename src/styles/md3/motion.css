@@ -152,11 +152,11 @@
 			@starting-style {
 				starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane {
 					opacity: 0;
-					transform: translateX(calc(-1 * var(--md3-mobile-drawer-offset, min(1.25rem, 4vw)))) scaleX(0.96);
+					transform: translateX(calc(-1 * var(--md3-mobile-drawer-offset, min(1.25rem, 4vw))));
 				}
 
 				:root[dir='rtl'] starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane {
-					transform: translateX(var(--md3-mobile-drawer-offset, min(1.25rem, 4vw))) scaleX(0.96);
+					transform: translateX(var(--md3-mobile-drawer-offset, min(1.25rem, 4vw)));
 				}
 
 				.sidebar:has(starlight-menu-button[aria-expanded='true'])::before {
@@ -164,12 +164,12 @@
 				}
 
 				starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane .sidebar-content {
-					opacity: 0.72;
-					transform: translateX(-0.375rem);
+					opacity: 0.86;
+					transform: translateX(-0.25rem);
 				}
 
 				:root[dir='rtl'] starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane .sidebar-content {
-					transform: translateX(0.375rem);
+					transform: translateX(0.25rem);
 				}
 			}
 
@@ -191,10 +191,10 @@
 
 			mobile-starlight-toc .dropdown {
 				opacity: 1;
-				transform: translateY(0) scaleY(1);
+				transform: translateY(0);
 				transition:
 					opacity var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-linear),
-					transform var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-decelerate),
+					transform var(--md3-motion-duration-toc-menu-expand) var(--md-sys-motion-easing-emphasized-decelerate),
 					background-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard);
 				will-change: opacity, transform;
 			}
@@ -207,7 +207,7 @@
 			@starting-style {
 				mobile-starlight-toc details[open] .dropdown {
 					opacity: 0;
-					transform: translateY(-0.25rem) scaleY(0.94);
+					transform: translateY(-0.25rem);
 				}
 			}
 		}
@@ -231,10 +231,10 @@
 
 			mobile-starlight-toc .dropdown {
 				opacity: 1;
-				transform: translateY(0) scaleY(1);
+				transform: translateY(0);
 				transition:
 					opacity var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-linear),
-					transform var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-decelerate),
+					transform var(--md3-motion-duration-toc-menu-expand) var(--md-sys-motion-easing-emphasized-decelerate),
 					background-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard);
 				will-change: opacity, transform;
 			}
@@ -247,7 +247,7 @@
 			@starting-style {
 				mobile-starlight-toc details[open] .dropdown {
 					opacity: 0;
-					transform: translateY(-0.25rem) scaleY(0.94);
+					transform: translateY(-0.25rem);
 				}
 			}
 		}

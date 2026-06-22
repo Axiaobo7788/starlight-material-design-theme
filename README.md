@@ -19,9 +19,9 @@ integration shape as `plugins: [md3Theme()]`.
 </picture>
 
 <p align="center">
-  <img src="tests/theme-screenshots.spec.ts-snapshots/mobile-toc-light-chromium-linux.png" alt="Mobile Material Design 3 table of contents preview" width="32%">
-  <img src="tests/theme-screenshots.spec.ts-snapshots/mobile-drawer-light-chromium-linux.png" alt="Mobile Material Design 3 navigation drawer preview" width="32%">
-  <img src="tests/theme-screenshots.spec.ts-snapshots/theme-lab-mobile-dark-chromium-linux.png" alt="Mobile dark theme component preview" width="32%">
+  <img src="tests/theme-screenshots.spec.ts-snapshots/mobile-toc-light-chromium-linux.png" alt="Mobile Material Design 3 table of contents preview" width="31%">
+  <img src="tests/theme-screenshots.spec.ts-snapshots/mobile-drawer-light-chromium-linux.png" alt="Mobile Material Design 3 navigation drawer preview" width="31%">
+  <img src="tests/theme-screenshots.spec.ts-snapshots/search-dialog-mobile-dark-chromium-linux.png" alt="Mobile dark theme search dialog preview" width="31%">
 </p>
 
 ## Install
@@ -71,6 +71,33 @@ export default defineConfig({
 
 `preset` fills in default options only. Explicit options such as `seed`, `shape`,
 or `tonalSurface` override the preset.
+
+## Global Color
+
+Set the theme's global color from the Starlight plugin options:
+
+```ts
+md3Theme({
+	seed: '#6750a4',
+	variant: 'tonalSpot',
+});
+```
+
+`seed` is the preferred Material You path. It generates the light and dark
+Material color roles through `@material/material-color-utilities`. Change this
+one value to recolor the whole theme.
+
+If you do not pass `seed`, the theme falls back to named `accent` palettes:
+
+```ts
+md3Theme({
+	accent: 'blue',
+});
+```
+
+The source defaults live in `src/styles/md3/tokens.css`; runtime color roles
+from `seed` or `accent` are generated in `src/index.ts` and override those
+fallbacks for the active theme.
 
 ## Design Direction
 

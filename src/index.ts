@@ -560,7 +560,7 @@ function getMotionRuntimeScript() {
 
 		const duration = getMotionDuration(
 			isClosing ? '--md3-motion-duration-sidebar-collapse' : '--md3-motion-duration-sidebar-expand',
-			isClosing ? 250 : 500
+			isClosing ? 200 : 400
 		);
 		if (duration <= 0) return false;
 
@@ -626,8 +626,8 @@ function getMotionRuntimeScript() {
 		}
 
 		const duration = getMotionDuration(
-			isClosing ? '--md3-motion-duration-sidebar-collapse' : '--md3-motion-duration-sidebar-expand',
-			isClosing ? 250 : 360
+			isClosing ? '--md3-motion-duration-toc-menu-collapse' : '--md3-motion-duration-toc-menu-expand',
+			isClosing ? 160 : 220
 		);
 		if (duration <= 0) return null;
 
@@ -647,14 +647,14 @@ function getMotionRuntimeScript() {
 		const animation = content.animate(
 			isClosing
 				? [
-						{ blockSize: startHeight + 'px', opacity: 1, transform: 'translateY(0) scaleY(1)', offset: 0 },
-						{ blockSize: Math.round(startHeight * 0.36) + 'px', opacity: 0.92, transform: 'translateY(-0.125rem) scaleY(0.98)', offset: 0.72 },
-						{ blockSize: endHeight + 'px', opacity: 0, transform: 'translateY(-0.25rem) scaleY(0.96)', offset: 1 },
+						{ blockSize: startHeight + 'px', opacity: 1, transform: 'translateY(0)', offset: 0 },
+						{ blockSize: Math.round(startHeight * 0.38) + 'px', opacity: 0.78, transform: 'translateY(-0.125rem)', offset: 0.72 },
+						{ blockSize: endHeight + 'px', opacity: 0, transform: 'translateY(-0.25rem)', offset: 1 },
 					]
 				: [
-						{ blockSize: startHeight + 'px', opacity: 0, transform: 'translateY(-0.25rem) scaleY(0.96)', offset: 0 },
-						{ blockSize: Math.round(endHeight * 0.74) + 'px', opacity: 1, transform: 'translateY(0) scaleY(1)', offset: 0.42 },
-						{ blockSize: endHeight + 'px', opacity: 1, transform: 'translateY(0) scaleY(1)', offset: 1 },
+						{ blockSize: startHeight + 'px', opacity: 0, transform: 'translateY(-0.25rem)', offset: 0 },
+						{ blockSize: Math.round(endHeight * 0.72) + 'px', opacity: 1, transform: 'translateY(0)', offset: 0.38 },
+						{ blockSize: endHeight + 'px', opacity: 1, transform: 'translateY(0)', offset: 1 },
 					],
 			{ duration, easing }
 		);
@@ -833,6 +833,23 @@ function getMotionRuntimeScript() {
 			return true;
 		};
 
+	const setMobileTocActiveLink = (details, link) => {
+		if (!(details instanceof HTMLDetailsElement) || !(link instanceof HTMLElement)) return;
+		const links = Array.from(details.querySelectorAll('.dropdown a[href]')).filter(
+			(item) => item instanceof HTMLElement
+		);
+		links.forEach((item) => {
+			if (item !== link) {
+				item.removeAttribute('aria-current');
+			}
+		});
+		link.setAttribute('aria-current', 'true');
+		const currentLabel = details.querySelector('.display-current');
+		if (currentLabel instanceof HTMLElement) {
+			currentLabel.textContent = link.textContent?.trim() || currentLabel.textContent;
+		}
+	};
+
 	const setupTocIndicators = () => {
 		const navs = document.querySelectorAll('starlight-toc nav');
 		navs.forEach((nav) => {
@@ -891,6 +908,21 @@ function getMotionRuntimeScript() {
 				lastLink.setAttribute('aria-current', 'true');
 				syncTocIndicator(nav);
 			});
+			document.querySelectorAll('mobile-starlight-toc details').forEach((details) => {
+				if (!(details instanceof HTMLDetailsElement)) return;
+				const links = Array.from(details.querySelectorAll('.dropdown a[href]')).filter(
+					(link) => link instanceof HTMLElement
+				);
+				const lastLink = links.at(-1);
+				if (!(lastLink instanceof HTMLElement)) return;
+				const currentLinks = links.filter((link) => link.getAttribute('aria-current') === 'true');
+				if (currentLinks.length === 1 && currentLinks[0] === lastLink) {
+					setMobileTocActiveLink(details, lastLink);
+					return;
+				}
+
+				setMobileTocActiveLink(details, lastLink);
+			});
 			return true;
 		};
 		const scheduleEndState = () => {
@@ -905,8 +937,8 @@ function getMotionRuntimeScript() {
 
 		window.addEventListener('scroll', scheduleEndState, { passive: true });
 		window.addEventListener('resize', scheduleEndState, { passive: true });
-		document.querySelectorAll('starlight-toc nav').forEach((nav) => {
-			new MutationObserver(scheduleEndState).observe(nav, {
+		document.querySelectorAll('starlight-toc nav, mobile-starlight-toc details').forEach((tocSurface) => {
+			new MutationObserver(scheduleEndState).observe(tocSurface, {
 				attributes: true,
 				attributeFilter: ['aria-current'],
 				subtree: true,

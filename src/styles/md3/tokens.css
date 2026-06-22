@@ -145,8 +145,10 @@
 		--md3-motion-duration-state: var(--md-sys-motion-duration-short3);
 		--md3-motion-duration-control: var(--md-sys-motion-duration-short4);
 		--md3-motion-duration-nav: var(--md-sys-motion-duration-short4);
-		--md3-motion-duration-sidebar-expand: var(--md-sys-motion-duration-long2);
-		--md3-motion-duration-sidebar-collapse: var(--md-sys-motion-duration-medium1);
+		--md3-motion-duration-sidebar-expand: var(--md-sys-motion-duration-medium4);
+		--md3-motion-duration-sidebar-collapse: var(--md-sys-motion-duration-short4);
+		--md3-motion-duration-toc-menu-expand: 220ms;
+		--md3-motion-duration-toc-menu-collapse: 160ms;
 		--md3-motion-duration-toc-marker: var(--md-sys-motion-duration-medium2);
 		--md3-motion-duration-toc-color: var(--md-sys-motion-duration-short4);
 		--md3-motion-duration-ripple-grow: 450ms;
