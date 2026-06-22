@@ -62,6 +62,50 @@ Remaining post-MVP choices:
 - Runtime dynamic color remains a documentation demo rather than a default runtime feature for every consuming docs site.
 - Newer expressive DynamicScheme classes remain out of scope until the package import path is stable in this Node/bundler matrix.
 
+## Stage Review
+
+Estimated overall completion: **about 82%** toward a polished v0.x release.
+
+The theme has moved beyond a visual prototype. The core plugin shape, package
+exports, CSS layer architecture, token generation, demo docs, CI, and regression
+tests are in place. The remaining work is less about proving the theme can work
+and more about making the visual language feel consistently Material Design 3
+across every Starlight edge case.
+
+| Area | Completion | Current read |
+| --- | ---: | --- |
+| Plugin and package API | 90% | `md3Theme()` works as the primary integration surface, with CSS exports and package-consumption checks in place. |
+| Token and color system | 84% | Material Color Utilities generate the main roles, presets exist, and contrast checks pass; final polish is still needed for brand-like palette harmony. |
+| Component styling | 80% | Navigation, TOC, search, cards, asides, tabs, badges, code, tables, and pagination have MD3-style tokens and states; some surfaces still need visual audit against official MD3 patterns. |
+| Motion and interaction | 76% | State layers, pointer-origin ripple, disclosure motion, TOC tracking, dialogs, route feedback, and homepage entrance motion exist; timing and hierarchy should continue to be tuned by component. |
+| Responsive shell | 78% | Desktop, medium, and mobile layouts are covered, including mobile drawer and mobile TOC behavior; compact breakpoints remain the highest-risk visual area. |
+| Documentation and demo | 86% | Getting Started, concept, implementation plan, Theme Lab, component samples, token reference, and plugin options are present. More real-world usage examples would help. |
+| Testing and release workflow | 88% | Typecheck, contrast, build, package verification, CI, and Playwright visual/contract tests are established. Screenshot baselines have been pruned to focus on high-signal states. |
+
+What feels stable enough for a v0.x release:
+
+- The public installation model: `plugins: [md3Theme()]`.
+- The CSS-first implementation strategy.
+- The decision not to make Tailwind or `@material/web` runtime requirements.
+- The Material-style system token bridge and local `--md3-comp-*` component token layer.
+- The package build pipeline and GitHub Actions coverage.
+- The Theme Lab as the main visual regression and design-review surface.
+
+What should still be treated as active design work:
+
+- Palette relationships across header, sidebar, content, and TOC in both light and dark mode.
+- MD3 authenticity of high-touch controls such as search, theme selection, mobile drawer, and mobile TOC.
+- Motion timing for ripple, disclosure, menu, and route transitions.
+- Typography scale across top app bar, sidebars, article headings, dense reference pages, and Chinese paragraphs.
+- The naming and stability promise of public-preview `--md3-comp-*` tokens.
+
+Next quality bar:
+
+- Keep the current package API stable while iterating visuals.
+- Compare each high-impact component against official MD3 references before further broad restyling.
+- Prefer small token-level corrections over one-off selectors.
+- Continue using Playwright contracts for every recurring visual bug, especially mobile TOC, sidebar disclosure, search dialog, and route transition behavior.
+
 ## MVP Exclusions
 
 - Backlinks and graph view.
@@ -81,7 +125,7 @@ Current baseline:
 - `contrast: 'standard' | 'medium' | 'high'` is available for state, outline, and selected-tone emphasis.
 - `src/styles/md3/index.css` is bundled to `dist/css/index.css` with Lightning CSS during `pnpm run build:theme`.
 - Theme Lab exists at `src/content/docs/guides/theme-lab.mdx`.
-- Screenshot baselines cover homepage, Theme Lab, implementation plan, and plugin options in desktop/mobile plus light/dark.
+- Screenshot baselines cover homepage and Theme Lab in desktop/mobile, implementation plan and plugin options in desktop, plus search dialog, mobile drawer, mobile TOC, and theme menu interaction states in light/dark.
 - A package consumption fixture exists under `fixtures/package-consumption/`.
 - CI exists at `.github/workflows/ci.yml`.
 

@@ -2,6 +2,8 @@
 
 [![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
 
+English | [简体中文](docs/README.zh-CN.md)
+
 A Material Design 3 / Material You inspired theme prototype for Astro Starlight.
 The MVP keeps Starlight's defaults intact and layers Material color, shape,
 surface, state, and typography tokens through CSS variables and a Starlight
@@ -14,14 +16,14 @@ integration shape as `plugins: [md3Theme()]`.
 ## Preview
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="tests/theme-screenshots.spec.ts-snapshots/home-desktop-dark-chromium-linux.png">
-  <img src="tests/theme-screenshots.spec.ts-snapshots/home-desktop-light-chromium-linux.png" alt="Starlight Material Design 3 theme homepage preview" width="100%">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/readme/home-desktop-dark.webp">
+  <img src="docs/readme/home-desktop-light.webp" alt="Starlight Material Design 3 theme homepage first-screen preview" width="100%">
 </picture>
 
 <p align="center">
   <img src="tests/theme-screenshots.spec.ts-snapshots/mobile-toc-light-chromium-linux.png" alt="Mobile Material Design 3 table of contents preview" width="31%">
   <img src="tests/theme-screenshots.spec.ts-snapshots/mobile-drawer-light-chromium-linux.png" alt="Mobile Material Design 3 navigation drawer preview" width="31%">
-  <img src="tests/theme-screenshots.spec.ts-snapshots/search-dialog-mobile-dark-chromium-linux.png" alt="Mobile dark theme search dialog preview" width="31%">
+  <img src="docs/readme/search-dialog-mobile-dark.webp" alt="Mobile dark theme search results preview" width="31%">
 </p>
 
 ## Install
@@ -120,9 +122,10 @@ high-impact surfaces.
 
 ```
 .
+├── docs/
+│   └── readme/
 ├── public/
 ├── src/
-│   ├── assets/
 │   ├── content/
 │   │   └── docs/
 │   ├── index.ts
