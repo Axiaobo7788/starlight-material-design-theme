@@ -71,9 +71,9 @@
 
 		starlight-toc nav::before {
 			transition:
-				transform var(--md3-motion-duration-toc-marker) var(--md-sys-motion-easing-emphasized-decelerate),
-				block-size var(--md3-motion-duration-toc-marker) var(--md-sys-motion-easing-emphasized-decelerate),
-				inline-size var(--md3-motion-duration-toc-marker) var(--md-sys-motion-easing-emphasized-decelerate),
+				transform var(--md3-motion-duration-toc-marker) var(--md-sys-motion-easing-standard),
+				block-size var(--md3-motion-duration-toc-marker) var(--md-sys-motion-easing-standard),
+				inline-size var(--md3-motion-duration-toc-marker) var(--md-sys-motion-easing-standard),
 				opacity var(--md3-motion-duration-toc-color) var(--md-sys-motion-easing-linear);
 		}
 
@@ -82,6 +82,10 @@
 		starlight-menu-button button,
 		.sl-link-button {
 			transition-duration: var(--md3-motion-duration-control);
+		}
+
+		button[data-open-modal]::after {
+			transition: opacity var(--md3-motion-duration-state) var(--md-sys-motion-easing-linear);
 		}
 
 		@media (max-width: 49.999rem) {
@@ -320,9 +324,9 @@
 
 		dialog {
 			opacity: 0;
-			transform: scale(0.9) translateY(-4%);
+			transform: scale(0.9);
 			transition:
-				opacity var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-decelerate),
+				opacity var(--md-sys-motion-duration-short3) var(--md-sys-motion-easing-linear),
 				transform var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized-decelerate),
 				background-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard),
 				border-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard),
@@ -335,7 +339,7 @@
 
 		dialog[open] {
 			opacity: 1;
-			transform: translateY(0) scale(1);
+			transform: scale(1);
 		}
 
 		dialog::backdrop {
@@ -358,7 +362,7 @@
 		@starting-style {
 			dialog[open] {
 				opacity: 0;
-				transform: scale(0.9) translateY(-4%);
+				transform: scale(0.9);
 			}
 
 			dialog[open]::backdrop {

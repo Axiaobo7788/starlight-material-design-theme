@@ -21,28 +21,29 @@
 		--md3-comp-toc-link-active-indicator-color: var(--md-sys-color-primary);
 		--md3-comp-toc-link-shape: var(--md-sys-shape-full);
 
-		--md3-comp-search-field-container-color: var(--md-sys-color-surface-container-highest);
+		--md3-comp-search-field-container-color: var(--md-sys-color-surface-container-high);
 		--md3-comp-search-field-label-color: var(--md-sys-color-on-surface-variant);
-		--md3-comp-search-field-hover-container-color: color-mix(in srgb, var(--md-sys-color-surface-container-highest) 92%, var(--md3-state-hover));
+		--md3-comp-search-field-state-layer-color: var(--md-sys-color-on-surface);
+		--md3-comp-search-field-hover-state-layer-opacity: 0.08;
 		--md3-comp-search-field-hover-label-color: var(--md-sys-color-on-surface);
-		--md3-comp-search-field-focus-container-color: var(--md-sys-color-surface-container-highest);
-		--md3-comp-search-field-pressed-container-color: var(--md3-state-pressed);
+		--md3-comp-search-field-focus-state-layer-opacity: 0.12;
+		--md3-comp-search-field-pressed-state-layer-opacity: 0.12;
 		--md3-comp-search-field-disabled-container-color: var(--md3-comp-search-field-container-color);
 		--md3-comp-search-field-disabled-label-color: var(--md3-comp-search-field-label-color);
 		--md3-comp-search-field-outline-color: transparent;
 		--md3-comp-search-field-hover-outline-color: transparent;
 		--md3-comp-search-field-max-inline-size: 30rem;
-		--md3-comp-search-field-key-container-color: var(--md-sys-color-surface);
-		--md3-comp-search-field-key-label-color: var(--md-sys-color-on-surface-variant);
+		--md3-comp-search-field-key-container-color: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent);
+		--md3-comp-search-field-key-label-color: var(--md-sys-color-on-surface);
 		--md3-comp-search-field-shape: var(--md-sys-shape-full);
 		--md3-comp-search-field-key-shape: var(--md-sys-shape-xs);
 
-		--md3-comp-dialog-container-color: var(--md-sys-color-surface-container);
-		--md3-comp-dialog-label-color: var(--md-sys-color-on-surface-variant);
-		--md3-comp-dialog-outline-color: var(--md-sys-color-outline-variant);
+		--md3-comp-dialog-container-color: var(--md-sys-color-surface-container-high);
+		--md3-comp-dialog-label-color: var(--md-sys-color-on-surface);
+		--md3-comp-dialog-outline-color: transparent;
 		--md3-comp-dialog-elevation: var(--md-sys-elevation-level3);
-		--md3-comp-dialog-shape: var(--md-sys-shape-lg);
-		--md3-comp-dialog-scrim-color: color-mix(in srgb, var(--md-sys-color-scrim) 58%, transparent);
+		--md3-comp-dialog-shape: 1.75rem;
+		--md3-comp-dialog-scrim-color: color-mix(in srgb, var(--md-sys-color-scrim) 32%, transparent);
 
 		--md3-comp-header-control-container-color: var(--md-sys-color-surface-container-high);
 		--md3-comp-header-control-label-color: var(--md-sys-color-on-surface-variant);
@@ -161,16 +162,5 @@
 		--md3-comp-pagination-outline-color: var(--md-sys-color-outline-variant);
 		--md3-comp-pagination-hover-outline-color: var(--md-sys-color-outline);
 		--md3-comp-pagination-shape: var(--md-sys-shape-lg);
-	}
-
-	:root[data-theme='light'] {
-		--md3-comp-search-field-container-color: var(--md-sys-color-surface-container);
-		--md3-comp-search-field-hover-container-color: color-mix(in srgb, var(--md-sys-color-surface-container-high) 88%, var(--md3-state-hover));
-		--md3-comp-search-field-focus-container-color: var(--md-sys-color-surface-container-high);
-
-		--md3-comp-header-control-container-color: var(--md-sys-color-surface-container);
-		--md3-comp-header-control-hover-container-color: color-mix(in srgb, var(--md-sys-color-surface-container-high) 88%, var(--md3-state-hover));
-		--md3-comp-header-control-focus-container-color: var(--md-sys-color-surface-container-high);
-		--md3-comp-header-control-pressed-container-color: color-mix(in srgb, var(--md-sys-color-surface-container-high) 82%, var(--md3-state-pressed));
 	}
 }

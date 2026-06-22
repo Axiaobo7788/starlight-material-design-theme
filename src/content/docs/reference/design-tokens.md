@@ -10,7 +10,7 @@ custom property approach without requiring Material Web components at runtime.
 | Token group | Purpose | Starlight mapping |
 | --- | --- | --- |
 | `--md-sys-color-primary` | Main brand and selected state | `--sl-color-accent`, `--sl-color-text-accent` |
-| `--md-sys-color-surface*` | Page, navigation, sidebar, cards | `--sl-color-bg`, `--sl-color-bg-nav`, `--sl-color-bg-sidebar` |
+| `--md-sys-color-surface*` | Page shell, content sheet, navigation, sidebar, cards | `--sl-color-bg`, `--sl-color-bg-nav`, `--sl-color-bg-sidebar` |
 | `--md-sys-color-outline*` | Dividers and component borders | `--sl-color-hairline*`, card/search borders |
 | `--md-sys-shape-corner-*` | Radius scale for controls and containers | Buttons, links, cards, code, callouts |
 | `--md-sys-elevation-level*` | Soft depth for raised surfaces | Header, cards, search dialog |
@@ -129,7 +129,8 @@ modal surfaces.
 
 | Surface | Default role | Shadow |
 | --- | --- | --- |
-| Page and prose | `surface` / `background` | `level0` |
+| Page shell | `surface-container-lowest` | `level0` |
+| Main content and prose | `surface` | `level0` |
 | Sidebar, cards, code, tables | `surface-container-low` to `surface-container-high` | `level0` at rest |
 | Hovered cards and preview chips | Elevated container tone | `level1` |
 | Floating previews | Raised container tone | `level2` |

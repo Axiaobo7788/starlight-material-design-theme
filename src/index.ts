@@ -226,9 +226,11 @@ function generateOptionsCss(options: ResolvedMd3ThemeOptions, cssOptions: { laye
 			wrapTokenCss(
 				`
 	:root {
+		--md-sys-color-surface-container-lowest: var(--md-sys-color-surface);
 		--md-sys-color-surface-container-low: var(--md-sys-color-surface);
 		--md-sys-color-surface-container: var(--md-sys-color-surface);
 		--md-sys-color-surface-container-high: var(--md-sys-color-surface);
+		--md-sys-color-surface-container-highest: var(--md-sys-color-surface);
 	}
 `,
 				layered,
@@ -780,7 +782,10 @@ function getMotionRuntimeScript() {
 
 		const indicatorInlineSize = 4;
 		const indicatorBlockSize = 16;
-		const indicatorY = activeLink.offsetTop + Math.max(0, (activeLink.offsetHeight - indicatorBlockSize) / 2);
+		const navRect = nav.getBoundingClientRect();
+		const activeRect = activeLink.getBoundingClientRect();
+		const indicatorY =
+			activeRect.top - navRect.top + Math.max(0, (activeRect.height - indicatorBlockSize) / 2);
 		nav.style.setProperty('--md3-toc-indicator-inline-size', indicatorInlineSize + 'px');
 		nav.style.setProperty('--md3-toc-indicator-block-size', indicatorBlockSize + 'px');
 		nav.style.setProperty('--md3-toc-indicator-y', indicatorY + 'px');
@@ -852,6 +857,7 @@ function getMotionRuntimeScript() {
 			if ('ResizeObserver' in window) {
 				new ResizeObserver(scheduleSync).observe(nav);
 			}
+			window.addEventListener('scroll', scheduleSync, { passive: true });
 			window.addEventListener('resize', scheduleSync, { passive: true });
 		});
 	};
@@ -876,7 +882,10 @@ function getMotionRuntimeScript() {
 				const lastLink = links.at(-1);
 				if (!(lastLink instanceof HTMLElement)) return;
 				const currentLinks = links.filter((link) => link.getAttribute('aria-current') === 'true');
-				if (currentLinks.length === 1 && currentLinks[0] === lastLink) return;
+				if (currentLinks.length === 1 && currentLinks[0] === lastLink) {
+					syncTocIndicator(nav);
+					return;
+				}
 
 				links.forEach((link) => link.removeAttribute('aria-current'));
 				lastLink.setAttribute('aria-current', 'true');

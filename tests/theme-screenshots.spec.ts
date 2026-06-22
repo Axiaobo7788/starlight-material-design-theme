@@ -442,28 +442,77 @@ test.describe('Theme transient states', () => {
 
 			const colors = await page.locator('button[data-open-modal]').evaluate((element) => {
 				const rootStyles = getComputedStyle(document.documentElement);
-				const expectedToken =
-					document.documentElement.dataset.theme === 'light'
-						? '--md-sys-color-surface-container'
-						: '--md-sys-color-surface-container-highest';
 				const probe = document.createElement('span');
-				probe.style.backgroundColor = rootStyles.getPropertyValue(expectedToken).trim();
+				probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface-container-high').trim();
 				document.body.append(probe);
 				const expectedBackgroundColor = getComputedStyle(probe).backgroundColor;
+				probe.style.backgroundColor = rootStyles.getPropertyValue('--md3-comp-search-field-key-container-color').trim();
+				const expectedKeyBackgroundColor = getComputedStyle(probe).backgroundColor;
 				probe.remove();
+				const styles = getComputedStyle(element);
+				const stateLayer = getComputedStyle(element, '::after');
+				const icon = element.querySelector('svg');
+				const key = element.querySelector('kbd');
 				return {
-					backgroundColor: getComputedStyle(element).backgroundColor,
-					borderTopWidth: getComputedStyle(element).borderTopWidth,
-					boxShadow: getComputedStyle(element).boxShadow,
+					backgroundColor: styles.backgroundColor,
+					borderTopWidth: styles.borderTopWidth,
+					boxShadow: styles.boxShadow,
+					columnGap: styles.columnGap,
+					fontSize: styles.fontSize,
+					iconBlockSize: icon instanceof Element ? getComputedStyle(icon).blockSize : '',
+					iconInlineSize: icon instanceof Element ? getComputedStyle(icon).inlineSize : '',
+					keyBackgroundColor: key instanceof HTMLElement ? getComputedStyle(key).backgroundColor : '',
+					keyBorderRadius: key instanceof HTMLElement ? getComputedStyle(key).borderRadius : '',
+					lineHeight: styles.lineHeight,
+					minBlockSize: styles.minBlockSize,
+					paddingInlineEnd: styles.paddingInlineEnd,
+					paddingInlineStart: styles.paddingInlineStart,
+					stateLayerBackgroundColor: stateLayer.backgroundColor,
+					stateLayerOpacity: stateLayer.opacity,
 					expectedBackgroundColor,
+					expectedKeyBackgroundColor,
 				};
 			});
 
 			expect(colors.backgroundColor).toBe(colors.expectedBackgroundColor);
 			expect(colors.borderTopWidth).toBe('0px');
 			expect(colors.boxShadow).toBe('none');
+			expect(colors.iconInlineSize).toBe('24px');
+			expect(colors.iconBlockSize).toBe('24px');
+			expect(colors.keyBackgroundColor).toBe(colors.expectedKeyBackgroundColor);
+			expect(colors.keyBorderRadius).toBe('4px');
+			expect(colors.minBlockSize).toBe('40px');
+			expect(colors.fontSize).toBe('14px');
+			expect(colors.lineHeight).toBe('20px');
+			expect(colors.columnGap).toBe('8px');
+			expect(colors.paddingInlineStart).toBe('12px');
+			expect(colors.paddingInlineEnd).toBe('16px');
+			expect(colors.stateLayerOpacity).toBe('0');
+			expect(colors.stateLayerBackgroundColor).not.toBe('rgba(0, 0, 0, 0)');
 		});
 	}
+
+	test('search field uses an MD3 state layer instead of swapping container colors', async ({ page }) => {
+		await setThemeBeforeNavigation(page, 'light');
+		await page.goto('/guides/theme-lab/');
+		await page.locator('button[data-open-modal]').waitFor({ state: 'visible' });
+
+		const searchButton = page.locator('button[data-open-modal]');
+		const rest = await searchButton.evaluate((element) => ({
+			backgroundColor: getComputedStyle(element).backgroundColor,
+			stateLayerOpacity: getComputedStyle(element, '::after').opacity,
+		}));
+		await searchButton.hover();
+		const hover = await searchButton.evaluate((element) => ({
+			backgroundColor: getComputedStyle(element).backgroundColor,
+			stateLayerOpacity: getComputedStyle(element, '::after').opacity,
+		}));
+
+		expect(rest.stateLayerOpacity).toBe('0');
+		expect(hover.backgroundColor).toBe(rest.backgroundColor);
+		expect(Number.parseFloat(hover.stateLayerOpacity)).toBeGreaterThan(0);
+		expect(Number.parseFloat(hover.stateLayerOpacity)).toBeLessThanOrEqual(0.08);
+	});
 
 	test('search loading state keeps stable colors', async ({ page }) => {
 		await setThemeBeforeNavigation(page, 'light');
@@ -645,34 +694,45 @@ test.describe('Theme MD3 component contracts', () => {
 		const layoutContract = await page.evaluate(() => {
 			const header = document.querySelector('.page > .header');
 			const contentDivider = document.querySelector('.content-panel + .content-panel');
+			const contentPanel = document.querySelector('main > .content-panel');
+			const pageElement = document.querySelector('.page');
 			const sidebar = document.querySelector('.sidebar-pane');
 			if (
 				!(header instanceof HTMLElement) ||
 				!(contentDivider instanceof HTMLElement) ||
+				!(contentPanel instanceof HTMLElement) ||
+				!(pageElement instanceof HTMLElement) ||
 				!(sidebar instanceof HTMLElement)
 			) {
-				throw new Error('Expected Starlight header, sidebar, and content panel divider.');
+				throw new Error('Expected Starlight shell, header, sidebar, and content panels.');
 			}
 
 			const headerStyles = getComputedStyle(header);
+			const contentPanelStyles = getComputedStyle(contentPanel);
 			const contentStyles = getComputedStyle(contentDivider);
+			const pageStyles = getComputedStyle(pageElement);
 			const sidebarStyles = getComputedStyle(sidebar);
 			const rootStyles = getComputedStyle(document.documentElement);
 			const probe = document.createElement('span');
 			document.body.append(probe);
 			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface').trim();
 			const resolvedSurfaceColor = getComputedStyle(probe).backgroundColor;
+			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface-container-lowest').trim();
+			const resolvedSurfaceContainerLowestColor = getComputedStyle(probe).backgroundColor;
 			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface-container-low').trim();
 			const resolvedSurfaceContainerLowColor = getComputedStyle(probe).backgroundColor;
 			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface-container').trim();
 			const resolvedSurfaceContainerColor = getComputedStyle(probe).backgroundColor;
 			probe.remove();
 			return {
+				contentBackgroundColor: contentPanelStyles.backgroundColor,
 				contentBorderTopColor: contentStyles.borderTopColor,
 				headerBackgroundColor: headerStyles.backgroundColor,
 				headerBorderBottomColor: headerStyles.borderBottomColor,
 				headerBoxShadow: headerStyles.boxShadow,
+				pageBackgroundColor: pageStyles.backgroundColor,
 				resolvedSurfaceColor,
+				resolvedSurfaceContainerLowestColor,
 				resolvedSurfaceContainerLowColor,
 				resolvedSurfaceContainerColor,
 				sidebarBackgroundColor: sidebarStyles.backgroundColor,
@@ -680,10 +740,11 @@ test.describe('Theme MD3 component contracts', () => {
 			};
 		});
 
-		expect(layoutContract.headerBackgroundColor).not.toBe(layoutContract.resolvedSurfaceColor);
-		expect(layoutContract.headerBackgroundColor).toBe(layoutContract.resolvedSurfaceContainerLowColor);
+		expect(layoutContract.pageBackgroundColor).toBe(layoutContract.resolvedSurfaceContainerLowestColor);
+		expect(layoutContract.contentBackgroundColor).toBe(layoutContract.resolvedSurfaceColor);
+		expect(layoutContract.headerBackgroundColor).toBe(layoutContract.resolvedSurfaceContainerColor);
 		expect(layoutContract.sidebarBackgroundColor).toBe(layoutContract.resolvedSurfaceContainerLowColor);
-		expect(layoutContract.sidebarBackgroundColor).not.toBe(layoutContract.resolvedSurfaceContainerColor);
+		expect(layoutContract.sidebarBackgroundColor).not.toBe(layoutContract.headerBackgroundColor);
 		expect(layoutContract.headerBorderBottomColor).toBe('rgba(0, 0, 0, 0)');
 		expect(layoutContract.headerBoxShadow).toBe('none');
 		expect(layoutContract.contentBorderTopColor).toBe('rgba(0, 0, 0, 0)');
@@ -697,14 +758,16 @@ test.describe('Theme MD3 component contracts', () => {
 
 		const hierarchy = await page.evaluate(() => {
 			const header = document.querySelector('.page > .header');
+			const contentPanel = document.querySelector('main > .content-panel');
 			const pageElement = document.querySelector('.page');
 			const search = document.querySelector('button[data-open-modal]');
 			if (
 				!(header instanceof HTMLElement) ||
+				!(contentPanel instanceof HTMLElement) ||
 				!(pageElement instanceof HTMLElement) ||
 				!(search instanceof HTMLElement)
 			) {
-				throw new Error('Expected top app bar, page, and search field.');
+				throw new Error('Expected top app bar, page shell, content sheet, and search field.');
 			}
 
 			const rootStyles = getComputedStyle(document.documentElement);
@@ -712,25 +775,30 @@ test.describe('Theme MD3 component contracts', () => {
 			document.body.append(probe);
 			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface').trim();
 			const resolvedSurfaceColor = getComputedStyle(probe).backgroundColor;
+			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface-container-lowest').trim();
+			const resolvedSurfaceContainerLowestColor = getComputedStyle(probe).backgroundColor;
 			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface-container').trim();
 			const resolvedSurfaceContainerColor = getComputedStyle(probe).backgroundColor;
-			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface-container-highest').trim();
-			const resolvedSurfaceContainerHighestColor = getComputedStyle(probe).backgroundColor;
+			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface-container-high').trim();
+			const resolvedSurfaceContainerHighColor = getComputedStyle(probe).backgroundColor;
 			probe.remove();
 
 			return {
+				contentBackgroundColor: getComputedStyle(contentPanel).backgroundColor,
 				headerBackgroundColor: getComputedStyle(header).backgroundColor,
 				pageBackgroundColor: getComputedStyle(pageElement).backgroundColor,
 				resolvedSurfaceColor,
+				resolvedSurfaceContainerLowestColor,
 				resolvedSurfaceContainerColor,
-				resolvedSurfaceContainerHighestColor,
+				resolvedSurfaceContainerHighColor,
 				searchBackgroundColor: getComputedStyle(search).backgroundColor,
 			};
 		});
 
-		expect(hierarchy.pageBackgroundColor).toBe(hierarchy.resolvedSurfaceColor);
+		expect(hierarchy.pageBackgroundColor).toBe(hierarchy.resolvedSurfaceContainerLowestColor);
+		expect(hierarchy.contentBackgroundColor).toBe(hierarchy.resolvedSurfaceColor);
 		expect(hierarchy.headerBackgroundColor).toBe(hierarchy.resolvedSurfaceContainerColor);
-		expect(hierarchy.searchBackgroundColor).toBe(hierarchy.resolvedSurfaceContainerHighestColor);
+		expect(hierarchy.searchBackgroundColor).toBe(hierarchy.resolvedSurfaceContainerHighColor);
 	});
 
 	test('chrome typography keeps a quiet MD3 hierarchy', async ({ page }) => {
@@ -787,6 +855,10 @@ test.describe('Theme MD3 component contracts', () => {
 				activeLinkColor: activeLink instanceof HTMLElement ? getComputedStyle(activeLink).color : '',
 				backgroundColor: styles.backgroundColor,
 				height: styles.blockSize,
+				linkMarkerContent:
+					activeLink instanceof HTMLElement ? getComputedStyle(activeLink, '::before').content : '',
+				linkMarkerDisplay:
+					activeLink instanceof HTMLElement ? getComputedStyle(activeLink, '::before').display : '',
 				opacity: styles.opacity,
 				resolvedPrimaryColor,
 				translateY: matrix.m42,
@@ -801,6 +873,8 @@ test.describe('Theme MD3 component contracts', () => {
 		expect(marker.width).toBe('4px');
 		expect(marker.backgroundColor).toBe(marker.resolvedPrimaryColor);
 		expect(marker.activeLinkColor).toBe(marker.resolvedPrimaryColor);
+		expect(marker.linkMarkerContent).toBe('none');
+		expect(marker.linkMarkerDisplay).toBe('none');
 	});
 
 	test('TOC selects the final heading at the page bottom', async ({ page }) => {
@@ -821,6 +895,72 @@ test.describe('Theme MD3 component contracts', () => {
 					.evaluateAll((links) => links.map((link) => link.textContent?.trim())),
 			)
 			.toEqual(['Final Scrollspy Check']);
+
+		const bottomMarker = await page.locator('starlight-toc nav').first().evaluate((element) => {
+			const styles = getComputedStyle(element, '::before');
+			const matrix = new DOMMatrixReadOnly(styles.transform);
+			const activeLink = element.querySelector('a[aria-current="true"]');
+			return {
+				activeText: activeLink?.textContent?.trim() ?? '',
+				linkMarkerContent:
+					activeLink instanceof HTMLElement ? getComputedStyle(activeLink, '::before').content : '',
+				linkMarkerDisplay:
+					activeLink instanceof HTMLElement ? getComputedStyle(activeLink, '::before').display : '',
+				opacity: styles.opacity,
+				translateY: matrix.m42,
+			};
+		});
+		expect(bottomMarker.activeText).toBe('Final Scrollspy Check');
+		expect(bottomMarker.opacity).toBe('1');
+		expect(bottomMarker.translateY).toBeGreaterThan(0);
+		expect(bottomMarker.linkMarkerContent).toBe('none');
+		expect(bottomMarker.linkMarkerDisplay).toBe('none');
+	});
+
+	test('TOC tracker stays aligned with the active item after wheel scrolling', async ({ page }) => {
+		await page.setViewportSize(viewports.find((viewport) => viewport.name === 'desktop')!.size);
+		await setThemeBeforeNavigation(page, 'light');
+		await page.goto('/guides/theme-concept/');
+		await settlePage(page, 'light');
+
+		await page.mouse.move(1180, 480);
+		for (let index = 0; index < 24; index++) {
+			await page.mouse.wheel(0, 260);
+			await page.waitForTimeout(25);
+		}
+		await page.waitForTimeout(350);
+
+		await expect
+			.poll(() =>
+				page
+					.locator('starlight-toc a[aria-current="true"]')
+					.evaluateAll((links) => links.map((link) => link.textContent?.trim())),
+			)
+			.toEqual(['What Should Become Reusable']);
+
+		const tracker = await page.locator('starlight-toc nav').first().evaluate((element) => {
+			const styles = getComputedStyle(element, '::before');
+			const matrix = new DOMMatrixReadOnly(styles.transform);
+			const activeLink = element.querySelector('a[aria-current="true"]');
+			if (!(activeLink instanceof HTMLElement)) {
+				throw new Error('Expected an active TOC link.');
+			}
+			const navRect = element.getBoundingClientRect();
+			const activeRect = activeLink.getBoundingClientRect();
+			const indicatorBlockSize = Number.parseFloat(styles.blockSize);
+			const expectedY =
+				activeRect.top - navRect.top + Math.max(0, (activeRect.height - indicatorBlockSize) / 2);
+			return {
+				activeText: activeLink.textContent?.trim() ?? '',
+				actualY: matrix.m42,
+				expectedY,
+				opacity: styles.opacity,
+			};
+		});
+
+		expect(tracker.activeText).toBe('What Should Become Reusable');
+		expect(tracker.opacity).toBe('1');
+		expect(Math.abs(tracker.actualY - tracker.expectedY)).toBeLessThanOrEqual(1);
 	});
 
 	test('search dialog opens as an MD3 scrim surface without backdrop blur', async ({ page }) => {
@@ -837,9 +977,25 @@ test.describe('Theme MD3 component contracts', () => {
 		const contract = await dialog.evaluate((element) => {
 			const styles = getComputedStyle(element);
 			const backdrop = getComputedStyle(element, '::backdrop');
+			const frame = element.querySelector('.dialog-frame');
+			const frameStyles = frame instanceof HTMLElement ? getComputedStyle(frame) : null;
 			const matrix = new DOMMatrixReadOnly(styles.transform);
+			const rootStyles = getComputedStyle(document.documentElement);
+			const probe = document.createElement('span');
+			document.body.append(probe);
+			probe.style.backgroundColor = rootStyles.getPropertyValue('--md3-comp-dialog-scrim-color').trim();
+			const expectedBackdropBackgroundColor = getComputedStyle(probe).backgroundColor;
+			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface-container-high').trim();
+			const expectedFrameBackgroundColor = getComputedStyle(probe).backgroundColor;
+			probe.remove();
 			return {
 				backdropFilter: backdrop.backdropFilter,
+				backdropBackgroundColor: backdrop.backgroundColor,
+				borderTopWidth: styles.borderTopWidth,
+				expectedBackdropBackgroundColor,
+				expectedFrameBackgroundColor,
+				frameBackgroundColor: frameStyles?.backgroundColor ?? '',
+				frameBorderRadius: frameStyles?.borderRadius ?? '',
 				opacity: styles.opacity,
 				scaleX: matrix.a,
 				scaleY: matrix.d,
@@ -852,10 +1008,15 @@ test.describe('Theme MD3 component contracts', () => {
 
 		expect(contract.backdropFilter).toBe('none');
 		expect(contract.webkitBackdropFilter === '' || contract.webkitBackdropFilter === 'none').toBe(true);
+		expect(contract.backdropBackgroundColor).toBe(contract.expectedBackdropBackgroundColor);
+		expect(contract.borderTopWidth).toBe('1px');
+		expect(contract.frameBackgroundColor).toBe(contract.expectedFrameBackgroundColor);
+		expect(contract.frameBorderRadius).toBe('28px');
 		expect(contract.opacity).toBe('1');
 		expect(contract.scaleX).toBeCloseTo(1, 3);
 		expect(contract.scaleY).toBeCloseTo(1, 3);
 		expect(contract.translateY).toBeCloseTo(0, 3);
+		expect(contract.transitionDuration).toContain('0.15s');
 		expect(contract.transitionDuration).toContain('0.3s');
 		expect(contract.transitionProperty).toContain('opacity');
 		expect(contract.transitionProperty).toContain('transform');
@@ -1030,7 +1191,14 @@ test.describe('Theme MD3 component contracts', () => {
 			}
 			const searchIconBox = searchIcon.getBoundingClientRect();
 			const menuIconBox = openIcon.getBoundingClientRect();
+			const rootStyles = getComputedStyle(document.documentElement);
+			const probe = document.createElement('span');
+			document.body.append(probe);
+			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface-container-high').trim();
+			const expectedButtonBackgroundColor = getComputedStyle(probe).backgroundColor;
+			probe.remove();
 			return {
+				expectedButtonBackgroundColor,
 				gap: menuBox.left - searchBox.right,
 				menuBackgroundColor: menuStyles.backgroundColor,
 				menuBlockSize: menuBox.height,
@@ -1056,8 +1224,8 @@ test.describe('Theme MD3 component contracts', () => {
 		expect(contract.menuIconInlineSize).toBe(24);
 		expect(contract.menuIconBlockSize).toBe(24);
 		expect(contract.gap).toBeGreaterThanOrEqual(12);
-		expect(contract.searchBackgroundColor).not.toBe('rgba(0, 0, 0, 0)');
-		expect(contract.menuBackgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+		expect(contract.searchBackgroundColor).toBe(contract.expectedButtonBackgroundColor);
+		expect(contract.menuBackgroundColor).toBe(contract.expectedButtonBackgroundColor);
 		expect(contract.menuTransitionProperty).toContain('background-color');
 		expect(contract.openIconTransitionProperty).toContain('transform');
 
@@ -1082,7 +1250,25 @@ test.describe('Theme MD3 component contracts', () => {
 		await expect(menuButton.locator('.md3-ripple')).toHaveCount(1);
 		await page.mouse.up();
 		await expect(page.locator('starlight-menu-button')).toHaveAttribute('aria-expanded', 'true');
-		const openDrawer = await page.locator('#starlight__sidebar').evaluate((sidebar) => {
+		await expect
+			.poll(() =>
+				menuButton.evaluate((button) => {
+					const rootStyles = getComputedStyle(document.documentElement);
+					const probe = document.createElement('span');
+					document.body.append(probe);
+					probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-secondary-container').trim();
+					const expectedBackgroundColor = getComputedStyle(probe).backgroundColor;
+					probe.remove();
+					return getComputedStyle(button).backgroundColor === expectedBackgroundColor;
+				}),
+			)
+			.toBe(true);
+		const openDrawer = await page.evaluate(() => {
+			const sidebar = document.querySelector('#starlight__sidebar');
+			const menu = document.querySelector('starlight-menu-button button');
+			if (!(sidebar instanceof HTMLElement) || !(menu instanceof HTMLElement)) {
+				throw new Error('Expected open drawer and menu button.');
+			}
 			const styles = getComputedStyle(sidebar);
 			return {
 				opacity: Number.parseFloat(styles.opacity),
@@ -1308,20 +1494,27 @@ test.describe('Theme MD3 component contracts', () => {
 			const detailsStyles = getComputedStyle(details);
 			const summaryBox = summary.getBoundingClientRect();
 			const toggleStyles = getComputedStyle(toggle);
+			const rootStyles = getComputedStyle(document.documentElement);
+			const probe = document.createElement('span');
+			document.body.append(probe);
+			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface-container-high').trim();
+			const expectedToggleBackgroundColor = getComputedStyle(probe).backgroundColor;
+			probe.remove();
 			return {
 				backgroundColor: detailsStyles.backgroundColor,
 				borderTopWidth: detailsStyles.borderTopWidth,
 				borderRadius: detailsStyles.borderRadius,
+				expectedToggleBackgroundColor,
 				summaryBlockSize: summaryBox.height,
 				toggleBackgroundColor: toggleStyles.backgroundColor,
 				toggleBorderTopWidth: toggleStyles.borderTopWidth,
 			};
 		});
-		expect(restContract.backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+		expect(restContract.backgroundColor).toBe('rgba(0, 0, 0, 0)');
 		expect(restContract.borderTopWidth).toBe('0px');
-		expect(Number.parseFloat(restContract.borderRadius)).toBeGreaterThanOrEqual(16);
+		expect(restContract.borderRadius).toBe('0px');
 		expect(restContract.summaryBlockSize).toBeGreaterThanOrEqual(52);
-		expect(restContract.toggleBackgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+		expect(restContract.toggleBackgroundColor).toBe(restContract.expectedToggleBackgroundColor);
 		expect(restContract.toggleBorderTopWidth).toBe('0px');
 
 		await displayCurrent.click();
@@ -1361,15 +1554,27 @@ test.describe('Theme MD3 component contracts', () => {
 			const dropdownStyles = getComputedStyle(dropdown);
 			const firstLinkStyles = getComputedStyle(firstLink);
 			const currentLinkStyles = getComputedStyle(currentLink);
+			const rootStyles = getComputedStyle(document.documentElement);
+			const probe = document.createElement('span');
+			document.body.append(probe);
+			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface-container').trim();
+			const expectedDropdownBackgroundColor = getComputedStyle(probe).backgroundColor;
+			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-secondary-container').trim();
+			const expectedCurrentBackgroundColor = getComputedStyle(probe).backgroundColor;
+			probe.remove();
 			return {
 				currentBackgroundColor: currentLinkStyles.backgroundColor,
 				currentColor: currentLinkStyles.color,
 				detailsBackgroundColor: detailsStyles.backgroundColor,
+				dropdownBackgroundColor: dropdownStyles.backgroundColor,
+				dropdownBoxShadow: dropdownStyles.boxShadow,
 				dropdownMaxBlockSize: dropdownStyles.maxBlockSize,
 				dropdownOpacity: dropdownStyles.opacity,
 				dropdownOverscrollBehaviorY: dropdownStyles.overscrollBehaviorY,
 				dropdownTransform: dropdownStyles.transform,
 				dropdownOverflowY: dropdownStyles.overflowY,
+				expectedCurrentBackgroundColor,
+				expectedDropdownBackgroundColor,
 				firstLinkBlockSize: firstLink.getBoundingClientRect().height,
 				firstLinkBorderRadius: firstLinkStyles.borderRadius,
 				firstLinkTextDecorationLine: firstLinkStyles.textDecorationLine,
@@ -1377,6 +1582,8 @@ test.describe('Theme MD3 component contracts', () => {
 		});
 
 		expect(openContract.detailsBackgroundColor).toBe(restContract.backgroundColor);
+		expect(openContract.dropdownBackgroundColor).toBe(openContract.expectedDropdownBackgroundColor);
+		expect(openContract.dropdownBoxShadow).not.toBe('none');
 		expect(openContract.dropdownMaxBlockSize).not.toBe('none');
 		expect(openContract.dropdownOpacity).toBe('1');
 		expect(openContract.dropdownOverflowY).toBe('auto');
@@ -1385,7 +1592,7 @@ test.describe('Theme MD3 component contracts', () => {
 		expect(openContract.firstLinkBlockSize).toBeGreaterThanOrEqual(44);
 		expect(Number.parseFloat(openContract.firstLinkBorderRadius)).toBeGreaterThanOrEqual(20);
 		expect(openContract.firstLinkTextDecorationLine).toBe('none');
-		expect(openContract.currentBackgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+		expect(openContract.currentBackgroundColor).toBe(openContract.expectedCurrentBackgroundColor);
 		expect(openContract.currentColor).not.toBe('');
 
 		await toggle.click();
@@ -1424,7 +1631,7 @@ test.describe('Theme MD3 component contracts', () => {
 		await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(120);
 	});
 
-	test('medium table of contents keeps MD3 disclosure styling with desktop sidebar', async ({ page }) => {
+	test('medium table of contents uses compact chip and anchored menu with desktop sidebar', async ({ page }) => {
 		await page.setViewportSize({ width: 820, height: 844 });
 		await page.emulateMedia({ reducedMotion: 'no-preference' });
 		await setThemeBeforeNavigation(page, 'light');
@@ -1440,31 +1647,74 @@ test.describe('Theme MD3 component contracts', () => {
 		await expect(summary).toBeVisible();
 
 		const restContract = await toc.evaluate((details) => {
+			const pageElement = document.querySelector('.page');
+			const header = document.querySelector('.page > .header');
+			const contentPanel = document.querySelector('main > .content-panel');
+			const sidebar = document.querySelector('#starlight__sidebar');
+			const tocStrip = details.closest('mobile-starlight-toc')?.querySelector('nav');
 			const summary = details.querySelector('summary');
 			const toggle = details.querySelector('.toggle');
-			if (!(summary instanceof HTMLElement) || !(toggle instanceof HTMLElement)) {
-				throw new Error('Expected medium TOC summary and toggle.');
+			if (
+				!(pageElement instanceof HTMLElement) ||
+				!(header instanceof HTMLElement) ||
+				!(contentPanel instanceof HTMLElement) ||
+				!(sidebar instanceof HTMLElement) ||
+				!(tocStrip instanceof HTMLElement) ||
+				!(summary instanceof HTMLElement) ||
+				!(toggle instanceof HTMLElement)
+			) {
+				throw new Error('Expected medium shell, sidebar, TOC summary, and toggle.');
 			}
 			const detailsRect = details.getBoundingClientRect();
 			const summaryRect = summary.getBoundingClientRect();
 			const detailsStyles = getComputedStyle(details);
 			const toggleStyles = getComputedStyle(toggle);
+			const rootStyles = getComputedStyle(document.documentElement);
+			const probe = document.createElement('span');
+			document.body.append(probe);
+			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface').trim();
+			const expectedSurfaceColor = getComputedStyle(probe).backgroundColor;
+			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface-container-lowest').trim();
+			const expectedPageBackgroundColor = getComputedStyle(probe).backgroundColor;
+			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface-container').trim();
+			const expectedHeaderBackgroundColor = getComputedStyle(probe).backgroundColor;
+			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface-container-low').trim();
+			const expectedSidebarBackgroundColor = getComputedStyle(probe).backgroundColor;
+			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface-container-high').trim();
+			const expectedToggleBackgroundColor = getComputedStyle(probe).backgroundColor;
+			probe.remove();
 			return {
+				contentBackgroundColor: getComputedStyle(contentPanel).backgroundColor,
 				detailsBackgroundColor: detailsStyles.backgroundColor,
 				detailsBorderRadius: detailsStyles.borderRadius,
 				detailsInlineSize: detailsRect.width,
+				expectedHeaderBackgroundColor,
+				expectedPageBackgroundColor,
+				expectedSidebarBackgroundColor,
+				expectedSurfaceColor,
+				expectedToggleBackgroundColor,
+				headerBackgroundColor: getComputedStyle(header).backgroundColor,
+				pageBackgroundColor: getComputedStyle(pageElement).backgroundColor,
+				sidebarBackgroundColor: getComputedStyle(sidebar).backgroundColor,
 				summaryCursor: getComputedStyle(summary).cursor,
 				summaryInlineSize: summaryRect.width,
+				tocStripBackgroundColor: getComputedStyle(tocStrip).backgroundColor,
 				toggleBackgroundColor: toggleStyles.backgroundColor,
 				toggleBorderRadius: toggleStyles.borderRadius,
 			};
 		});
 
-		expect(restContract.detailsBackgroundColor).not.toBe('rgba(0, 0, 0, 0)');
-		expect(restContract.detailsBorderRadius).toBe('16px');
+		expect(restContract.pageBackgroundColor).toBe(restContract.expectedPageBackgroundColor);
+		expect(restContract.headerBackgroundColor).toBe(restContract.expectedHeaderBackgroundColor);
+		expect(restContract.contentBackgroundColor).toBe(restContract.expectedSurfaceColor);
+		expect(restContract.tocStripBackgroundColor).toBe(restContract.expectedSurfaceColor);
+		expect(restContract.sidebarBackgroundColor).toBe(restContract.expectedSidebarBackgroundColor);
+		expect(restContract.detailsBackgroundColor).toBe('rgba(0, 0, 0, 0)');
+		expect(restContract.detailsBorderRadius).toBe('0px');
 		expect(restContract.summaryCursor).toBe('pointer');
 		expect(restContract.summaryInlineSize).toBeCloseTo(restContract.detailsInlineSize, 1);
-		expect(restContract.toggleBackgroundColor).not.toBe('rgb(250, 253, 251)');
+		expect(restContract.detailsInlineSize).toBeLessThan(360);
+		expect(restContract.toggleBackgroundColor).toBe(restContract.expectedToggleBackgroundColor);
 		expect(Number.parseFloat(restContract.toggleBorderRadius)).toBeGreaterThan(1000);
 
 		await toggle.click();
@@ -1482,19 +1732,35 @@ test.describe('Theme MD3 component contracts', () => {
 			}
 			const dropdownStyles = getComputedStyle(dropdown);
 			const currentStyles = getComputedStyle(current);
+			const rootStyles = getComputedStyle(document.documentElement);
+			const probe = document.createElement('span');
+			document.body.append(probe);
+			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-surface-container').trim();
+			const expectedDropdownBackgroundColor = getComputedStyle(probe).backgroundColor;
+			probe.style.backgroundColor = rootStyles.getPropertyValue('--md-sys-color-secondary-container').trim();
+			const expectedCurrentBackgroundColor = getComputedStyle(probe).backgroundColor;
+			probe.remove();
 			return {
 				currentBackgroundColor: currentStyles.backgroundColor,
 				currentBorderRadius: currentStyles.borderRadius,
 				dropdownBackgroundColor: dropdownStyles.backgroundColor,
+				dropdownBoxShadow: dropdownStyles.boxShadow,
+				dropdownInlineSize: dropdown.getBoundingClientRect().width,
 				dropdownOverflowY: dropdownStyles.overflowY,
 				dropdownOverscrollBehaviorY: dropdownStyles.overscrollBehaviorY,
+				dropdownPosition: dropdownStyles.position,
+				expectedCurrentBackgroundColor,
+				expectedDropdownBackgroundColor,
 			};
 		});
 
-		expect(openContract.dropdownBackgroundColor).not.toBe('rgb(250, 253, 251)');
+		expect(openContract.dropdownBackgroundColor).toBe(openContract.expectedDropdownBackgroundColor);
+		expect(openContract.dropdownBoxShadow).not.toBe('none');
+		expect(openContract.dropdownInlineSize).toBeGreaterThan(280);
+		expect(openContract.dropdownPosition).toBe('absolute');
 		expect(openContract.dropdownOverflowY).toBe('auto');
 		expect(openContract.dropdownOverscrollBehaviorY).toBe('contain');
-		expect(openContract.currentBackgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+		expect(openContract.currentBackgroundColor).toBe(openContract.expectedCurrentBackgroundColor);
 		expect(Number.parseFloat(openContract.currentBorderRadius)).toBeGreaterThan(1000);
 	});
 });

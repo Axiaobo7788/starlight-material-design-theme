@@ -120,9 +120,10 @@ export default {
 
 | Surface | MD3 role | Starlight target |
 | --- | --- | --- |
-| Page | `surface` / `background` | `--sl-color-bg` |
-| Header | `surface-container-low` | `--sl-color-bg-nav` |
-| Sidebar active item | `primary-container` | `[aria-current='page']` |
+| Page shell | `surface-container-lowest` | `--sl-color-bg` |
+| Main content | `surface` | `main > .content-panel` |
+| Header | `surface-container` | `--sl-color-bg-nav` |
+| Sidebar active item | `secondary-container` | `[aria-current='page']` |
 | Code block | `surface-container-low` | Markdown `pre` |
 | Aside tip | `primary-container` | `.starlight-aside--tip` |
 
