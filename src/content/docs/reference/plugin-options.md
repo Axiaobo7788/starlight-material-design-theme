@@ -93,7 +93,7 @@ When `false`, elevated surfaces flatten closer to the base surface color.
 
 When `true`, tokenized state layers, pointer-origin ripple feedback, focus
 transitions, sidebar disclosure motion, TOC tracker motion, menu/search dialog
-surface transitions, homepage hero entrance motion, and content-only internal
+surface transitions, homepage hero entrance motion, and content-only same-site
 route transitions are enabled for high-impact interactive surfaces. When
 `false`, the interactive motion runtime is skipped and theme transition duration
 tokens are set to `0ms`.
@@ -103,5 +103,5 @@ reduced motion do not need a separate Starlight configuration.
 
 ## `experimentalComponents`
 
-Reserved for future Astro component overrides. The MVP intentionally keeps this
-disabled and focuses on CSS-first styling.
+Currently disabled. The current release keeps component overrides out of the
+public API and focuses on CSS-first styling.

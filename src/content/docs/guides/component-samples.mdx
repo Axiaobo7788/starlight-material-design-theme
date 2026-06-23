@@ -1,13 +1,13 @@
 ---
 title: Component Samples
-description: Demo content used to harden the Material Design 3 Starlight theme MVP.
+description: Material Design 3 styled Starlight component examples.
 ---
 
 import { Aside, Badge, Card, CardGrid, LinkCard, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 
-This page exists as a compact visual test bed. It keeps Starlight components in
-place and lets the theme prove that MD3-style tokens can improve the surface
-without replacing the documentation system.
+This page shows how common Starlight components look with the MD3 theme applied.
+The examples keep Starlight's original component model in place while the theme
+adds token-driven color, shape, state, and spacing.
 
 中文内容需要稳定的行高、清晰的段落节奏和不过度夸张的标题层级。这个主题的目标是让 wiki 和技术文档保持高信息密度，同时拥有 Material You 的色彩角色、tonal surface 和清晰状态反馈。
 
@@ -80,13 +80,13 @@ without replacing the documentation system.
 
 <Tabs>
 	<TabItem label="CSS variables" icon="code-branch">
-		The MVP uses CSS variables as the source of truth for theme decisions.
+		The theme uses CSS variables as the source of truth for visual decisions.
 	</TabItem>
 	<TabItem label="Plugin" icon="puzzle">
 		The local Starlight plugin appends the CSS entrypoint through `config:setup`.
 	</TabItem>
 	<TabItem label="Overrides" icon="window">
-		Component overrides are reserved for cases where CSS cannot express the design.
+		Component overrides stay optional and are only needed when markup must change.
 	</TabItem>
 </Tabs>
 
@@ -96,7 +96,7 @@ without replacing the documentation system.
 1. Define Material-style `--md-sys-*` tokens.
 2. Bridge those tokens into the current Starlight `--sl-*` variables.
 3. Style high-impact documentation surfaces first: sidebar, header, prose, code, asides, cards.
-4. Add component overrides only after the CSS-only version exposes a real markup limitation.
+4. Add component overrides only when a consuming site needs a markup-level change.
 </Steps>
 
 ## Code

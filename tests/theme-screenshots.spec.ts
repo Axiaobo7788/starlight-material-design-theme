@@ -980,7 +980,7 @@ test.describe('Theme MD3 component contracts', () => {
 					.locator('starlight-toc a[aria-current="true"]')
 					.evaluateAll((links) => links.map((link) => link.textContent?.trim())),
 			)
-			.toEqual(['What Should Become Reusable']);
+			.toEqual(['Reusable Package Surface']);
 
 		const tracker = await page.locator('starlight-toc nav').first().evaluate((element) => {
 			const styles = getComputedStyle(element, '::before');
@@ -1002,7 +1002,7 @@ test.describe('Theme MD3 component contracts', () => {
 			};
 		});
 
-		expect(tracker.activeText).toBe('What Should Become Reusable');
+		expect(tracker.activeText).toBe('Reusable Package Surface');
 		expect(tracker.opacity).toBe('1');
 		expect(Math.abs(tracker.actualY - tracker.expectedY)).toBeLessThanOrEqual(1);
 	});

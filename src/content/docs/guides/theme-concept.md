@@ -26,20 +26,21 @@ and cards.
 Shape is more expressive than stock Starlight: larger corners on navigation
 items, search, callouts, and cards, while content typography remains restrained.
 
-## First Implementation Slice
+## Current Theme Surface
 
-The current pass lives in `src/styles/md3/` and covers:
+The package lives in `src/styles/md3/` and currently covers:
 
 - Material-style color roles mapped to Starlight theme variables.
-- A seed color helper that generates deterministic light and dark token roles.
+- Seed color generation for deterministic light and dark token roles.
 - Rounded nav, search, buttons, cards, code blocks, and asides.
-- A local Starlight plugin entry at `src/index.ts`.
-- A splash-page preview object that demonstrates the palette without adding a custom component yet.
+- A Starlight plugin entry at `src/index.ts`.
+- A splash-page preview that demonstrates the palette without adding a heavy UI runtime.
 
-## What Should Become Reusable
+## Reusable Package Surface
 
-When this grows into a package, the reusable surface should likely include:
+The reusable surface is intentionally small:
 
 - A CSS entrypoint for the default theme.
 - Plugin options for seed colors, palette variant, density, and radius scale.
-- Optional component overrides for header/search only if the final design needs markup changes.
+- Public-preview component tokens for targeted customization.
+- Optional component overrides only when CSS cannot express a required markup or behavior change.

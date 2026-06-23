@@ -24,8 +24,8 @@ plugins: [md3Theme()]
 </picture>
 
 <p align="center">
-  <img src="../tests/theme-screenshots.spec.ts-snapshots/mobile-toc-light-chromium-linux.png" alt="移动端 Material Design 3 页面目录预览" width="31%">
-  <img src="../tests/theme-screenshots.spec.ts-snapshots/mobile-drawer-light-chromium-linux.png" alt="移动端 Material Design 3 导航抽屉预览" width="31%">
+  <img src="readme/mobile-toc-light.webp" alt="移动端 Material Design 3 页面目录预览" width="31%">
+  <img src="readme/mobile-drawer-light.webp" alt="移动端 Material Design 3 导航抽屉预览" width="31%">
   <img src="readme/search-dialog-mobile-dark.webp" alt="移动端深色搜索结果预览" width="31%">
 </p>
 
@@ -173,7 +173,7 @@ Demo 可以通过 `.github/workflows/deploy-pages.yml` 部署到 GitHub Pages。
 - `src/styles/md3/component-tokens.css` 提供本地 `--md3-comp-*` 组件 token。
 - `src/palette.ts` 使用 `@material/material-color-utilities` 生成 seed 色彩角色。
 - `dist/css/index.css` 在 `pnpm run build:theme` 时由 Lightning CSS 打包生成。
-- Theme Lab、组件样例、设计 token、插件选项和实现计划文档已经存在。
+- Theme Lab、组件样例、设计 token、插件选项和实现概览文档已经存在。
 - Playwright 覆盖首页、Theme Lab、桌面文档页、搜索弹窗、移动端 drawer、移动端 TOC 和主题菜单状态。
 - GitHub Actions 覆盖 install、typecheck、contrast、build、package consumption 和 pack dry-run。
 

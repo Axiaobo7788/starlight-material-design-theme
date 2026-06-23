@@ -65,16 +65,16 @@ target Node and bundler matrix.
 
 ## Public Token Boundary
 
-The public token surface is intentionally smaller than the internal selector
-surface. System tokens are the safest override layer. Component tokens are
-available for focused customization, but may still change while the package is
-v0.x.
+The public token surface is intentionally smaller than the selector-specific
+styling used by the demo. System tokens are the safest override layer. Component
+tokens are available for focused customization, but may still change while the
+package is v0.x.
 
 | Stability | Tokens | Intended use |
 | --- | --- | --- |
 | Public | `--md-sys-color-*`, `--md-sys-shape-corner-*`, `--md-sys-typescale-*`, `--md-sys-elevation-level*`, `--md-sys-state-*` | Site-wide theme customization |
 | Public preview | `--md3-density-*`, `--md3-comp-nav-item-*`, `--md3-comp-toc-link-*`, `--md3-comp-search-field-*`, `--md3-comp-card-*`, `--md3-comp-tabs-*`, `--md3-comp-code-*` | Targeted Starlight surface customization |
-| Internal | Selector-specific helper classes such as `.md3-showcase`, `.md3-mini-nav`, `.material-hero-preview` | Demo and visual-regression fixtures only |
+| Private helpers | Selector-specific helper classes such as `.md3-showcase`, `.md3-mini-nav`, `.material-hero-preview` | Demo and documentation examples only |
 
 ## Typography Scale
 
@@ -97,7 +97,7 @@ Motion is tokenized and intentionally quiet. The theme uses Material-style state
 layers, pointer-origin ripples, sidebar disclosure motion, TOC tracker motion,
 anchored menu transitions, search container-transform motion, homepage entrance
 motion for the hero and homepage surfaces, short pressed feedback, and
-content-only internal route transitions. The route transition runs only after
+content-only same-site route transitions. The route transition runs only after
 same-origin theme navigation, leaving the header, search, and primary chrome
 stable. Interior documentation pages avoid initial page-entry animation, hover
 translation, decorative scale effects, and blanket `transition: all` rules.
@@ -112,9 +112,9 @@ translation, decorative scale effects, and blanket `transition: all` rules.
 | `--md3-motion-duration-ripple-grow` | Pointer-origin ripple expansion duration |
 | `--md3-motion-duration-ripple-fade` | Ripple release fade-out duration |
 | `--md3-motion-ripple-minimum-press` | Minimum pressed-state hold before release |
-| `--md3-motion-duration-route-leave` | Content fade/settle duration before internal navigation |
-| `--md3-motion-duration-route-enter` | Content fade/settle duration after internal navigation |
-| `--md3-motion-route-delay` | Tiny internal-link delay used to reveal pressed navigation feedback |
+| `--md3-motion-duration-route-leave` | Content fade/settle duration before same-site navigation |
+| `--md3-motion-duration-route-enter` | Content fade/settle duration after same-site navigation |
+| `--md3-motion-route-delay` | Tiny link delay used to reveal pressed navigation feedback |
 | `--md3-ripple-pressed-opacity` | Opacity for the pointer-origin ripple state layer |
 
 When `prefers-reduced-motion: reduce` is active, the theme reduces motion token
@@ -136,11 +136,16 @@ modal surfaces.
 | Floating previews | Raised container tone | `level2` |
 | Dialogs and hero preview | Highest local surface | `level3` |
 
-## Next Token Work
+## Customization Guidance
 
-- Keep the public-preview `--md3-comp-*` list stable through the next visual pass.
-- Add examples for overriding component tokens in a consuming Starlight project.
-- Revisit DynamicScheme entrypoints after the Material Color Utilities package publishes Node ESM-compatible imports.
+- Prefer `seed`, `variant`, `density`, `shape`, `contrast`, `tonalSurface`, and
+  `motion` plugin options for broad theme changes.
+- Prefer `--md-sys-*` tokens for site-wide color, type, shape, elevation, and
+  motion overrides.
+- Use `--md3-comp-*` tokens only when a specific Starlight surface needs a
+  targeted adjustment.
+- Treat helper classes such as `.md3-showcase` as documentation examples rather
+  than a supported customization API.
 
 ## Plugin Options
 

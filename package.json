@@ -2,9 +2,17 @@
   "name": "starlight-theme-md3",
   "description": "A Material Design 3 / Material You inspired theme for Astro Starlight.",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "packageManager": "pnpm@10.33.4",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aXiaobo7788/starlight-material-design-theme.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aXiaobo7788/starlight-material-design-theme/issues"
+  },
+  "homepage": "https://axiaobo7788.github.io/starlight-material-design-theme/",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -17,6 +25,9 @@
   },
   "files": [
     "dist",
+    "docs/README.zh-CN.md",
+    "docs/readme",
+    "CHANGELOG.md",
     "README.md",
     "LICENSE"
   ],
@@ -39,8 +50,8 @@
     "build:demo": "astro build",
     "check:contrast": "pnpm run build:theme && node scripts/check-contrast.mjs",
     "verify:package": "node scripts/verify-package-consumption.mjs",
-    "test:screenshots": "playwright test",
-    "test:screenshots:update": "playwright test --update-snapshots",
+    "test:screenshots": "playwright test --workers=1",
+    "test:screenshots:update": "playwright test --update-snapshots --workers=1",
     "typecheck": "astro check",
     "preview": "astro preview",
     "astro": "astro"

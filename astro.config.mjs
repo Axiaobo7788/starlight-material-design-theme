@@ -46,7 +46,7 @@ export default defineConfig({
 					label: 'Design',
 					items: [
 						{ label: 'Theme Direction', slug: 'guides/theme-concept' },
-						{ label: 'Implementation Plan', slug: 'guides/implementation-plan' },
+						{ label: 'Implementation Overview', slug: 'guides/implementation-plan' },
 						{ label: 'Theme Lab', slug: 'guides/theme-lab' },
 						{ label: 'Component Samples', slug: 'guides/component-samples' },
 					],

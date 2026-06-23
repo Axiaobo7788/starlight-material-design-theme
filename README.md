@@ -4,8 +4,8 @@
 
 English | [简体中文](docs/README.zh-CN.md)
 
-A Material Design 3 / Material You inspired theme prototype for Astro Starlight.
-The MVP keeps Starlight's defaults intact and layers Material color, shape,
+A Material Design 3 / Material You inspired theme for Astro Starlight.
+It keeps Starlight's defaults intact and layers Material color, shape,
 surface, state, and typography tokens through CSS variables and a Starlight
 plugin.
 
@@ -21,8 +21,8 @@ integration shape as `plugins: [md3Theme()]`.
 </picture>
 
 <p align="center">
-  <img src="tests/theme-screenshots.spec.ts-snapshots/mobile-toc-light-chromium-linux.png" alt="Mobile Material Design 3 table of contents preview" width="31%">
-  <img src="tests/theme-screenshots.spec.ts-snapshots/mobile-drawer-light-chromium-linux.png" alt="Mobile Material Design 3 navigation drawer preview" width="31%">
+  <img src="docs/readme/mobile-toc-light.webp" alt="Mobile Material Design 3 table of contents preview" width="31%">
+  <img src="docs/readme/mobile-drawer-light.webp" alt="Mobile Material Design 3 navigation drawer preview" width="31%">
   <img src="docs/readme/search-dialog-mobile-dark.webp" alt="Mobile dark theme search results preview" width="31%">
 </p>
 
@@ -64,11 +64,11 @@ export default defineConfig({
 | `seed` | `#rgb` or `#rrggbb` | none | Generates light/dark color roles |
 | `variant` | `tonalSpot`, `expressive`, `content` | `tonalSpot` | Seed palette style |
 | `accent` | `teal`, `purple`, `blue`, `green`, `orange`, `rose` | `teal` | Named fallback presets |
-| `density` | `compact`, `comfortable` | `compact` | MVP token override |
-| `shape` | `small`, `medium`, `large` | `medium` | MVP token override |
+| `density` | `compact`, `comfortable` | `compact` | Preview token override |
+| `shape` | `small`, `medium`, `large` | `medium` | Preview token override |
 | `contrast` | `standard`, `medium`, `high` | `standard` | State, outline, and selected-tone emphasis |
-| `tonalSurface` | `boolean` | `true` | MVP token override |
-| `motion` | `boolean` | `true` | MVP token override |
+| `tonalSurface` | `boolean` | `true` | Preview token override |
+| `motion` | `boolean` | `true` | Preview token override |
 | `experimentalComponents` | `boolean` | `false` | Reserved |
 
 `preset` fills in default options only. Explicit options such as `seed`, `shape`,
@@ -123,6 +123,7 @@ high-impact surfaces.
 ```
 .
 ├── docs/
+│   ├── README.zh-CN.md
 │   └── readme/
 ├── public/
 ├── src/
@@ -180,7 +181,7 @@ such as `https://<user>.github.io/<repo>/` build with the correct base path.
 - `dist/` contains the package output after `pnpm build:theme`.
 - `demo-dist/` contains the demo output after `pnpm build:demo`.
 - Concept, implementation, Theme Lab, component sample, and token reference docs live in `src/content/docs/`.
-- Playwright screenshot tests cover homepage, Theme Lab, implementation plan, plugin options, search dialog, mobile drawer, and mobile table-of-contents states in light/dark modes.
+- Playwright screenshot tests cover homepage, Theme Lab, Implementation Overview, plugin options, search dialog, mobile drawer, and mobile table-of-contents states in light/dark modes.
 - GitHub Actions CI runs install, typecheck, contrast, build, package consumption, and pack dry-run.
 - The separate Visual Regression workflow runs Playwright screenshot tests manually when a UI review needs CI artifacts.
 
