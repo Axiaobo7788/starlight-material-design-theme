@@ -46,6 +46,19 @@ Equivalent npm command:
 npm create starlight-theme-md3@latest my-docs
 ```
 
+The creator follows the same shape as Astro's official create flow. It asks for
+a project directory when one is not provided, can install dependencies, can
+initialize git, and does not pin a `packageManager` in the generated project.
+
+Useful flags:
+
+```sh
+pnpm create starlight-theme-md3 my-docs -- --install --git
+pnpm create starlight-theme-md3 my-docs -- --no-install --no-git
+pnpm create starlight-theme-md3 my-docs -- --yes
+pnpm create starlight-theme-md3 my-docs -- --dry-run
+```
+
 ## Usage
 
 ```ts

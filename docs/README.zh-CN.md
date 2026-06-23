@@ -49,6 +49,19 @@ pnpm create starlight-theme-md3 my-docs
 npm create starlight-theme-md3@latest my-docs
 ```
 
+这个 creator 的形态会尽量贴近 Astro 官方创建流程：未传目录时会询问项目
+目录，可以安装依赖，可以初始化 git，并且生成的项目不会写死
+`packageManager`，因此 npm、pnpm、Yarn、Bun 都可以继续使用。
+
+常用 flags：
+
+```sh
+pnpm create starlight-theme-md3 my-docs -- --install --git
+pnpm create starlight-theme-md3 my-docs -- --no-install --no-git
+pnpm create starlight-theme-md3 my-docs -- --yes
+pnpm create starlight-theme-md3 my-docs -- --dry-run
+```
+
 ## 使用
 
 ```ts
