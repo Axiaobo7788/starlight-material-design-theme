@@ -2,7 +2,7 @@
   "name": "starlight-theme-md3",
   "description": "A Material Design 3 / Material You inspired theme for Astro Starlight.",
   "type": "module",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "packageManager": "pnpm@10.33.4",
   "license": "MIT",
   "repository": {
