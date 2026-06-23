@@ -10,9 +10,9 @@ import { fileURLToPath } from 'node:url';
 const DEFAULT_PROJECT_NAME = 'starlight-md3-docs';
 const textFileExtensions = new Set(['.css', '.html', '.js', '.json', '.md', '.mdx', '.mjs', '.svg', '.ts', '.txt', '.yml']);
 
+const color = createColors();
 const args = process.argv.slice(2);
 const flags = parseFlags(args);
-const color = createColors();
 
 if (flags.help) {
 	printHelp();
@@ -270,6 +270,8 @@ function parseFlags(argv) {
 	for (let index = 0; index < argv.length; index++) {
 		const arg = argv[index];
 		switch (arg) {
+			case '--':
+				break;
 			case '--dry-run':
 				parsed.dryRun = true;
 				break;
