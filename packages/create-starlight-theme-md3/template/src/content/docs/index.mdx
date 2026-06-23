@@ -1,0 +1,24 @@
+---
+title: __PROJECT_TITLE__
+description: A Starlight site using starlight-theme-md3.
+template: splash
+hero:
+  tagline: Material Design 3 inspired documentation powered by Starlight.
+  actions:
+    - text: Get started
+      link: /welcome/
+      icon: right-arrow
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## Theme Surface
+
+<CardGrid>
+	<Card title="Starlight native" icon="puzzle">
+		Navigation, search, table of contents, and MDX components remain Starlight-native.
+	</Card>
+	<Card title="Material roles" icon="setting">
+		The theme maps Material Design 3 color, shape, state, and motion roles onto Starlight.
+	</Card>
+</CardGrid>

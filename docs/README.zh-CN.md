@@ -35,6 +35,20 @@ plugins: [md3Theme()]
 npm install starlight-theme-md3
 ```
 
+## 创建新项目
+
+如果你想直接生成一个已经配置好主题的 Starlight 项目：
+
+```sh
+pnpm create starlight-theme-md3 my-docs
+```
+
+等价的 npm 命令：
+
+```sh
+npm create starlight-theme-md3@latest my-docs
+```
+
 ## 使用
 
 ```ts

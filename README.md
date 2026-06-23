@@ -32,6 +32,20 @@ integration shape as `plugins: [md3Theme()]`.
 npm install starlight-theme-md3
 ```
 
+## Create A New Project
+
+To start from a preconfigured Starlight project:
+
+```sh
+pnpm create starlight-theme-md3 my-docs
+```
+
+Equivalent npm command:
+
+```sh
+npm create starlight-theme-md3@latest my-docs
+```
+
 ## Usage
 
 ```ts

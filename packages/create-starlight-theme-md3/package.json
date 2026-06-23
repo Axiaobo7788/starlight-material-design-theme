@@ -1,0 +1,39 @@
+{
+  "name": "create-starlight-theme-md3",
+  "description": "Create a new Astro Starlight project using starlight-theme-md3.",
+  "type": "module",
+  "version": "0.1.0",
+  "license": "MIT",
+  "bin": {
+    "create-starlight-theme-md3": "./bin/create-starlight-theme-md3.mjs"
+  },
+  "files": [
+    "bin",
+    "template",
+    "README.md"
+  ],
+  "keywords": [
+    "astro",
+    "starlight",
+    "create",
+    "template",
+    "material-design",
+    "material-you"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aXiaobo7788/starlight-material-design-theme.git",
+    "directory": "packages/create-starlight-theme-md3"
+  },
+  "bugs": {
+    "url": "https://github.com/aXiaobo7788/starlight-material-design-theme/issues"
+  },
+  "homepage": "https://github.com/aXiaobo7788/starlight-material-design-theme/tree/main/packages/create-starlight-theme-md3",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  }
+}
