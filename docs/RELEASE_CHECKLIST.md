@@ -115,6 +115,25 @@ manual review, CI confirmation after push, and publish execution.
   - Dark mode header/sidebar/content/TOC surface hierarchy.
   - Selected states use primary/secondary containers intentionally.
 
+## npm Publishing Automation
+
+- [x] Add GitHub Actions workflow for npm publishing.
+  - Workflow: `.github/workflows/publish-npm.yml`.
+  - Trigger: `v*` tags and manual `workflow_dispatch`.
+  - The workflow verifies typecheck, contrast, build, package consumption, and pack dry-run before publishing.
+  - It checks that the package version is not already published before a real publish.
+- [ ] Configure npm trusted publishing for tokenless releases.
+  - npm package: `starlight-theme-md3`.
+  - Publisher: GitHub Actions.
+  - Organization or user: `aXiaobo7788`.
+  - Repository: `starlight-material-design-theme`.
+  - Workflow filename: `publish-npm.yml`.
+  - Allowed action: `npm publish`.
+- [ ] Optional fallback: add a granular npm automation token as GitHub secret `NPM_TOKEN`.
+  - Prefer trusted publishing when possible because it avoids long-lived tokens.
+  - If `NPM_TOKEN` is present, the workflow publishes with that token.
+  - If `NPM_TOKEN` is absent, the workflow publishes through npm trusted publishing/OIDC.
+
 ## Verification Gates
 
 Run these before publishing or tagging:

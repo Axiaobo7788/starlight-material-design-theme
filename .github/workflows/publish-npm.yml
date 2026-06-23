@@ -1,0 +1,85 @@
+name: Publish to npm
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Run npm publish in dry-run mode.
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: npm-publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      HAS_NPM_TOKEN: ${{ secrets.NPM_TOKEN != '' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: Contrast check
+        run: pnpm run check:contrast
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Package consumption fixture
+        run: pnpm run verify:package
+
+      - name: Pack dry run
+        run: pnpm pack --dry-run
+
+      - name: Ensure package version is unpublished
+        if: ${{ inputs.dry_run != true }}
+        run: |
+          PACKAGE_NAME="$(node -p "require('./package.json').name")"
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          if npm view "${PACKAGE_NAME}@${PACKAGE_VERSION}" version >/dev/null 2>&1; then
+            echo "::error::${PACKAGE_NAME}@${PACKAGE_VERSION} is already published."
+            exit 1
+          fi
+
+      - name: Publish dry run
+        if: ${{ inputs.dry_run == true }}
+        run: pnpm publish --dry-run --access public
+
+      - name: Publish with npm token
+        if: ${{ inputs.dry_run != true && env.HAS_NPM_TOKEN == 'true' }}
+        run: pnpm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish with trusted publishing
+        if: ${{ inputs.dry_run != true && env.HAS_NPM_TOKEN != 'true' }}
+        run: pnpm publish --provenance --access public
