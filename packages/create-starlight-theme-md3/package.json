@@ -5,7 +5,7 @@
   "version": "0.1.0",
   "license": "MIT",
   "bin": {
-    "create-starlight-theme-md3": "./bin/create-starlight-theme-md3.mjs"
+    "create-starlight-theme-md3": "bin/create-starlight-theme-md3.mjs"
   },
   "files": [
     "bin",
