@@ -366,6 +366,43 @@ Reason:
 - Surface motion must stay smaller than the hero motion: opacity plus at most `0.5rem` vertical settle, 450ms emphasized decelerate easing, and small staggered delays.
 - Interior docs remain free of initial page-entry animation.
 
+### 2026-06-27: Treat Pagefind Results As Tonal List Groups
+
+Pagefind search results should read as MD3 search-view content, not as a
+directory tree. Keep the 56px filled search field and use tonal list groups for
+results: a `surface-container` group with `surface-container-high` nested rows.
+Do not use persistent left guide lines for nested hits.
+
+Reason:
+
+- The previous nested result left border looked like a document outline rather
+  than a search result row.
+- Search result surfaces need enough color separation to feel Material You, but
+  should stay quieter than navigation selected states.
+- The clear action is an icon button inside the search bar, so its 40px target
+  and 24px icon must be centered independently of Pagefind defaults.
+- Gemini was asked for a second review, but the local `agy` TUI did not return a
+  usable response during this run; this decision should be revisited if Gemini
+  later recommends a stronger MD3 search-view pattern.
+
+### 2026-06-27: Make The Create Starter Visually Representative
+
+The `create-starlight-theme-md3` template should demonstrate the theme on first
+run instead of generating a minimal page with only a couple of cards. The starter
+homepage should include the Material hero preview, a four-card capability grid,
+and a compact theme snapshot for color roles, controls, and navigation. The
+starter welcome page should include prose, table, code, English text, and
+Chinese text.
+
+Reason:
+
+- Users compare the created project against the published demo immediately; a
+  sparse starter makes the package feel weaker than the main site.
+- The scaffold is the fastest smoke test for MD3 color pairing, typography,
+  component surfaces, and search readiness.
+- The generated content should remain small and disposable, so the template does
+  not become a full documentation clone.
+
 ## Proposed, Awaiting Review
 
 None.

@@ -31,3 +31,9 @@ a plugin:
 ```js
 plugins: [md3Theme()]
 ```
+
+The starter content is intentionally more than a blank page. The first run
+includes a splash hero preview, capability cards, color/control/navigation
+samples, and a welcome page with prose, tables, code, and mixed English/Chinese
+text. These files are meant as a quick visual check for the theme and can be
+deleted when real documentation takes over.

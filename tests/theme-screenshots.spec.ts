@@ -1122,96 +1122,137 @@ test.describe('Theme MD3 component contracts', () => {
 			const resolveColor = (token: string) => {
 				probe.style.backgroundColor = rootStyles.getPropertyValue(token).trim();
 				return getComputedStyle(probe).backgroundColor;
-			};
-			const input = element.querySelector<HTMLInputElement>('.pagefind-ui__search-input');
-			const clear = element.querySelector<HTMLButtonElement>('.pagefind-ui__search-clear');
-			const result = element.querySelector<HTMLElement>('.pagefind-ui__result');
-			const nested = element.querySelector<HTMLElement>('.pagefind-ui__result-nested');
-			const title = element.querySelector<HTMLElement>('.pagefind-ui__result-title');
-			const link = element.querySelector<HTMLElement>('.pagefind-ui__result-link');
-			const excerpt = element.querySelector<HTMLElement>('.pagefind-ui__result-excerpt');
-			const mark = element.querySelector<HTMLElement>('mark');
-			const button = element.querySelector<HTMLButtonElement>('.pagefind-ui__button');
-			const message = element.querySelector<HTMLElement>('.pagefind-ui__message');
-			if (!input || !clear || !result || !nested || !title || !link || !excerpt || !mark || !button || !message) {
-				throw new Error('Expected the synthetic Pagefind fixture to be complete.');
-			}
-			const inputStyles = getComputedStyle(input);
-			const clearStyles = getComputedStyle(clear);
-			const titleBeforeStyles = getComputedStyle(title, '::before');
-			const nestedBeforeStyles = getComputedStyle(nested, '::before');
-			const resultStyles = getComputedStyle(result);
-			const nestedStyles = getComputedStyle(nested);
-			const titleStyles = getComputedStyle(title);
-			const linkStyles = getComputedStyle(link);
-			const excerptStyles = getComputedStyle(excerpt);
-			const markStyles = getComputedStyle(mark);
-			const buttonStyles = getComputedStyle(button);
-			const messageStyles = getComputedStyle(message);
-			const expected = {
-				searchContainer: resolveColor('--md-sys-color-surface-container-highest'),
-				secondaryContainer: resolveColor('--md-sys-color-secondary-container'),
-				onSecondaryContainer: (() => {
-					probe.style.color = rootStyles.getPropertyValue('--md-sys-color-on-secondary-container').trim();
-					return getComputedStyle(probe).color;
-				})(),
-			};
-			probe.remove();
-			return {
-				buttonBackgroundColor: buttonStyles.backgroundColor,
-				buttonBorderRadius: buttonStyles.borderRadius,
-				buttonColor: buttonStyles.color,
-				clearBlockSize: clearStyles.blockSize,
-				clearBorderRadius: clearStyles.borderRadius,
-				clearFontSize: clearStyles.fontSize,
-				clearInsetInlineEnd: clearStyles.insetInlineEnd,
-				clearPosition: clearStyles.position,
-				excerptColor: excerptStyles.color,
-				expected,
-				inputBackgroundColor: inputStyles.backgroundColor,
-				inputBlockSize: inputStyles.blockSize,
-				inputBorderRadius: inputStyles.borderRadius,
-				inputBorderTopWidth: inputStyles.borderTopWidth,
-				linkDisplay: linkStyles.display,
-				messageFontSize: messageStyles.fontSize,
-				nestedBorderInlineStartWidth: nestedStyles.borderInlineStartWidth,
-				nestedBeforeContent: nestedBeforeStyles.content,
-				nestedBeforeDisplay: nestedBeforeStyles.display,
-				nestedMarginInlineStart: nestedStyles.marginInlineStart,
-				resultBackgroundColor: resultStyles.backgroundColor,
-				resultBorderTopWidth: resultStyles.borderTopWidth,
-				titleBeforeContent: titleBeforeStyles.content,
-				titleBeforeDisplay: titleBeforeStyles.display,
-				titleFontSize: titleStyles.fontSize,
-				titleFontWeight: titleStyles.fontWeight,
-				markBackgroundColor: markStyles.backgroundColor,
-				markColor: markStyles.color,
-			};
+				};
+				const input = element.querySelector<HTMLInputElement>('.pagefind-ui__search-input');
+				const clear = element.querySelector<HTMLButtonElement>('.pagefind-ui__search-clear');
+				const result = element.querySelector<HTMLElement>('.pagefind-ui__result');
+				const resultInner = element.querySelector<HTMLElement>('.pagefind-ui__result-inner');
+				const nested = element.querySelector<HTMLElement>('.pagefind-ui__result-nested');
+				const title = element.querySelector<HTMLElement>('.pagefind-ui__result-title');
+				const link = element.querySelector<HTMLElement>('.pagefind-ui__result-link');
+				const excerpt = element.querySelector<HTMLElement>('.pagefind-ui__result-excerpt');
+				const mark = element.querySelector<HTMLElement>('mark');
+				const button = element.querySelector<HTMLButtonElement>('.pagefind-ui__button');
+				const message = element.querySelector<HTMLElement>('.pagefind-ui__message');
+				if (
+					!input ||
+					!clear ||
+					!result ||
+					!resultInner ||
+					!nested ||
+					!title ||
+					!link ||
+					!excerpt ||
+					!mark ||
+					!button ||
+					!message
+				) {
+					throw new Error('Expected the synthetic Pagefind fixture to be complete.');
+				}
+				const inputStyles = getComputedStyle(input);
+				const clearStyles = getComputedStyle(clear);
+				const clearBeforeStyles = getComputedStyle(clear, '::before');
+				const titleBeforeStyles = getComputedStyle(title, '::before');
+				const nestedBeforeStyles = getComputedStyle(nested, '::before');
+				const resultStyles = getComputedStyle(result);
+				const resultInnerStyles = getComputedStyle(resultInner);
+				const nestedStyles = getComputedStyle(nested);
+				const titleStyles = getComputedStyle(title);
+				const linkStyles = getComputedStyle(link);
+				const excerptStyles = getComputedStyle(excerpt);
+				const markStyles = getComputedStyle(mark);
+				const buttonStyles = getComputedStyle(button);
+				const messageStyles = getComputedStyle(message);
+				const expected = {
+					searchContainer: resolveColor('--md-sys-color-surface-container-highest'),
+					resultContainer: resolveColor('--md-sys-color-surface-container'),
+					nestedContainer: resolveColor('--md-sys-color-surface-container-high'),
+					markContainer: (() => {
+						probe.style.backgroundColor = `color-mix(
+							in srgb,
+							${rootStyles.getPropertyValue('--md-sys-color-primary-container').trim()} 78%,
+							${rootStyles.getPropertyValue('--md-sys-color-surface-container-high').trim()}
+						)`;
+						return getComputedStyle(probe).backgroundColor;
+					})(),
+					secondaryContainer: resolveColor('--md-sys-color-secondary-container'),
+					onSecondaryContainer: (() => {
+						probe.style.color = rootStyles.getPropertyValue('--md-sys-color-on-secondary-container').trim();
+						return getComputedStyle(probe).color;
+					})(),
+					onPrimaryContainer: (() => {
+						probe.style.color = rootStyles.getPropertyValue('--md-sys-color-on-primary-container').trim();
+						return getComputedStyle(probe).color;
+					})(),
+				};
+				probe.remove();
+				return {
+					buttonBackgroundColor: buttonStyles.backgroundColor,
+					buttonBorderRadius: buttonStyles.borderRadius,
+					buttonColor: buttonStyles.color,
+					clearBeforeBlockSize: clearBeforeStyles.blockSize,
+					clearBeforeInlineSize: clearBeforeStyles.inlineSize,
+					clearBlockSize: clearStyles.blockSize,
+					clearBorderRadius: clearStyles.borderRadius,
+					clearFontSize: clearStyles.fontSize,
+					clearInsetBlockStart: clearStyles.insetBlockStart,
+					clearInsetInlineEnd: clearStyles.insetInlineEnd,
+					clearPosition: clearStyles.position,
+					excerptColor: excerptStyles.color,
+					expected,
+					inputBackgroundColor: inputStyles.backgroundColor,
+					inputBlockSize: inputStyles.blockSize,
+					inputBorderRadius: inputStyles.borderRadius,
+					inputBorderTopWidth: inputStyles.borderTopWidth,
+					linkDisplay: linkStyles.display,
+					messageFontSize: messageStyles.fontSize,
+					nestedBorderInlineStartWidth: nestedStyles.borderInlineStartWidth,
+					nestedBeforeContent: nestedBeforeStyles.content,
+					nestedBeforeDisplay: nestedBeforeStyles.display,
+					nestedBackgroundColor: nestedStyles.backgroundColor,
+					nestedMarginInlineStart: nestedStyles.marginInlineStart,
+					resultBackgroundColor: resultStyles.backgroundColor,
+					resultBorderTopWidth: resultStyles.borderTopWidth,
+					resultInnerBackgroundColor: resultInnerStyles.backgroundColor,
+					resultInnerBorderRadius: resultInnerStyles.borderRadius,
+					titleBeforeContent: titleBeforeStyles.content,
+					titleBeforeDisplay: titleBeforeStyles.display,
+					titleFontSize: titleStyles.fontSize,
+					titleFontWeight: titleStyles.fontWeight,
+					markBackgroundColor: markStyles.backgroundColor,
+					markColor: markStyles.color,
+				};
 		});
 
 		expect(contract.inputBackgroundColor).toBe(contract.expected.searchContainer);
-		expect(contract.inputBlockSize).toBe('56px');
-		expect(contract.inputBorderTopWidth).toBe('0px');
-		expect(Number.parseFloat(contract.inputBorderRadius)).toBeGreaterThan(1000);
-		expect(contract.clearBlockSize).toBe('40px');
-		expect(Number.parseFloat(contract.clearBorderRadius)).toBeGreaterThan(1000);
-		expect(contract.clearFontSize).toBe('0px');
-		expect(contract.clearPosition).toBe('absolute');
-		expect(contract.clearInsetInlineEnd).toBe('8px');
-		expect(contract.resultBackgroundColor).toBe('rgba(0, 0, 0, 0)');
-		expect(contract.resultBorderTopWidth).toBe('0px');
-		expect(contract.linkDisplay).toBe('block');
-		expect(contract.titleFontSize).toBe('16px');
-		expect(contract.titleFontWeight).toBe('500');
-		expect(contract.titleBeforeContent).toBe('none');
-		expect(contract.titleBeforeDisplay).toBe('none');
-		expect(contract.messageFontSize).toBe('14px');
-		expect(contract.nestedBorderInlineStartWidth).toBe('4px');
-		expect(contract.nestedBeforeContent).toBe('none');
-		expect(contract.nestedBeforeDisplay).toBe('none');
-		expect(contract.nestedMarginInlineStart).toBe('16px');
-		expect(contract.markBackgroundColor).toBe(contract.expected.secondaryContainer);
-		expect(contract.markColor).toBe(contract.expected.onSecondaryContainer);
+			expect(contract.inputBlockSize).toBe('56px');
+			expect(contract.inputBorderTopWidth).toBe('0px');
+			expect(Number.parseFloat(contract.inputBorderRadius)).toBeGreaterThan(1000);
+			expect(contract.clearBlockSize).toBe('40px');
+			expect(contract.clearBeforeBlockSize).toBe('24px');
+			expect(contract.clearBeforeInlineSize).toBe('24px');
+			expect(Number.parseFloat(contract.clearBorderRadius)).toBeGreaterThan(1000);
+			expect(contract.clearFontSize).toBe('0px');
+			expect(contract.clearPosition).toBe('absolute');
+			expect(contract.clearInsetBlockStart).toBe('8px');
+			expect(contract.clearInsetInlineEnd).toBe('8px');
+			expect(contract.resultBackgroundColor).toBe('rgba(0, 0, 0, 0)');
+			expect(contract.resultInnerBackgroundColor).toBe(contract.expected.resultContainer);
+			expect(Number.parseFloat(contract.resultInnerBorderRadius)).toBeGreaterThanOrEqual(14);
+			expect(contract.resultBorderTopWidth).toBe('0px');
+			expect(contract.linkDisplay).toBe('block');
+			expect(contract.titleFontSize).toBe('16px');
+			expect(contract.titleFontWeight).toBe('500');
+			expect(contract.titleBeforeContent).toBe('none');
+			expect(contract.titleBeforeDisplay).toBe('none');
+			expect(contract.messageFontSize).toBe('14px');
+			expect(contract.nestedBackgroundColor).toBe(contract.expected.nestedContainer);
+			expect(contract.nestedBorderInlineStartWidth).toBe('0px');
+			expect(contract.nestedBeforeContent).toBe('none');
+			expect(contract.nestedBeforeDisplay).toBe('none');
+			expect(contract.nestedMarginInlineStart).toBe('0px');
+			expect(contract.markBackgroundColor).toBe(contract.expected.markContainer);
+			expect(contract.markColor).toBe(contract.expected.onPrimaryContainer);
 		expect(contract.buttonBackgroundColor).toBe(contract.expected.secondaryContainer);
 		expect(contract.buttonColor).toBe(contract.expected.onSecondaryContainer);
 		expect(Number.parseFloat(contract.buttonBorderRadius)).toBeGreaterThan(1000);

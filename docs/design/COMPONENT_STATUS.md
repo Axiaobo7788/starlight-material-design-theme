@@ -25,6 +25,19 @@ Current notes:
 - Gemini review accepted the current header/search shape, surface, and spacing direction.
 - Desktop search uses `--sl-sidebar-width` for its title area anchor, keeping splash and docs templates aligned.
 
+## Search Dialog
+
+Status: `in-progress`
+
+Current notes:
+
+- Pagefind remains the underlying search runtime; the theme only reshapes the UI with CSS.
+- Search input follows MD3 Search Bar proportions: 56px filled container, full pill shape, no outline border.
+- Clear action uses a centered 40px icon button target with a 24px icon and state layer, avoiding Pagefind default icon drift on mobile.
+- Results now use tonal list groups and nested rows instead of a directory-like left guide line.
+- Match highlights use a soft primary-container mix so hits read as query emphasis without becoming high-emphasis selection.
+- A Gemini review was requested for the search result treatment on 2026-06-27, but the local `agy` TUI did not return a usable response in this run.
+
 ## Sidebar
 
 Status: `accepted`
@@ -177,6 +190,17 @@ Current notes:
 - Homepage cards and theme snapshot panels now participate in restrained homepage-only entrance motion.
 - Demo seed now uses teal tonalSpot roles so the first screen shows clearer Material You color pairing instead of a single lavender-gray cast.
 - Top app bar, sidebar selected items, and TOC heading now use medium-weight MD3 title/label roles so document chrome stays quieter than page headings and CTAs.
+
+## Create Starter
+
+Status: `accepted`
+
+Current notes:
+
+- `create-starlight-theme-md3` should scaffold a small but representative demo, not a nearly empty splash page.
+- The starter homepage includes the Material preview object, four capability cards, and a theme snapshot for color roles, controls, and navigation.
+- The generated `welcome.md` includes prose, a table, code, English text, and Chinese text so typography and density can be inspected immediately.
+- The starter should still be easy to delete; it is a first-run visual check, not a full copy of the project documentation.
 
 ## Ripple
 

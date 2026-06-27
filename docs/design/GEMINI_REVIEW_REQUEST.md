@@ -4,13 +4,17 @@ Use this file to run the required Gemini 3.1 Pro visual review when the CLI can 
 
 ## Current Blocker In Codex Sandbox
 
-`agy` currently fails inside the Codex sandbox before it can contact Gemini:
+Previous `agy` runs failed inside the Codex sandbox before they could contact Gemini:
 
 ```text
 listen tcp 127.0.0.1:0: socket: operation not permitted
 ```
 
 This is not a login failure. The CLI starts its local language server and the sandbox denies the socket.
+
+On 2026-06-27, the interactive `agy` TUI opened with Gemini 3.1 Pro selected, but
+the search-dialog review prompt only echoed in the terminal and did not return a
+usable Gemini response during the Codex run.
 
 ## Review Goal
 
@@ -94,4 +98,27 @@ Run from the project root in a normal terminal, not inside the restricted Codex 
 
 ```bash
 agy --model "Gemini 3.1 Pro (High)" --print-timeout 10m -p "$(cat docs/design/GEMINI_REVIEW_REQUEST.md)"
+```
+
+## Search Dialog Follow-Up Prompt
+
+Use this prompt when specifically reviewing the Pagefind search dialog:
+
+```text
+请作为 Material Design 3 / Material You 视觉评审，针对 Astro Starlight 的 Pagefind 搜索弹窗提出具体 CSS 方案，不要直接改文件，只给方案和注意事项。
+
+上下文：starlight-theme-md3 是 Starlight plugin，不能依赖 @material/web runtime，主要用 CSS variables。当前移动端搜索弹窗中：
+
+1. Pagefind 的 clear 按钮显示为 X，需要确认 40px touch target、24px icon、状态层和垂直居中是否符合 MD3。
+2. 搜索结果列表已经从透明普通列表改成 tonal list groups：result group 使用 surface-container，nested rows 使用 surface-container-high，并移除了 4px left guide line。命中 mark 使用 soft primary-container mix。
+
+请判断：
+
+- clear/X 按钮尺寸、位置、图标绘制方式、状态层是否正确？
+- search results 更应该像 MD3 list item、filled tonal card，还是搜索视图里的 flat list？
+- title/excerpt/mark/nested result 的层级是否过重或过轻？
+- 移动端和桌面端有没有必要差异化？
+- 哪些东西不要做，避免变成网红卡片/过度动画？
+
+请输出 Patch Spec 风格：selector、current issue、recommended token/style、expected result。
 ```

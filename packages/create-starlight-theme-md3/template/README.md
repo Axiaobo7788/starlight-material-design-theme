@@ -18,3 +18,8 @@ The theme is configured in `astro.config.mjs`:
 ```js
 plugins: [md3Theme()]
 ```
+
+The initial docs content is a small visual demo, not required project structure.
+It shows the MD3 hero preview, cards, color roles, controls, navigation states,
+tables, code, and mixed-language prose so you can inspect the theme immediately.
+Delete or replace the demo pages as your real docs grow.
