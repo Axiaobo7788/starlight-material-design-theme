@@ -1116,18 +1116,20 @@ test.describe('Theme MD3 component contracts', () => {
 		});
 
 		const contract = await dialog.evaluate((element) => {
-			const rootStyles = getComputedStyle(document.documentElement);
-			const probe = document.createElement('span');
-			document.body.append(probe);
-			const resolveColor = (token: string) => {
-				probe.style.backgroundColor = rootStyles.getPropertyValue(token).trim();
-				return getComputedStyle(probe).backgroundColor;
+				const rootStyles = getComputedStyle(document.documentElement);
+				const probe = document.createElement('span');
+				document.body.append(probe);
+				const resolveColor = (token: string) => {
+					probe.style.backgroundColor = rootStyles.getPropertyValue(token).trim();
+					return getComputedStyle(probe).backgroundColor;
 				};
+				const form = element.querySelector<HTMLFormElement>('.pagefind-ui__form');
 				const input = element.querySelector<HTMLInputElement>('.pagefind-ui__search-input');
 				const clear = element.querySelector<HTMLButtonElement>('.pagefind-ui__search-clear');
 				const result = element.querySelector<HTMLElement>('.pagefind-ui__result');
 				const resultInner = element.querySelector<HTMLElement>('.pagefind-ui__result-inner');
 				const nested = element.querySelector<HTMLElement>('.pagefind-ui__result-nested');
+				const nestedLink = nested?.querySelector<HTMLAnchorElement>('.pagefind-ui__result-link');
 				const title = element.querySelector<HTMLElement>('.pagefind-ui__result-title');
 				const link = element.querySelector<HTMLElement>('.pagefind-ui__result-link');
 				const excerpt = element.querySelector<HTMLElement>('.pagefind-ui__result-excerpt');
@@ -1135,11 +1137,13 @@ test.describe('Theme MD3 component contracts', () => {
 				const button = element.querySelector<HTMLButtonElement>('.pagefind-ui__button');
 				const message = element.querySelector<HTMLElement>('.pagefind-ui__message');
 				if (
+					!form ||
 					!input ||
 					!clear ||
 					!result ||
 					!resultInner ||
 					!nested ||
+					!nestedLink ||
 					!title ||
 					!link ||
 					!excerpt ||
@@ -1149,6 +1153,8 @@ test.describe('Theme MD3 component contracts', () => {
 				) {
 					throw new Error('Expected the synthetic Pagefind fixture to be complete.');
 				}
+				nestedLink.focus({ preventScroll: true });
+				const formBeforeStyles = getComputedStyle(form, '::before');
 				const inputStyles = getComputedStyle(input);
 				const clearStyles = getComputedStyle(clear);
 				const clearBeforeStyles = getComputedStyle(clear, '::before');
@@ -1200,6 +1206,12 @@ test.describe('Theme MD3 component contracts', () => {
 					clearPosition: clearStyles.position,
 					excerptColor: excerptStyles.color,
 					expected,
+					formBeforeBlockSize: formBeforeStyles.blockSize,
+					formBeforeContent: formBeforeStyles.content,
+					formBeforeDisplay: formBeforeStyles.display,
+					formBeforeInlineSize: formBeforeStyles.inlineSize,
+					formBeforeMaskPosition: formBeforeStyles.maskPosition,
+					formBeforeMaskSize: formBeforeStyles.maskSize,
 					inputBackgroundColor: inputStyles.backgroundColor,
 					inputBlockSize: inputStyles.blockSize,
 					inputBorderRadius: inputStyles.borderRadius,
@@ -1210,7 +1222,10 @@ test.describe('Theme MD3 component contracts', () => {
 					nestedBeforeContent: nestedBeforeStyles.content,
 					nestedBeforeDisplay: nestedBeforeStyles.display,
 					nestedBackgroundColor: nestedStyles.backgroundColor,
+					nestedFocusWithin: nested.matches(':focus-within'),
 					nestedMarginInlineStart: nestedStyles.marginInlineStart,
+					nestedOutlineStyle: nestedStyles.outlineStyle,
+					nestedOutlineWidth: nestedStyles.outlineWidth,
 					resultBackgroundColor: resultStyles.backgroundColor,
 					resultBorderTopWidth: resultStyles.borderTopWidth,
 					resultInnerBackgroundColor: resultInnerStyles.backgroundColor,
@@ -1228,6 +1243,12 @@ test.describe('Theme MD3 component contracts', () => {
 			expect(contract.inputBlockSize).toBe('56px');
 			expect(contract.inputBorderTopWidth).toBe('0px');
 			expect(Number.parseFloat(contract.inputBorderRadius)).toBeGreaterThan(1000);
+			expect(contract.formBeforeContent).toBe('""');
+			expect(contract.formBeforeDisplay).toBe('block');
+			expect(contract.formBeforeBlockSize).toBe('24px');
+			expect(contract.formBeforeInlineSize).toBe('24px');
+			expect(contract.formBeforeMaskPosition).toBe('50% 50%');
+			expect(contract.formBeforeMaskSize).toBe('24px 24px');
 			expect(contract.clearBlockSize).toBe('40px');
 			expect(contract.clearBeforeBlockSize).toBe('24px');
 			expect(contract.clearBeforeInlineSize).toBe('24px');
@@ -1250,7 +1271,10 @@ test.describe('Theme MD3 component contracts', () => {
 			expect(contract.nestedBorderInlineStartWidth).toBe('0px');
 			expect(contract.nestedBeforeContent).toBe('none');
 			expect(contract.nestedBeforeDisplay).toBe('none');
+			expect(contract.nestedFocusWithin).toBe(true);
 			expect(contract.nestedMarginInlineStart).toBe('0px');
+			expect(contract.nestedOutlineStyle).toBe('none');
+			expect(contract.nestedOutlineWidth).toBe('0px');
 			expect(contract.markBackgroundColor).toBe(contract.expected.markContainer);
 			expect(contract.markColor).toBe(contract.expected.onPrimaryContainer);
 		expect(contract.buttonBackgroundColor).toBe(contract.expected.secondaryContainer);
