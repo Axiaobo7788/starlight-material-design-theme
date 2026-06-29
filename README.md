@@ -37,13 +37,13 @@ npm install starlight-theme-md3
 To start from a preconfigured Starlight project:
 
 ```sh
-pnpm create starlight-theme-md3 my-docs
+pnpm create starlight-theme-md3
 ```
 
 Equivalent npm command:
 
 ```sh
-npm create starlight-theme-md3@latest my-docs
+npm create starlight-theme-md3@latest
 ```
 
 The creator follows the same shape as Astro's official create flow. It asks for

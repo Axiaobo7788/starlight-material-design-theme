@@ -40,13 +40,13 @@ npm install starlight-theme-md3
 如果你想直接生成一个已经配置好主题的 Starlight 项目：
 
 ```sh
-pnpm create starlight-theme-md3 my-docs
+pnpm create starlight-theme-md3
 ```
 
 等价的 npm 命令：
 
 ```sh
-npm create starlight-theme-md3@latest my-docs
+npm create starlight-theme-md3@latest
 ```
 
 这个 creator 的形态会尽量贴近 Astro 官方创建流程：未传目录时会询问项目
