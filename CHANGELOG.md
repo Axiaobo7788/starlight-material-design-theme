@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.1.2 - 2026-06-29
+
+### Fixed
+
+- Refined Pagefind search dialog interaction states so result press/focus states
+  use MD3 tonal state layers instead of the default Pagefind outline.
+- Recentered search and clear icons inside the search dialog with explicit 24px
+  Material-style masks.
+
+### Changed
+
+- Expanded the `create-starlight-theme-md3` starter demo with a richer splash
+  page, theme snapshot, and typography/content samples so first-run projects
+  better show the theme surface.
+- Documented the starter demo and search-dialog design decisions.
+
 ## 0.1.0 - 2026-06-23
 
 Initial public preview release of `starlight-theme-md3`.
