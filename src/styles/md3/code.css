@@ -9,6 +9,8 @@
 	.sl-markdown-content pre:not(:where(.not-content *)) {
 		border: 1px solid var(--md3-comp-code-outline-color);
 		background-color: var(--md3-comp-code-block-container-color);
+		background-clip: padding-box;
+		overflow: auto;
 		box-shadow: none;
 	}
 
@@ -17,21 +19,93 @@
 	}
 
 	.expressive-code .frame {
+		--ec-brdRad: 0px;
+		--ec-brdWd: 0px;
+		--ec-frm-edTabsMargBlkStart: 0px;
+		--ec-frm-edTabsMargInlStart: 0px;
+		--ec-uiPadBlk: 0.375rem;
+		--ec-uiPadInl: 0.75rem;
+		background-color: var(--md3-comp-code-block-container-color);
 		border-radius: var(--md3-comp-code-block-shape);
-		box-shadow: none;
 		border: 1px solid var(--md3-comp-code-outline-color);
+		background-clip: padding-box;
+		box-shadow: none;
 		overflow: hidden;
 	}
 
 	.expressive-code .frame .header {
 		background-color: var(--md3-comp-code-header-container-color);
-		border-bottom: 1px solid color-mix(in srgb, var(--md3-comp-code-outline-color) 50%, transparent);
+		border: 0;
+		border-bottom: 1px solid var(--md3-comp-code-outline-color);
 		border-radius: 0;
+		padding: 0.5rem 0.75rem;
 	}
 
 	.expressive-code .frame pre {
 		background-color: var(--md3-comp-code-block-container-color);
-		border-top: none;
+		border: 0;
+		border-radius: 0;
+		background-clip: border-box;
+		box-shadow: none;
+	}
+
+	.expressive-code .frame pre:focus-visible {
+		outline: 2px solid var(--md-sys-color-primary);
+		outline-offset: -2px;
+	}
+
+	.expressive-code .frame.has-title:not(.is-terminal) .header {
+		align-items: center;
+		background-image: none;
+	}
+
+	.expressive-code .frame.has-title:not(.is-terminal) .header::before,
+	.expressive-code .frame.has-title:not(.is-terminal) .title::after,
+	.expressive-code .frame.is-terminal .header::after {
+		content: none;
+	}
+
+	.expressive-code .frame.has-title:not(.is-terminal) .title {
+		margin: 0;
+		padding-block: 0.25rem;
+		padding-inline: 0.75rem;
+		border: 0;
+		border-radius: var(--md-sys-shape-sm);
+		background-color: var(--md3-comp-code-title-container-color);
+		color: var(--md3-comp-code-title-label-color);
+		font-size: var(--md-sys-typescale-label-large-size);
+		font-weight: var(--md-sys-typescale-label-large-weight);
+		line-height: var(--md-sys-typescale-label-large-line-height);
+		letter-spacing: 0;
+	}
+
+	.expressive-code .frame.is-terminal .header {
+		align-items: center;
+		min-block-size: 2.5rem;
+		background-color: var(--md3-comp-code-header-container-color);
+		border: 0;
+		border-bottom: 1px solid var(--md3-comp-code-outline-color);
+		color: var(--md3-comp-code-title-label-color);
+		font-size: var(--md-sys-typescale-label-large-size);
+		font-weight: var(--md-sys-typescale-label-large-weight);
+		line-height: var(--md-sys-typescale-label-large-line-height);
+		letter-spacing: 0;
+	}
+
+	.expressive-code .frame.is-terminal .header::before {
+		background-color: var(--md-sys-color-on-surface-variant);
+		inset-inline-start: 1rem;
+		opacity: 0.38;
+	}
+
+	.expressive-code .ec-line.mark,
+	.expressive-code .ec-line.highlight {
+		background-color: color-mix(in srgb, var(--md-sys-color-primary) 8%, transparent);
+	}
+
+	.expressive-code .ec-line.mark .code,
+	.expressive-code .ec-line.highlight .code {
+		--ecLineBrdCol: var(--md-sys-color-primary);
 	}
 
 	/* MD3 style for copy buttons */
@@ -41,6 +115,10 @@
 		background-color: transparent;
 		color: var(--md-sys-color-on-surface-variant);
 		border: none;
+	}
+
+	.expressive-code .copy button::before {
+		content: none;
 	}
 
 	.expressive-code .copy button:hover,

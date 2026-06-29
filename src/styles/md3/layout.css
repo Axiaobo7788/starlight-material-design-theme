@@ -44,6 +44,83 @@
 		color: var(--md-sys-color-primary);
 	}
 
+	.social-icons {
+		gap: 0.25rem;
+		align-items: center;
+	}
+
+	.page > .header .social-icons::after {
+		margin-inline-start: 0.5rem;
+		border-inline-end-color: color-mix(in srgb, var(--md-sys-color-outline-variant) 64%, transparent);
+	}
+
+	.social-icons a {
+		position: relative;
+		isolation: isolate;
+		overflow: hidden;
+		box-sizing: border-box;
+		display: inline-grid;
+		place-items: center;
+		inline-size: 3rem;
+		block-size: 3rem;
+		margin: 0;
+		padding: 0;
+		border-radius: var(--md3-comp-icon-button-shape);
+		background-color: var(--md3-comp-icon-button-container-color);
+		color: var(--md3-comp-icon-button-label-color);
+		box-shadow: none;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	.social-icons a::after {
+		content: '';
+		position: absolute;
+		z-index: 0;
+		inset: 0;
+		border-radius: inherit;
+		background-color: var(--md3-comp-icon-button-state-layer-color);
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	.social-icons a > * {
+		position: relative;
+		z-index: 1;
+	}
+
+	.social-icons a svg {
+		inline-size: 1.25rem;
+		block-size: 1.25rem;
+	}
+
+	.social-icons a:hover {
+		background-color: var(--md3-comp-icon-button-hover-container-color);
+		color: var(--md3-comp-icon-button-hover-label-color);
+	}
+
+	.social-icons a:hover::after {
+		opacity: var(--md3-comp-icon-button-hover-state-layer-opacity);
+	}
+
+	.social-icons a:focus-visible {
+		background-color: var(--md3-comp-icon-button-focus-container-color);
+		color: var(--md3-comp-icon-button-focus-label-color);
+		outline: 2px solid var(--md3-comp-icon-button-focus-outline-color);
+		outline-offset: 2px;
+	}
+
+	.social-icons a:focus-visible::after {
+		opacity: var(--md3-comp-icon-button-focus-state-layer-opacity);
+	}
+
+	.social-icons a:active {
+		background-color: var(--md3-comp-icon-button-pressed-container-color);
+	}
+
+	.social-icons a:active::after {
+		opacity: var(--md3-comp-icon-button-pressed-state-layer-opacity);
+	}
+
 	@media (min-width: 50rem) {
 		.page > .header .title-wrapper {
 			--md3-header-title-inline-size: var(--sl-sidebar-width);
@@ -375,6 +452,10 @@
 		padding-block: 0.75rem 0.5rem;
 		padding-inline: 0.5rem 0.875rem;
 		border-top: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 26%, transparent);
+	}
+
+	.mobile-preferences .social-icons {
+		padding-block: 0;
 	}
 
 	.content-panel {

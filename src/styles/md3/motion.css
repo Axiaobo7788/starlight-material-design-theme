@@ -11,7 +11,8 @@
 			starlight-tabs [role='tab'],
 			.sl-link-card,
 			starlight-menu-button button,
-			.right-group label
+			.right-group label,
+			.social-icons a
 		) {
 			position: relative;
 			overflow: hidden;
@@ -79,6 +80,7 @@
 
 		button[data-open-modal],
 		.right-group label,
+		.social-icons a,
 		starlight-menu-button button,
 		.sl-link-button {
 			transition-duration: var(--md3-motion-duration-control);
@@ -265,6 +267,7 @@
 		.sl-link-card:active,
 		.card:active,
 		.pagination-links a:active,
+		.social-icons a:active,
 		.sl-link-button:active,
 		button[data-open-modal]:active,
 		starlight-menu-button button:active {

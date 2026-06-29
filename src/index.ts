@@ -497,6 +497,7 @@ function getMotionRuntimeScript() {
 			'starlight-tabs [role="tab"]:not([aria-disabled="true"])',
 			'.sl-link-card[href]',
 			'starlight-menu-button button',
+			'.social-icons a[href]',
 			'.right-group label'
 	].join(',');
 	const navigationSelector = [

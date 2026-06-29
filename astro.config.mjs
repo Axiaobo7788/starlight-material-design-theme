@@ -31,6 +31,13 @@ export default defineConfig({
 	integrations: [
 		starlight({
 			title: 'starlight-theme-md3',
+			social: [
+				{
+					icon: 'github',
+					label: 'GitHub',
+					href: 'https://github.com/aXiaobo7788/starlight-material-design-theme',
+				},
+			],
 			plugins: [
 				md3Theme({
 					seed: '#00a99d',

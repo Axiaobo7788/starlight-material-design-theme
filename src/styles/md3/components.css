@@ -118,10 +118,21 @@
 	}
 
 	.sl-link-button {
+		box-sizing: border-box;
 		min-height: var(--md3-density-control-height);
 		border-radius: var(--md3-comp-link-button-shape);
+		box-shadow: none;
+		gap: 0.5rem;
+		padding-inline: 1.5rem;
 		font-weight: 600;
 		letter-spacing: 0;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	.sl-link-button svg {
+		flex: none;
+		inline-size: 1.125rem;
+		block-size: 1.125rem;
 	}
 
 	.sl-link-button.primary {
@@ -143,6 +154,7 @@
 		border-color: var(--md3-comp-link-button-outlined-outline-color);
 		background-color: transparent;
 		color: var(--md3-comp-link-button-outlined-label-color);
+		padding-inline: 1.375rem;
 	}
 
 	.sl-link-button.secondary:hover {

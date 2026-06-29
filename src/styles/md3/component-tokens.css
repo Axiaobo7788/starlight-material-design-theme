@@ -57,6 +57,22 @@
 		--md3-comp-header-control-focus-outline-color: var(--md-sys-color-primary);
 		--md3-comp-header-control-shape: var(--md-sys-shape-full);
 
+		--md3-comp-icon-button-container-color: transparent;
+		--md3-comp-icon-button-label-color: var(--md-sys-color-on-surface-variant);
+		--md3-comp-icon-button-hover-container-color: transparent;
+		--md3-comp-icon-button-hover-label-color: var(--md-sys-color-on-surface);
+		--md3-comp-icon-button-focus-container-color: transparent;
+		--md3-comp-icon-button-focus-label-color: var(--md-sys-color-on-surface);
+		--md3-comp-icon-button-pressed-container-color: transparent;
+		--md3-comp-icon-button-disabled-container-color: var(--md3-state-disabled-container);
+		--md3-comp-icon-button-disabled-label-color: var(--md3-state-disabled-label);
+		--md3-comp-icon-button-state-layer-color: var(--md-sys-color-on-surface);
+		--md3-comp-icon-button-hover-state-layer-opacity: 0.08;
+		--md3-comp-icon-button-focus-state-layer-opacity: 0.12;
+		--md3-comp-icon-button-pressed-state-layer-opacity: 0.12;
+		--md3-comp-icon-button-focus-outline-color: var(--md-sys-color-primary);
+		--md3-comp-icon-button-shape: var(--md-sys-shape-full);
+
 		--md3-comp-menu-container-color: var(--md-sys-color-surface-container);
 		--md3-comp-menu-label-color: var(--md-sys-color-on-surface);
 		--md3-comp-menu-outline-color: var(--md-sys-color-outline-variant);
@@ -150,9 +166,11 @@
 
 		--md3-comp-code-inline-container-color: var(--md-sys-color-surface-container-high);
 		--md3-comp-code-inline-label-color: var(--md-sys-color-on-surface);
-		--md3-comp-code-block-container-color: var(--md-sys-color-surface);
+		--md3-comp-code-block-container-color: var(--md-sys-color-surface-container-lowest);
 		--md3-comp-code-header-container-color: var(--md-sys-color-surface-container-low);
-		--md3-comp-code-outline-color: var(--md-sys-color-outline-variant);
+		--md3-comp-code-title-container-color: var(--md-sys-color-surface-container);
+		--md3-comp-code-title-label-color: var(--md-sys-color-on-surface);
+		--md3-comp-code-outline-color: color-mix(in srgb, var(--md-sys-color-outline-variant) 72%, transparent);
 		--md3-comp-code-inline-shape: var(--md-sys-shape-xs);
 		--md3-comp-code-block-shape: var(--md-sys-shape-lg);
 
