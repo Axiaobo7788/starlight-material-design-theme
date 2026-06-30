@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.0 - 2026-06-30
+
+### Changed
+
+- Updated the supported runtime line to Astro 7 and Starlight 0.41.
+- Updated the demo, package-consumption fixture, and create-project template to
+  build against Astro 7.
+- Recentered the header social icon button contents so screen-reader-only text
+  does not affect icon alignment.
+
 ## 0.1.2 - 2026-06-29
 
 ### Fixed

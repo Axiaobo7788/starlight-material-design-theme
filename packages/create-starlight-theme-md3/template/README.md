@@ -1,6 +1,7 @@
 # __PROJECT_TITLE__
 
 This is an Astro Starlight project using `starlight-theme-md3`.
+It targets Astro 7 and Starlight 0.41 or newer.
 
 ## Commands
 

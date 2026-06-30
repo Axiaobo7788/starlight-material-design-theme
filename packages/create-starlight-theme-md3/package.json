@@ -2,7 +2,7 @@
   "name": "create-starlight-theme-md3",
   "description": "Create a new Astro Starlight project using starlight-theme-md3.",
   "type": "module",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "license": "MIT",
   "bin": {
     "create-starlight-theme-md3": "bin/create-starlight-theme-md3.mjs"

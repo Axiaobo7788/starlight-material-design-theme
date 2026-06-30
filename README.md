@@ -13,6 +13,11 @@ The theme does not require Tailwind configuration and does not depend on
 `@material/web` at runtime. Users install the package and keep the Starlight
 integration shape as `plugins: [md3Theme()]`.
 
+## Compatibility
+
+`starlight-theme-md3@0.2.x` targets Astro 7 and Starlight 0.41 or newer.
+Use the 0.1.x release line for Astro 6 / Starlight 0.40 projects.
+
 ## Preview
 
 <picture>

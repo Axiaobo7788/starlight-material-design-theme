@@ -16,6 +16,8 @@ npm create starlight-theme-md3@latest my-docs
 The generated project does not pin a `packageManager`, so it can be installed
 with npm, pnpm, Yarn, or Bun.
 
+The current template targets Astro 7 and Starlight 0.41 or newer.
+
 The creator follows the same command shape as Astro's official create flow:
 
 ```sh

@@ -54,7 +54,7 @@ manual review, CI confirmation after push, and publish execution.
   - `@material/web` must remain out of runtime and peer dependencies.
   - Tailwind must not become a runtime or peer dependency.
 - [ ] Confirm peer dependency range.
-  - Current peers: `@astrojs/starlight >=0.40.0`, `astro >=6.4.5`.
+  - Current peers: `@astrojs/starlight >=0.41.0`, `astro >=7.0.0 <8`.
   - Test against the lowest supported versions before declaring the range stable.
 - [x] Confirm exports.
   - `.` should expose `dist/index.js` and `dist/index.d.ts`.

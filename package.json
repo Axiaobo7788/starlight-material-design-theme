@@ -2,7 +2,7 @@
   "name": "starlight-theme-md3",
   "description": "A Material Design 3 / Material You inspired theme for Astro Starlight.",
   "type": "module",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "packageManager": "pnpm@10.33.4",
   "license": "MIT",
   "repository": {
@@ -57,15 +57,15 @@
     "astro": "astro"
   },
   "peerDependencies": {
-    "@astrojs/starlight": ">=0.40.0",
-    "astro": ">=6.4.5 <7"
+    "@astrojs/starlight": ">=0.41.0",
+    "astro": ">=7.0.0 <8"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
-    "@astrojs/starlight": "^0.40.0",
+    "@astrojs/starlight": "^0.41.1",
     "@playwright/test": "^1.61.0",
     "@types/node": "^25.9.3",
-    "astro": "^6.4.5",
+    "astro": "^7.0.3",
     "lightningcss-cli": "^1.32.0",
     "sharp": "^0.34.5",
     "typescript": "^5.9.3"
