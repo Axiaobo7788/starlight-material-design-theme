@@ -102,6 +102,12 @@ same-origin theme navigation, leaving the header, search, and primary chrome
 stable. Interior documentation pages avoid initial page-entry animation, hover
 translation, decorative scale effects, and blanket `transition: all` rules.
 
+The desktop TOC uses a real indicator element instead of a link border or
+pseudo-element. Scroll-driven changes retarget one velocity-preserving fast
+spatial spring, while direct TOC clicks use a cancellable emphasized FLIP. This
+keeps continuous scrolling responsive without turning a deliberate click into an
+instant jump.
+
 | Token | Purpose |
 | --- | --- |
 | `--md-sys-motion-duration-short*` | Fast state and control transitions |
@@ -115,6 +121,9 @@ translation, decorative scale effects, and blanket `transition: all` rules.
 | `--md3-motion-duration-route-leave` | Content fade/settle duration before same-site navigation |
 | `--md3-motion-duration-route-enter` | Content fade/settle duration after same-site navigation |
 | `--md3-motion-route-delay` | Tiny link delay used to reveal pressed navigation feedback |
+| `--md3-motion-duration-toc-marker` | Emphasized FLIP duration for direct desktop TOC navigation |
+| `--md3-motion-toc-spring-stiffness` | Spatial spring stiffness for scroll-driven TOC tracking |
+| `--md3-motion-toc-spring-damping-ratio` | Spatial spring damping ratio for scroll-driven TOC tracking |
 | `--md3-ripple-pressed-opacity` | Opacity for the pointer-origin ripple state layer |
 
 When `prefers-reduced-motion: reduce` is active, the theme reduces motion token

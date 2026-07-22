@@ -849,7 +849,11 @@ test.describe('Theme MD3 component contracts', () => {
 		await expect(tocNav).toHaveAttribute('data-md3-toc-tracker', 'true');
 
 		const marker = await tocNav.evaluate((element) => {
-			const styles = getComputedStyle(element, '::before');
+			const indicator = element.querySelector('.md3-toc-indicator');
+			if (!(indicator instanceof HTMLElement)) {
+				throw new Error('Expected a real TOC indicator element.');
+			}
+			const styles = getComputedStyle(indicator);
 			const matrix = new DOMMatrixReadOnly(styles.transform);
 			const activeLink = element.querySelector('a[aria-current="true"]');
 			const rootStyles = getComputedStyle(document.documentElement);
@@ -869,6 +873,7 @@ test.describe('Theme MD3 component contracts', () => {
 					activeLink instanceof HTMLElement ? getComputedStyle(activeLink, '::before').display : '',
 				opacity: styles.opacity,
 				resolvedPrimaryColor,
+				translateX: matrix.m41,
 				translateY: matrix.m42,
 				width: styles.inlineSize,
 			};
@@ -877,6 +882,7 @@ test.describe('Theme MD3 component contracts', () => {
 		expect(marker.inlineStart).toBe('3px');
 		expect(marker.opacity).toBe('1');
 		expect(marker.height).toBe('16px');
+		expect(marker.translateX).toBe(0);
 		expect(marker.translateY).toBeGreaterThanOrEqual(0);
 		expect(marker.width).toBe('4px');
 		expect(marker.backgroundColor).toBe(marker.resolvedPrimaryColor);
@@ -885,16 +891,117 @@ test.describe('Theme MD3 component contracts', () => {
 		expect(marker.linkMarkerDisplay).toBe('none');
 	});
 
+	test('TOC tracker follows heading depth on the inline axis', async ({ page }) => {
+		await page.emulateMedia({ reducedMotion: 'no-preference' });
+		await setThemeBeforeNavigation(page, 'light');
+		await page.goto('/guides/theme-lab/');
+		await page.locator('main').waitFor({ state: 'visible' });
+		await expect(page.locator('starlight-toc nav').first()).toHaveAttribute('data-md3-toc-tracker', 'true');
+		await expect(page.locator('starlight-toc nav').first()).toHaveAttribute('data-md3-toc-motion-ready', 'true');
+
+		const sectionLink = page.locator('starlight-toc a[href="#navigation-and-toc"]').first();
+		const nestedLink = page.locator('starlight-toc a[href="#parent-heading"]').first();
+		await expect(sectionLink).toBeVisible();
+		await expect(nestedLink).toBeVisible();
+
+		const hierarchy = await Promise.all(
+			[sectionLink, nestedLink].map((link) =>
+				link.evaluate((element) => ({
+					depth: getComputedStyle(element).getPropertyValue('--depth').trim(),
+					paddingInlineStart: Number.parseFloat(getComputedStyle(element).paddingInlineStart),
+				}))
+			)
+		);
+		expect(hierarchy[0].depth).toBe('0');
+		expect(hierarchy[1].depth).toBe('1');
+		expect(hierarchy[1].paddingInlineStart - hierarchy[0].paddingInlineStart).toBe(16);
+		const markerMotion = await page.locator('starlight-toc nav').first().evaluate((element) => {
+			const indicator = element.querySelector('.md3-toc-indicator');
+			if (!(indicator instanceof HTMLElement)) {
+				throw new Error('Expected a real TOC indicator element.');
+			}
+			const styles = getComputedStyle(indicator);
+			const rootStyles = getComputedStyle(document.documentElement);
+			return {
+				dampingRatio: rootStyles.getPropertyValue('--md3-motion-toc-spring-damping-ratio').trim(),
+				stiffness: rootStyles.getPropertyValue('--md3-motion-toc-spring-stiffness').trim(),
+				transitionProperty: styles.transitionProperty,
+			};
+		});
+		expect(markerMotion.transitionProperty).not.toContain('transform');
+		expect(markerMotion.stiffness).toBe('1400');
+		expect(markerMotion.dampingRatio).toBe('0.9');
+
+		await nestedLink.click();
+		await expect.poll(() => page.evaluate(() => window.location.hash)).toBe('#parent-heading');
+		const clickMotion = await page.locator('.md3-toc-indicator').first().evaluate((indicator) => {
+			const animation = indicator.getAnimations()[0];
+			const timing = animation?.effect?.getTiming();
+			return {
+				duration: timing?.duration,
+				easing: timing?.easing,
+			};
+		});
+		expect(clickMotion.duration).toBe(250);
+		expect(clickMotion.easing).toBe('cubic-bezier(0.2, 0, 0, 1)');
+		await expect
+			.poll(() =>
+				page.locator('.md3-toc-indicator').first().evaluate((element) => {
+					const matrix = new DOMMatrixReadOnly(getComputedStyle(element).transform);
+					return Math.round(matrix.m41);
+				})
+			)
+			.toBe(16);
+
+		await page.evaluate(() => {
+			document.documentElement.dir = 'rtl';
+			window.dispatchEvent(new Event('resize'));
+		});
+		await expect
+			.poll(() =>
+				page.locator('.md3-toc-indicator').first().evaluate((element) => {
+					const matrix = new DOMMatrixReadOnly(getComputedStyle(element).transform);
+					return Math.round(matrix.m41);
+				})
+			)
+			.toBe(-16);
+	});
+
 	test('TOC selects the final heading at the page bottom', async ({ page }) => {
 		await setThemeBeforeNavigation(page, 'light');
 		await page.goto('/guides/theme-lab/');
 		await settlePage(page, 'light');
 
-		await page.evaluate(() => {
-			const scrollingElement = document.scrollingElement || document.documentElement;
-			scrollingElement.scrollTop = scrollingElement.scrollHeight;
-		});
-		await page.waitForTimeout(150);
+		const jumpTrace = await page.evaluate(
+			() =>
+				new Promise<Array<{ active: string; motion: string; targetY: number; y: number }>>((resolve) => {
+					const nav = document.querySelector('starlight-toc nav');
+					const indicator = nav?.querySelector('.md3-toc-indicator');
+					if (!(nav instanceof HTMLElement) || !(indicator instanceof HTMLElement)) {
+						resolve([]);
+						return;
+					}
+					const samples: Array<{ active: string; motion: string; targetY: number; y: number }> = [];
+					let frames = 0;
+					const sample = () => {
+						const matrix = new DOMMatrixReadOnly(getComputedStyle(indicator).transform);
+						samples.push({
+							active: nav.querySelector('a[aria-current="true"]')?.textContent?.trim() ?? '',
+							motion: nav.dataset.md3TocMotion ?? '',
+							targetY: Number.parseFloat(nav.style.getPropertyValue('--md3-toc-indicator-y')),
+							y: matrix.m42,
+						});
+						if (++frames < 22) {
+							requestAnimationFrame(sample);
+						} else {
+							resolve(samples);
+						}
+					};
+					requestAnimationFrame(sample);
+					const scrollingElement = document.scrollingElement || document.documentElement;
+					scrollingElement.scrollTop = scrollingElement.scrollHeight;
+				})
+		);
 
 		await expect
 			.poll(() =>
@@ -905,11 +1012,23 @@ test.describe('Theme MD3 component contracts', () => {
 			.toEqual(['Final Scrollspy Check']);
 
 		const bottomMarker = await page.locator('starlight-toc nav').first().evaluate((element) => {
-			const styles = getComputedStyle(element, '::before');
+			const indicator = element.querySelector('.md3-toc-indicator');
+			if (!(indicator instanceof HTMLElement)) {
+				throw new Error('Expected a real TOC indicator element.');
+			}
+			const styles = getComputedStyle(indicator);
 			const matrix = new DOMMatrixReadOnly(styles.transform);
 			const activeLink = element.querySelector('a[aria-current="true"]');
+			if (!(activeLink instanceof HTMLElement)) {
+				throw new Error('Expected an active TOC link.');
+			}
+			const navRect = element.getBoundingClientRect();
+			const activeRect = activeLink.getBoundingClientRect();
+			const expectedY = activeRect.top - navRect.top + Math.max(0, (activeRect.height - 16) / 2);
 			return {
 				activeText: activeLink?.textContent?.trim() ?? '',
+				activeCount: element.querySelectorAll('a[aria-current="true"]').length,
+				expectedY,
 				linkMarkerContent:
 					activeLink instanceof HTMLElement ? getComputedStyle(activeLink, '::before').content : '',
 				linkMarkerDisplay:
@@ -919,10 +1038,21 @@ test.describe('Theme MD3 component contracts', () => {
 			};
 		});
 		expect(bottomMarker.activeText).toBe('Final Scrollspy Check');
+		expect(bottomMarker.activeCount).toBe(1);
 		expect(bottomMarker.opacity).toBe('1');
-		expect(bottomMarker.translateY).toBeGreaterThan(0);
+		expect(Math.abs(bottomMarker.translateY - bottomMarker.expectedY)).toBeLessThanOrEqual(0.2);
 		expect(bottomMarker.linkMarkerContent).toBe('none');
 		expect(bottomMarker.linkMarkerDisplay).toBe('none');
+		expect(jumpTrace.some((sample) => sample.motion === 'spring')).toBe(true);
+		expect(
+			jumpTrace.some(
+				(sample) =>
+					sample.active === 'Final Scrollspy Check' && sample.y > 44 && sample.y < sample.targetY - 1
+			)
+		).toBe(true);
+		expect(jumpTrace.some((sample) => sample.active && sample.active !== 'Overview' && sample.active !== 'Final Scrollspy Check')).toBe(
+			false
+		);
 	});
 
 	test('mobile TOC selects the final heading at the page bottom', async ({ page }) => {
@@ -983,7 +1113,11 @@ test.describe('Theme MD3 component contracts', () => {
 			.toEqual(['Reusable Package Surface']);
 
 		const tracker = await page.locator('starlight-toc nav').first().evaluate((element) => {
-			const styles = getComputedStyle(element, '::before');
+			const indicator = element.querySelector('.md3-toc-indicator');
+			if (!(indicator instanceof HTMLElement)) {
+				throw new Error('Expected a real TOC indicator element.');
+			}
+			const styles = getComputedStyle(indicator);
 			const matrix = new DOMMatrixReadOnly(styles.transform);
 			const activeLink = element.querySelector('a[aria-current="true"]');
 			if (!(activeLink instanceof HTMLElement)) {
@@ -1005,6 +1139,91 @@ test.describe('Theme MD3 component contracts', () => {
 		expect(tracker.activeText).toBe('Reusable Package Surface');
 		expect(tracker.opacity).toBe('1');
 		expect(Math.abs(tracker.actualY - tracker.expectedY)).toBeLessThanOrEqual(1);
+	});
+
+	test('TOC spring preserves continuity when the scroll target reverses', async ({ page }) => {
+		await page.emulateMedia({ reducedMotion: 'no-preference' });
+		await page.setViewportSize(viewports.find((viewport) => viewport.name === 'desktop')!.size);
+		await setThemeBeforeNavigation(page, 'light');
+		await page.goto('/guides/theme-lab/');
+		await page.locator('.md3-toc-indicator').waitFor({ state: 'visible' });
+		await page.waitForTimeout(200);
+
+		const samples = await page.evaluate(
+			() =>
+				new Promise<Array<{ activeCount: number; motion: string; targetY: number; y: number }>>((resolve) => {
+					const nav = document.querySelector('starlight-toc nav');
+					const indicator = nav?.querySelector('.md3-toc-indicator');
+					if (!(nav instanceof HTMLElement) || !(indicator instanceof HTMLElement)) {
+						resolve([]);
+						return;
+					}
+					const values: Array<{ activeCount: number; motion: string; targetY: number; y: number }> = [];
+					let frames = 0;
+					const sample = () => {
+						const matrix = new DOMMatrixReadOnly(getComputedStyle(indicator).transform);
+						values.push({
+							activeCount: nav.querySelectorAll('a[aria-current="true"]').length,
+							motion: nav.dataset.md3TocMotion ?? '',
+							targetY: Number.parseFloat(nav.style.getPropertyValue('--md3-toc-indicator-y')),
+							y: matrix.m42,
+						});
+						if (++frames < 45) {
+							requestAnimationFrame(sample);
+						} else {
+							resolve(values);
+						}
+					};
+					requestAnimationFrame(sample);
+					const scrollingElement = document.scrollingElement || document.documentElement;
+					scrollingElement.scrollTop = scrollingElement.scrollHeight;
+					window.setTimeout(() => {
+						scrollingElement.scrollTop = 0;
+					}, 80);
+				})
+		);
+
+		expect(samples.length).toBe(45);
+		const peakY = Math.max(...samples.map((sample) => sample.y));
+		const peakIndex = samples.findIndex((sample) => sample.y === peakY);
+		expect(samples.some((sample) => sample.motion === 'spring')).toBe(true);
+		expect(peakY).toBeGreaterThan(100);
+		expect(peakIndex).toBeGreaterThan(1);
+		expect(peakIndex).toBeLessThan(samples.length - 2);
+		expect(samples.slice(peakIndex + 1).some((sample) => sample.y < peakY - 10)).toBe(true);
+		expect(samples.every((sample) => sample.activeCount === 1)).toBe(true);
+		expect(Math.abs(samples.at(-1)!.y - samples.at(-1)!.targetY)).toBeLessThanOrEqual(0.2);
+		expect(samples.at(-1)!.motion).toBe('settled');
+	});
+
+	test('TOC tracker snaps only when reduced motion is requested', async ({ page }) => {
+		await page.emulateMedia({ reducedMotion: 'reduce' });
+		await page.setViewportSize(viewports.find((viewport) => viewport.name === 'desktop')!.size);
+		await setThemeBeforeNavigation(page, 'light');
+		await page.goto('/guides/theme-lab/');
+		await page.locator('.md3-toc-indicator').waitFor({ state: 'visible' });
+
+		await page.evaluate(() => {
+			const scrollingElement = document.scrollingElement || document.documentElement;
+			scrollingElement.scrollTop = scrollingElement.scrollHeight;
+		});
+		await page.waitForTimeout(50);
+		const contract = await page.locator('starlight-toc nav').first().evaluate((nav) => {
+			const indicator = nav.querySelector('.md3-toc-indicator');
+			if (!(indicator instanceof HTMLElement)) {
+				throw new Error('Expected a real TOC indicator element.');
+			}
+			const matrix = new DOMMatrixReadOnly(getComputedStyle(indicator).transform);
+			return {
+				animations: indicator.getAnimations().length,
+				motion: nav.getAttribute('data-md3-toc-motion'),
+				targetY: Number.parseFloat((nav as HTMLElement).style.getPropertyValue('--md3-toc-indicator-y')),
+				y: matrix.m42,
+			};
+		});
+		expect(contract.animations).toBe(0);
+		expect(contract.motion).toBe('settled');
+		expect(Math.abs(contract.y - contract.targetY)).toBeLessThanOrEqual(0.01);
 	});
 
 	test('search dialog opens as an MD3 scrim surface without backdrop blur', async ({ page }) => {

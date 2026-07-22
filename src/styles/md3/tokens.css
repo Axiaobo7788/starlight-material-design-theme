@@ -149,8 +149,10 @@
 		--md3-motion-duration-sidebar-collapse: var(--md-sys-motion-duration-short4);
 		--md3-motion-duration-toc-menu-expand: 220ms;
 		--md3-motion-duration-toc-menu-collapse: 160ms;
-		--md3-motion-duration-toc-marker: var(--md-sys-motion-duration-medium2);
+		--md3-motion-duration-toc-marker: var(--md-sys-motion-duration-medium1);
 		--md3-motion-duration-toc-color: var(--md-sys-motion-duration-short4);
+		--md3-motion-toc-spring-stiffness: 1400;
+		--md3-motion-toc-spring-damping-ratio: 0.9;
 		--md3-motion-duration-ripple-grow: 450ms;
 		--md3-motion-duration-ripple-fade: 150ms;
 		--md3-motion-duration-ripple: var(--md3-motion-duration-ripple-grow);

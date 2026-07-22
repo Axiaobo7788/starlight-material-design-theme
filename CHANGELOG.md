@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.2.1 - 2026-07-22
+
+### Fixed
+
+- Synchronized desktop and mobile table-of-contents state through Starlight's
+  current-link setter, including exact-bottom correction and duplicate
+  `aria-current` cleanup during interrupted navigation.
+- Replaced the lagging duration-based desktop TOC marker with a real indicator
+  that uses an interruptible spring while scrolling and a cancellable 250ms
+  emphasized FLIP transition for direct navigation.
+
+### Changed
+
+- Added nested-heading coverage to Theme Lab and expanded Playwright coverage
+  for final-item alignment, hierarchy offsets, rapid direction reversal,
+  click-state contention, and reduced motion.
+- Documented the TOC motion tokens and refreshed visual baselines for the
+  current Astro 7 and Starlight 0.41 demo.
+
 ## 0.2.0 - 2026-06-30
 
 ### Changed

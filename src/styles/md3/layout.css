@@ -499,29 +499,28 @@
 
 	starlight-toc nav {
 		position: relative;
+		--md3-toc-indicator-x: 0px;
 		--md3-toc-indicator-y: 0px;
-		--md3-toc-indicator-inline-size: 0.25rem;
-		--md3-toc-indicator-block-size: 1rem;
-		--md3-toc-indicator-opacity: 0;
 		display: grid;
 		gap: 0.125rem;
 		color: var(--md-sys-color-on-surface-variant);
 	}
 
-	starlight-toc nav::before {
-		content: '';
+	starlight-toc .md3-toc-indicator {
 		position: absolute;
 		z-index: 1;
 		inset-block-start: 0;
 		inset-inline-start: 0.1875rem;
-		inline-size: var(--md3-toc-indicator-inline-size);
-		block-size: var(--md3-toc-indicator-block-size);
+		display: block;
+		inline-size: 0.25rem;
+		block-size: 1rem;
 		border-radius: var(--md-sys-shape-full);
 		background-color: var(--md3-comp-toc-link-active-indicator-color);
-		opacity: var(--md3-toc-indicator-opacity);
+		opacity: 0;
 		pointer-events: none;
-		transform: translateY(var(--md3-toc-indicator-y));
+		transform: translate3d(0, 0, 0);
 		transform-origin: center;
+		will-change: transform;
 	}
 
 	starlight-toc h2 {

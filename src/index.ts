@@ -520,10 +520,11 @@ function getMotionRuntimeScript() {
 		return Number.parseFloat(token) || 0;
 	};
 
-		const activeRipples = new Map();
-		const sidebarDisclosureAnimations = new WeakMap();
-		const mobileTocAnimations = new WeakMap();
-		const tocNavigationLocks = new WeakMap();
+			const activeRipples = new Map();
+			const sidebarDisclosureAnimations = new WeakMap();
+			const mobileTocAnimations = new WeakMap();
+			const tocNavigationLocks = new WeakMap();
+			const tocIndicatorControllers = new WeakMap();
 
 	const getMotionDuration = (tokenName, fallback) => {
 		const styles = getComputedStyle(document.documentElement);
@@ -763,48 +764,262 @@ function getMotionRuntimeScript() {
 		}, delayMs);
 	};
 
-		const getLockedTocLink = (nav) => {
-			const record = tocNavigationLocks.get(nav);
-			if (!record || !record.link.isConnected || !nav.contains(record.link)) {
-				return null;
-			}
-			return record.link;
-		};
+			const getLockedTocLink = (nav) => {
+				const record = tocNavigationLocks.get(nav);
+				if (!record || !record.link.isConnected || !nav.contains(record.link)) {
+					return null;
+				}
+				return record.link;
+			};
 
-		const syncTocIndicator = (nav) => {
-			if (!(nav instanceof HTMLElement)) return;
-			const activeLink = getLockedTocLink(nav) || nav.querySelector('a[aria-current="true"]');
-			nav.dataset.md3TocTracker = 'true';
+			const getTocHost = (surface) => {
+				if (!(surface instanceof Element)) return null;
+				const host = surface.matches('starlight-toc, mobile-starlight-toc')
+					? surface
+					: surface.closest('starlight-toc, mobile-starlight-toc');
+				return host instanceof HTMLElement ? host : null;
+			};
 
-		if (!(activeLink instanceof HTMLElement)) {
-			nav.style.setProperty('--md3-toc-indicator-opacity', '0');
-			return;
-		}
+			const setTocCurrentThroughHost = (surface, link) => {
+				const host = getTocHost(surface);
+				if (!(host instanceof HTMLElement) || !(link instanceof HTMLAnchorElement) || !host.contains(link)) {
+					return false;
+				}
 
-		const indicatorInlineSize = 4;
-		const indicatorBlockSize = 16;
-		const navRect = nav.getBoundingClientRect();
-		const activeRect = activeLink.getBoundingClientRect();
-		const indicatorY =
-			activeRect.top - navRect.top + Math.max(0, (activeRect.height - indicatorBlockSize) / 2);
-		nav.style.setProperty('--md3-toc-indicator-inline-size', indicatorInlineSize + 'px');
-		nav.style.setProperty('--md3-toc-indicator-block-size', indicatorBlockSize + 'px');
-		nav.style.setProperty('--md3-toc-indicator-y', indicatorY + 'px');
-		nav.style.setProperty('--md3-toc-indicator-opacity', '1');
-	};
+				// Starlight keeps a private current-link reference; its setter must update both states.
+				let prototype = Object.getPrototypeOf(host);
+				while (prototype && prototype !== HTMLElement.prototype) {
+					const descriptor = Object.getOwnPropertyDescriptor(prototype, 'current');
+					if (typeof descriptor?.set === 'function') {
+						try {
+							descriptor.set.call(host, link);
+							host.querySelectorAll('a[aria-current="true"]').forEach((currentLink) => {
+								if (currentLink !== link) currentLink.removeAttribute('aria-current');
+							});
+							return link.getAttribute('aria-current') === 'true';
+						} catch {
+							return false;
+						}
+					}
+					prototype = Object.getPrototypeOf(prototype);
+				}
+				return false;
+			};
 
-	const setTocActiveLink = (link) => {
-		const nav = link.closest('starlight-toc nav');
-		if (!(nav instanceof HTMLElement)) return;
+			const transformForTocPosition = (x, y) =>
+				'translate3d(' + x.toFixed(3) + 'px, ' + y.toFixed(3) + 'px, 0)';
 
-		nav.querySelectorAll('a[aria-current="true"]').forEach((activeLink) => {
-			if (activeLink !== link) {
-				activeLink.removeAttribute('aria-current');
-			}
-		});
-			link.setAttribute('aria-current', 'true');
-			syncTocIndicator(nav);
-		};
+			const readTocIndicatorPosition = (controller) => {
+				try {
+					const matrix = new DOMMatrixReadOnly(getComputedStyle(controller.indicator).transform);
+					return { x: matrix.m41, y: matrix.m42 };
+				} catch {
+					return { x: controller.x, y: controller.y };
+				}
+			};
+
+			const getTocIndicatorController = (nav) => {
+				const existing = tocIndicatorControllers.get(nav);
+				if (existing?.indicator?.isConnected) return existing;
+
+				const indicator = document.createElement('span');
+				indicator.className = 'md3-toc-indicator';
+				indicator.setAttribute('aria-hidden', 'true');
+				nav.prepend(indicator);
+				const controller = {
+					nav,
+					indicator,
+					initialized: false,
+					x: 0,
+					y: 0,
+					targetX: 0,
+					targetY: 0,
+					velocityX: 0,
+					velocityY: 0,
+					frame: 0,
+					lastTime: 0,
+					animation: null,
+					stiffness: 1400,
+					dampingRatio: 0.9,
+				};
+				tocIndicatorControllers.set(nav, controller);
+				return controller;
+			};
+
+			const stopTocIndicatorMotion = (controller, capturePosition = true) => {
+				const position = capturePosition ? readTocIndicatorPosition(controller) : null;
+				if (controller.frame) {
+					cancelAnimationFrame(controller.frame);
+					controller.frame = 0;
+				}
+				if (controller.animation) {
+					controller.animation.cancel();
+					controller.animation = null;
+				}
+				if (position) {
+					controller.x = position.x;
+					controller.y = position.y;
+					controller.indicator.style.transform = transformForTocPosition(position.x, position.y);
+				}
+				controller.velocityX = 0;
+				controller.velocityY = 0;
+				controller.lastTime = 0;
+			};
+
+			const snapTocIndicator = (controller, targetX, targetY) => {
+				stopTocIndicatorMotion(controller, false);
+				controller.x = targetX;
+				controller.y = targetY;
+				controller.targetX = targetX;
+				controller.targetY = targetY;
+				controller.indicator.style.transform = transformForTocPosition(targetX, targetY);
+				controller.nav.dataset.md3TocMotion = 'settled';
+			};
+
+			const stepTocIndicatorSpring = (controller, now) => {
+				if (!controller.indicator.isConnected) {
+					controller.frame = 0;
+					return;
+				}
+				const elapsed = controller.lastTime ? Math.min((now - controller.lastTime) / 1000, 0.032) : 0;
+				controller.lastTime = now;
+				const steps = Math.max(1, Math.ceil(elapsed / 0.008));
+				const dt = steps ? elapsed / steps : 0;
+				const damping = 2 * controller.dampingRatio * Math.sqrt(controller.stiffness);
+
+				for (let index = 0; index < steps; index += 1) {
+					const accelerationX =
+						-controller.stiffness * (controller.x - controller.targetX) - damping * controller.velocityX;
+					const accelerationY =
+						-controller.stiffness * (controller.y - controller.targetY) - damping * controller.velocityY;
+					controller.velocityX += accelerationX * dt;
+					controller.velocityY += accelerationY * dt;
+					controller.x += controller.velocityX * dt;
+					controller.y += controller.velocityY * dt;
+				}
+
+				controller.indicator.style.transform = transformForTocPosition(controller.x, controller.y);
+				const settled =
+					Math.abs(controller.x - controller.targetX) < 0.1 &&
+					Math.abs(controller.y - controller.targetY) < 0.1 &&
+					Math.abs(controller.velocityX) < 2 &&
+					Math.abs(controller.velocityY) < 2;
+				if (settled) {
+					controller.frame = 0;
+					controller.x = controller.targetX;
+					controller.y = controller.targetY;
+					controller.velocityX = 0;
+					controller.velocityY = 0;
+					controller.indicator.style.transform = transformForTocPosition(controller.x, controller.y);
+					controller.nav.dataset.md3TocMotion = 'settled';
+					return;
+				}
+				controller.frame = requestAnimationFrame((frameNow) => stepTocIndicatorSpring(controller, frameNow));
+			};
+
+			const retargetTocIndicatorSpring = (controller, targetX, targetY) => {
+				if (controller.animation) {
+					stopTocIndicatorMotion(controller, true);
+				}
+				controller.targetX = targetX;
+				controller.targetY = targetY;
+				const styles = getComputedStyle(document.documentElement);
+				controller.stiffness =
+					Number.parseFloat(styles.getPropertyValue('--md3-motion-toc-spring-stiffness')) || 1400;
+				controller.dampingRatio =
+					Number.parseFloat(styles.getPropertyValue('--md3-motion-toc-spring-damping-ratio')) || 0.9;
+				controller.nav.dataset.md3TocMotion = 'spring';
+				if (!controller.frame) {
+					controller.lastTime = performance.now();
+					controller.frame = requestAnimationFrame((frameNow) => stepTocIndicatorSpring(controller, frameNow));
+				}
+			};
+
+			const animateTocIndicatorFlip = (controller, targetX, targetY) => {
+				const duration = getMotionDuration('--md3-motion-duration-toc-marker', 250);
+				if (duration <= 0 || reducedMotion()) {
+					snapTocIndicator(controller, targetX, targetY);
+					return;
+				}
+				const current = readTocIndicatorPosition(controller);
+				stopTocIndicatorMotion(controller, false);
+				controller.x = current.x;
+				controller.y = current.y;
+				controller.targetX = targetX;
+				controller.targetY = targetY;
+				controller.indicator.style.transform = transformForTocPosition(targetX, targetY);
+				controller.nav.dataset.md3TocMotion = 'flip';
+				const animation = controller.indicator.animate(
+					[
+						{ transform: transformForTocPosition(current.x, current.y) },
+						{ transform: transformForTocPosition(targetX, targetY) },
+					],
+					{
+						duration,
+						easing: getMotionEasing('--md-sys-motion-easing-emphasized', 'cubic-bezier(0.2, 0, 0, 1)'),
+					}
+				);
+				controller.animation = animation;
+				animation.finished
+					.catch(() => {})
+					.finally(() => {
+						if (controller.animation !== animation) return;
+						controller.animation = null;
+						controller.x = targetX;
+						controller.y = targetY;
+						controller.nav.dataset.md3TocMotion = 'settled';
+					});
+			};
+
+			const syncTocIndicator = (nav, source = 'scroll') => {
+				if (!(nav instanceof HTMLElement)) return;
+				const lockedLink = getLockedTocLink(nav);
+				const activeLink = lockedLink || nav.querySelector('a[aria-current="true"]');
+				const controller = getTocIndicatorController(nav);
+				nav.dataset.md3TocTracker = 'true';
+
+				if (!(activeLink instanceof HTMLElement)) {
+					controller.indicator.style.opacity = '0';
+					return;
+				}
+
+				const indicatorBlockSize = 16;
+				const navRect = nav.getBoundingClientRect();
+				const activeRect = activeLink.getBoundingClientRect();
+				const activeStyles = getComputedStyle(activeLink);
+				const rootFontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+				const indicatorDepth = Math.max(0, Number.parseFloat(activeStyles.getPropertyValue('--depth')) || 0);
+				const indicatorDirection = activeStyles.direction === 'rtl' ? -1 : 1;
+				const targetX = indicatorDepth * indicatorDirection * rootFontSize;
+				const targetY =
+					activeRect.top - navRect.top + Math.max(0, (activeRect.height - indicatorBlockSize) / 2);
+				nav.style.setProperty('--md3-toc-indicator-x', targetX + 'px');
+				nav.style.setProperty('--md3-toc-indicator-y', targetY + 'px');
+				controller.indicator.style.opacity = '1';
+
+				if (!controller.initialized || source === 'layout' || reducedMotion()) {
+					controller.initialized = true;
+					snapTocIndicator(controller, targetX, targetY);
+					return;
+				}
+
+				const targetChanged =
+					Math.abs(controller.targetX - targetX) > 0.1 || Math.abs(controller.targetY - targetY) > 0.1;
+				if (!targetChanged) return;
+				if (lockedLink || source === 'click') {
+					animateTocIndicatorFlip(controller, targetX, targetY);
+				} else {
+					retargetTocIndicatorSpring(controller, targetX, targetY);
+				}
+			};
+
+			const setTocActiveLink = (link, source = 'click') => {
+				const nav = link.closest('starlight-toc nav');
+				if (!(nav instanceof HTMLElement)) return false;
+				const updated = setTocCurrentThroughHost(nav, link);
+				syncTocIndicator(nav, source);
+				return updated;
+			};
 
 		const lockTocActiveLink = (link, lockMs = 1200) => {
 			const nav = link.closest('starlight-toc nav');
@@ -834,22 +1049,10 @@ function getMotionRuntimeScript() {
 			return true;
 		};
 
-	const setMobileTocActiveLink = (details, link) => {
-		if (!(details instanceof HTMLDetailsElement) || !(link instanceof HTMLElement)) return;
-		const links = Array.from(details.querySelectorAll('.dropdown a[href]')).filter(
-			(item) => item instanceof HTMLElement
-		);
-		links.forEach((item) => {
-			if (item !== link) {
-				item.removeAttribute('aria-current');
-			}
-		});
-		link.setAttribute('aria-current', 'true');
-		const currentLabel = details.querySelector('.display-current');
-		if (currentLabel instanceof HTMLElement) {
-			currentLabel.textContent = link.textContent?.trim() || currentLabel.textContent;
-		}
-	};
+		const setMobileTocActiveLink = (details, link) => {
+			if (!(details instanceof HTMLDetailsElement) || !(link instanceof HTMLAnchorElement)) return false;
+			return setTocCurrentThroughHost(details, link);
+		};
 
 	const setupTocIndicators = () => {
 		const navs = document.querySelectorAll('starlight-toc nav');
@@ -857,26 +1060,45 @@ function getMotionRuntimeScript() {
 			if (!(nav instanceof HTMLElement) || nav.dataset.md3TocTrackerReady === 'true') return;
 			nav.dataset.md3TocTrackerReady = 'true';
 			let frame = 0;
-			const scheduleSync = () => {
-				if (frame) return;
-				frame = requestAnimationFrame(() => {
-					frame = 0;
-					syncTocIndicator(nav);
-				});
-			};
+				let pendingSource = 'scroll';
+				const scheduleSync = (source = 'scroll') => {
+					if (source === 'layout') pendingSource = 'layout';
+					if (frame) return;
+					frame = requestAnimationFrame(() => {
+						frame = 0;
+						const source = pendingSource;
+						pendingSource = 'scroll';
+						syncTocIndicator(nav, source);
+					});
+				};
 
-			syncTocIndicator(nav);
-			new MutationObserver(scheduleSync).observe(nav, {
-				attributes: true,
-				attributeFilter: ['aria-current'],
-				childList: true,
-				subtree: true,
-			});
-			if ('ResizeObserver' in window) {
-				new ResizeObserver(scheduleSync).observe(nav);
-			}
-			window.addEventListener('scroll', scheduleSync, { passive: true });
-			window.addEventListener('resize', scheduleSync, { passive: true });
+				syncTocIndicator(nav, 'initial');
+				requestAnimationFrame(() => {
+					if (nav.isConnected) {
+						nav.dataset.md3TocMotionReady = 'true';
+					}
+				});
+				new MutationObserver(() => {
+					const lockedLink = getLockedTocLink(nav);
+					const currentLinks = nav.querySelectorAll('a[aria-current="true"]');
+					if (
+						lockedLink &&
+						(lockedLink.getAttribute('aria-current') !== 'true' || currentLinks.length !== 1)
+					) {
+						setTocCurrentThroughHost(nav, lockedLink);
+					}
+					scheduleSync('scroll');
+				}).observe(nav, {
+					attributes: true,
+					attributeFilter: ['aria-current'],
+					childList: true,
+					subtree: true,
+				});
+				if ('ResizeObserver' in window) {
+					new ResizeObserver(() => scheduleSync('layout')).observe(nav);
+				}
+				window.addEventListener('scroll', () => scheduleSync('scroll'), { passive: true });
+				window.addEventListener('resize', () => scheduleSync('layout'), { passive: true });
 		});
 	};
 
@@ -905,9 +1127,7 @@ function getMotionRuntimeScript() {
 					return;
 				}
 
-				links.forEach((link) => link.removeAttribute('aria-current'));
-				lastLink.setAttribute('aria-current', 'true');
-				syncTocIndicator(nav);
+					setTocActiveLink(lastLink, 'scroll');
 			});
 			document.querySelectorAll('mobile-starlight-toc details').forEach((details) => {
 				if (!(details instanceof HTMLDetailsElement)) return;
@@ -930,19 +1150,17 @@ function getMotionRuntimeScript() {
 			if (frame) return;
 			frame = requestAnimationFrame(() => {
 				frame = 0;
-				if (!syncEndState()) return;
-				window.setTimeout(syncEndState, 50);
-				window.setTimeout(syncEndState, 150);
+					syncEndState();
 			});
 		};
 
 		window.addEventListener('scroll', scheduleEndState, { passive: true });
 		window.addEventListener('resize', scheduleEndState, { passive: true });
-		document.querySelectorAll('starlight-toc nav, mobile-starlight-toc details').forEach((tocSurface) => {
-			new MutationObserver(scheduleEndState).observe(tocSurface, {
-				attributes: true,
-				attributeFilter: ['aria-current'],
-				subtree: true,
+			document.querySelectorAll('starlight-toc nav, mobile-starlight-toc details').forEach((tocSurface) => {
+				new MutationObserver(() => syncEndState()).observe(tocSurface, {
+					attributes: true,
+					attributeFilter: ['aria-current'],
+					subtree: true,
 			});
 		});
 		scheduleEndState();

@@ -70,12 +70,8 @@
 				opacity var(--md3-motion-duration-toc-color) var(--md-sys-motion-easing-linear);
 		}
 
-		starlight-toc nav::before {
-			transition:
-				transform var(--md3-motion-duration-toc-marker) var(--md-sys-motion-easing-standard),
-				block-size var(--md3-motion-duration-toc-marker) var(--md-sys-motion-easing-standard),
-				inline-size var(--md3-motion-duration-toc-marker) var(--md-sys-motion-easing-standard),
-				opacity var(--md3-motion-duration-toc-color) var(--md-sys-motion-easing-linear);
+		starlight-toc .md3-toc-indicator {
+			transition: opacity var(--md3-motion-duration-toc-color) var(--md-sys-motion-easing-linear);
 		}
 
 		button[data-open-modal],
