@@ -544,7 +544,8 @@
 		font-weight: var(--md-sys-typescale-body-medium-weight);
 		line-height: var(--md-sys-typescale-body-medium-line-height);
 		padding-block: 0.2rem;
-		padding-inline: 0.875rem;
+		padding-inline-end: 0.875rem;
+		padding-inline-start: calc(0.875rem + var(--depth, 0) * 1rem);
 		text-decoration: none;
 		outline: 0;
 		-webkit-tap-highlight-color: transparent;
@@ -745,7 +746,8 @@
 			font-weight: var(--md-sys-typescale-body-medium-weight);
 			line-height: var(--md-sys-typescale-body-medium-line-height);
 			padding-block: 0.25rem;
-			padding-inline: 1rem;
+			padding-inline-end: 1rem;
+			padding-inline-start: calc(1rem + var(--depth, 0) * 1rem);
 			text-decoration: none;
 		}
 
@@ -1114,7 +1116,8 @@
 			font-weight: var(--md-sys-typescale-body-medium-weight);
 			line-height: var(--md-sys-typescale-body-medium-line-height);
 			padding-block: 0.25rem;
-			padding-inline: 1rem;
+			padding-inline-end: 1rem;
+			padding-inline-start: calc(1rem + var(--depth, 0) * 1rem);
 			text-decoration: none;
 		}
 
