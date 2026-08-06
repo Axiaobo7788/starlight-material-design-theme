@@ -1,7 +1,7 @@
 [build]
+base = "."
 command = 'ASTRO_SITE="$DEPLOY_PRIME_URL" ASTRO_BASE=/ pnpm build'
 publish = "demo-dist"
 
 [build.environment]
 NODE_VERSION = "24"
-

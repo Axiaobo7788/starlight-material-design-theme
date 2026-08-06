@@ -10,6 +10,8 @@ are pushed.
 1. In Netlify, choose **Add new project > Import an existing project**.
 2. Connect GitHub and select `aXiaobo7788/starlight-material-design-theme`.
 3. Keep the build settings supplied by `netlify.toml`:
+   - Base directory: repository root (`.`)
+   - Package directory: empty
    - Build command: `ASTRO_SITE="$DEPLOY_PRIME_URL" ASTRO_BASE=/ pnpm build`
    - Publish directory: `demo-dist`
 4. Under **Project configuration > Build & deploy > Continuous Deployment >

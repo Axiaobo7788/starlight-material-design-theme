@@ -202,9 +202,11 @@ such as `https://<user>.github.io/<repo>/` build with the correct base path.
 
 Pull requests can receive an isolated Netlify Deploy Preview while GitHub Pages
 continues to host the production demo. Connect the repository to Netlify once;
-the checked-in `netlify.toml` builds the current pull request with its preview
-origin and publishes `demo-dist/`. See [Pull Request Previews](docs/PR_PREVIEWS.md)
-for the maintainer setup and expected GitHub status.
+the checked-in `netlify.toml` pins builds to the repository root, builds the
+current pull request with its preview origin, and publishes `demo-dist/`. Leave
+Netlify's Package directory empty. See
+[Pull Request Previews](docs/PR_PREVIEWS.md) for the maintainer setup and
+expected GitHub status.
 
 ## Current Status
 
