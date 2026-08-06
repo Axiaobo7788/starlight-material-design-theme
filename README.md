@@ -200,6 +200,12 @@ The workflow reads the Pages origin and base path from `actions/configure-pages`
 and passes them to Astro through `ASTRO_SITE` and `ASTRO_BASE`, so project pages
 such as `https://<user>.github.io/<repo>/` build with the correct base path.
 
+Pull requests can receive an isolated Netlify Deploy Preview while GitHub Pages
+continues to host the production demo. Connect the repository to Netlify once;
+the checked-in `netlify.toml` builds the current pull request with its preview
+origin and publishes `demo-dist/`. See [Pull Request Previews](docs/PR_PREVIEWS.md)
+for the maintainer setup and expected GitHub status.
+
 ## Current Status
 
 - Starlight is installed with Astro and configured in `astro.config.mjs`.
