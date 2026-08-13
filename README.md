@@ -1,3 +1,5 @@
+
+
 # starlight-theme-md3
 
 [![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
@@ -34,7 +36,7 @@ Use the 0.1.x release line for Astro 6 / Starlight 0.40 projects.
 ## Install
 
 ```sh
-npm install starlight-theme-md3
+pnpm add starlight-theme-md3
 ```
 
 ## Create A New Project
