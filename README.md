@@ -33,22 +33,32 @@ Use the 0.1.x release line for Astro 6 / Starlight 0.40 projects.
 
 ## Install
 
+Using npm:
+
 ```sh
 npm install starlight-theme-md3
+```
+
+Using pnpm:
+
+```sh
+pnpm add starlight-theme-md3
 ```
 
 ## Create A New Project
 
 To start from a preconfigured Starlight project:
 
-```sh
-pnpm create starlight-theme-md3
-```
-
-Equivalent npm command:
+Using npm:
 
 ```sh
 npm create starlight-theme-md3@latest
+```
+
+Using pnpm:
+
+```sh
+pnpm create starlight-theme-md3
 ```
 
 The creator follows the same shape as Astro's official create flow. It asks for
@@ -56,6 +66,17 @@ a project directory when one is not provided, can install dependencies, can
 initialize git, and does not pin a `packageManager` in the generated project.
 
 Useful flags:
+
+Using npm:
+
+```sh
+npm create starlight-theme-md3@latest my-docs -- --install --git
+npm create starlight-theme-md3@latest my-docs -- --no-install --no-git
+npm create starlight-theme-md3@latest my-docs -- --yes
+npm create starlight-theme-md3@latest my-docs -- --dry-run
+```
+
+Using pnpm:
 
 ```sh
 pnpm create starlight-theme-md3 my-docs -- --install --git
@@ -172,22 +193,23 @@ high-impact surfaces.
 
 ## Commands
 
-All commands are run from the root of the project, from a terminal:
+Run commands from the project root. npm and pnpm forms are listed side by side
+for easier reference; the repository continues to commit only `pnpm-lock.yaml`.
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
-| `pnpm dev`                 | Starts demo dev server at `localhost:4321`       |
-| `pnpm build:theme`         | Builds package files to `./dist/`                |
-| `pnpm build:demo`          | Builds the demo site to `./demo-dist/`           |
-| `pnpm build`               | Builds both the package and demo site            |
-| `pnpm check:contrast`      | Audits core MD3 foreground/background pairs      |
-| `pnpm test:screenshots`    | Compares Playwright visual snapshots locally or in the manual visual regression workflow |
-| `pnpm test:screenshots:update` | Updates Playwright visual snapshots          |
-| `pnpm typecheck`           | Runs `astro check`                               |
-| `pnpm pack --dry-run`      | Verifies package contents                        |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
+| Action | npm | pnpm |
+| :----- | :-- | :--- |
+| Install dependencies | `npm install` | `pnpm install` |
+| Start the demo server at `localhost:4321` | `npm run dev` | `pnpm dev` |
+| Build the theme package to `./dist/` | `npm run build:theme` | `pnpm build:theme` |
+| Build the demo site to `./demo-dist/` | `npm run build:demo` | `pnpm build:demo` |
+| Build the package and demo | `npm run build` | `pnpm build` |
+| Audit core MD3 color contrast | `npm run check:contrast` | `pnpm check:contrast` |
+| Run Playwright visual regression tests | `npm run test:screenshots` | `pnpm test:screenshots` |
+| Update Playwright snapshots | `npm run test:screenshots:update` | `pnpm test:screenshots:update` |
+| Run `astro check` | `npm run typecheck` | `pnpm typecheck` |
+| Verify package contents | `npm pack --dry-run` | `pnpm pack --dry-run` |
+| Run an Astro CLI command | `npx astro ...` | `pnpm astro ...` |
+| Show Astro CLI help | `npx astro --help` | `pnpm astro -- --help` |
 
 ## Deploy Demo
 
@@ -218,8 +240,8 @@ expected GitHub status.
 - `dist/css/index.css` is bundled from `src/styles/md3/index.css` with Lightning CSS.
 - `src/palette.ts` generates seed color roles with `@material/material-color-utilities`.
 - `fixtures/package-consumption/` verifies the packed package in a separate Starlight project.
-- `dist/` contains the package output after `pnpm build:theme`.
-- `demo-dist/` contains the demo output after `pnpm build:demo`.
+- `dist/` contains the package output after `npm run build:theme` or `pnpm build:theme`.
+- `demo-dist/` contains the demo output after `npm run build:demo` or `pnpm build:demo`.
 - Concept, implementation, Theme Lab, component sample, and token reference docs live in `src/content/docs/`.
 - Playwright screenshot tests cover homepage, Theme Lab, Implementation Overview, plugin options, search dialog, mobile drawer, and mobile table-of-contents states in light/dark modes.
 - GitHub Actions CI runs install, typecheck, contrast, build, package consumption, and pack dry-run.

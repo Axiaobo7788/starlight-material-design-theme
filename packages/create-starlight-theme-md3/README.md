@@ -3,14 +3,16 @@
 Create a new Astro Starlight project with `starlight-theme-md3` already
 configured.
 
-```sh
-pnpm create starlight-theme-md3 my-docs
-```
-
-Equivalent npm command:
+Using npm:
 
 ```sh
 npm create starlight-theme-md3@latest my-docs
+```
+
+Using pnpm:
+
+```sh
+pnpm create starlight-theme-md3 my-docs
 ```
 
 The generated project does not pin a `packageManager`, so it can be installed
@@ -19,6 +21,17 @@ with npm, pnpm, Yarn, or Bun.
 The current template targets Astro 7 and Starlight 0.41 or newer.
 
 The creator follows the same command shape as Astro's official create flow:
+
+Using npm:
+
+```sh
+npm create starlight-theme-md3@latest my-docs -- --install --git
+npm create starlight-theme-md3@latest my-docs -- --no-install --no-git
+npm create starlight-theme-md3@latest my-docs -- --yes
+npm create starlight-theme-md3@latest my-docs -- --dry-run
+```
+
+Using pnpm:
 
 ```sh
 pnpm create starlight-theme-md3 my-docs -- --install --git

@@ -49,5 +49,6 @@ Use this page as a quick visual check after changing theme options.
 
 - Edit content in `src/content/docs/`.
 - Update navigation in `astro.config.mjs`.
-- Run `pnpm dev` to start the local docs server.
-- Run `pnpm build && pnpm preview` when you want to test the production search index.
+- Run `npm run dev` or `pnpm dev` to start the local docs server.
+- Run `npm run build && npm run preview` or `pnpm build && pnpm preview` when
+  you want to test the production search index.

@@ -36,22 +36,32 @@ plugins: [md3Theme()]
 
 ## 安装
 
+使用 npm：
+
 ```sh
 npm install starlight-theme-md3
+```
+
+使用 pnpm：
+
+```sh
+pnpm add starlight-theme-md3
 ```
 
 ## 创建新项目
 
 如果你想直接生成一个已经配置好主题的 Starlight 项目：
 
-```sh
-pnpm create starlight-theme-md3
-```
-
-等价的 npm 命令：
+使用 npm：
 
 ```sh
 npm create starlight-theme-md3@latest
+```
+
+使用 pnpm：
+
+```sh
+pnpm create starlight-theme-md3
 ```
 
 这个 creator 的形态会尽量贴近 Astro 官方创建流程：未传目录时会询问项目
@@ -59,6 +69,17 @@ npm create starlight-theme-md3@latest
 `packageManager`，因此 npm、pnpm、Yarn、Bun 都可以继续使用。
 
 常用 flags：
+
+使用 npm：
+
+```sh
+npm create starlight-theme-md3@latest my-docs -- --install --git
+npm create starlight-theme-md3@latest my-docs -- --no-install --no-git
+npm create starlight-theme-md3@latest my-docs -- --yes
+npm create starlight-theme-md3@latest my-docs -- --dry-run
+```
+
+使用 pnpm：
 
 ```sh
 pnpm create starlight-theme-md3 my-docs -- --install --git
@@ -174,18 +195,21 @@ md3Theme({
 
 ## 常用命令
 
-| 命令 | 作用 |
-| --- | --- |
-| `pnpm install` | 安装依赖 |
-| `pnpm dev` | 启动 demo 开发服务器 |
-| `pnpm build:theme` | 构建主题包到 `dist/` |
-| `pnpm build:demo` | 构建 demo 站点到 `demo-dist/` |
-| `pnpm build` | 同时构建主题包和 demo 站点 |
-| `pnpm check:contrast` | 检查核心 MD3 前景/背景对比度 |
-| `pnpm test:screenshots` | 运行 Playwright 视觉回归测试 |
-| `pnpm test:screenshots:update` | 更新 Playwright 截图基线 |
-| `pnpm typecheck` | 运行 `astro check` |
-| `pnpm pack --dry-run` | 检查 npm package 内容 |
+请在项目根目录运行命令。下表并列 npm 和 pnpm 写法以方便查阅；
+仓库仍然只提交 `pnpm-lock.yaml`。
+
+| 作用 | npm | pnpm |
+| --- | --- | --- |
+| 安装依赖 | `npm install` | `pnpm install` |
+| 启动 demo 开发服务器 | `npm run dev` | `pnpm dev` |
+| 构建主题包到 `dist/` | `npm run build:theme` | `pnpm build:theme` |
+| 构建 demo 站点到 `demo-dist/` | `npm run build:demo` | `pnpm build:demo` |
+| 同时构建主题包和 demo 站点 | `npm run build` | `pnpm build` |
+| 检查核心 MD3 前景/背景对比度 | `npm run check:contrast` | `pnpm check:contrast` |
+| 运行 Playwright 视觉回归测试 | `npm run test:screenshots` | `pnpm test:screenshots` |
+| 更新 Playwright 截图基线 | `npm run test:screenshots:update` | `pnpm test:screenshots:update` |
+| 运行 `astro check` | `npm run typecheck` | `pnpm typecheck` |
+| 检查 npm package 内容 | `npm pack --dry-run` | `pnpm pack --dry-run` |
 
 ## 部署 Demo
 
