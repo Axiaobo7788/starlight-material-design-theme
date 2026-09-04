@@ -101,6 +101,41 @@ tokens are set to `0ms`.
 The CSS also respects `prefers-reduced-motion: reduce`, so users who request
 reduced motion do not need a separate Starlight configuration.
 
+## `colorPicker`
+
+Adds an optional Material Design 3 color tool without requiring users to add a
+component library. The feature is disabled by default, so existing sites do not
+ship its browser palette runtime.
+
+```ts
+md3Theme({
+	colorPicker: {
+		mode: 'both',
+		persist: true,
+	},
+});
+```
+
+| Mode | `astro dev` | Production build |
+| --- | --- | --- |
+| `off` | Hidden | Hidden |
+| `author` | Live preview and copyable plugin config | Hidden |
+| `visitor` | Preview, apply, reset, and optional persistence | Same |
+| `both` | Author mode | Visitor mode |
+
+Passing `colorPicker: true` is shorthand for visitor mode. The desktop trigger
+opens a modal dialog; mobile places a **Theme color** row in the navigation
+drawer and opens a bottom sheet. Visitor previews do not persist until **Apply**
+is selected. **Reset** clears the browser override and restores the deployed
+`seed` or `accent` palette.
+
+`persist` defaults to `true` and stores the generated light and dark role maps
+in local storage so they can be restored before first paint. The picker uses a
+dependency-free saturation/value surface, hue track, and hex field. Browser
+system colors may be fixed by the user agent for privacy and do not reliably
+expose the operating-system accent, so the source control offers only the
+deployed default and an explicit custom color.
+
 ## `experimentalComponents`
 
 Currently disabled. The current release keeps component overrides out of the

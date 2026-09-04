@@ -52,6 +52,7 @@
     "verify:package": "node scripts/verify-package-consumption.mjs",
     "test:screenshots": "playwright test --workers=1",
     "test:screenshots:update": "playwright test --update-snapshots --workers=1",
+    "test:color-picker:production": "playwright test --config playwright.production.config.ts",
     "typecheck": "astro check",
     "preview": "astro preview",
     "astro": "astro"

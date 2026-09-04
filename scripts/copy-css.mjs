@@ -14,6 +14,14 @@ await copyFile(
 	new URL('../src/components/ThemeSelect.astro', import.meta.url),
 	new URL('../dist/components/ThemeSelect.astro', import.meta.url)
 );
+await copyFile(
+	new URL('../src/components/ThemeSelectWithColorPicker.astro', import.meta.url),
+	new URL('../dist/components/ThemeSelectWithColorPicker.astro', import.meta.url)
+);
+await copyFile(
+	new URL('../src/components/ColorPicker.astro', import.meta.url),
+	new URL('../dist/components/ColorPicker.astro', import.meta.url)
+);
 
 await execFileAsync('pnpm', [
 	'exec',

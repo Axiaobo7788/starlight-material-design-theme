@@ -14,6 +14,10 @@ export default defineConfig({
 					seed: '#0061a4',
 					variant: 'tonalSpot',
 					density: 'comfortable',
+					colorPicker: {
+						mode: 'both',
+						persist: true,
+					},
 				}),
 			],
 		}),

@@ -4,6 +4,7 @@ const localChromeChannel = process.env.CI ? undefined : 'chrome';
 
 export default defineConfig({
 	testDir: './tests',
+	testIgnore: ['production/**'],
 	fullyParallel: true,
 	reporter: process.env.CI ? 'github' : 'list',
 	timeout: 60_000,

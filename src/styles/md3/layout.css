@@ -310,17 +310,17 @@
 		opacity: 0;
 	}
 
-	dialog {
-		border-radius: var(--md3-comp-dialog-shape);
-		background-color: var(--md3-comp-dialog-container-color);
-		border: 1px solid var(--md3-comp-dialog-outline-color);
-		box-shadow: var(--md3-comp-dialog-elevation);
-	}
+		dialog:not(.md3-color-picker__dialog) {
+			border-radius: var(--md3-comp-dialog-shape);
+			background-color: var(--md3-comp-dialog-container-color);
+			border: 1px solid var(--md3-comp-dialog-outline-color);
+			box-shadow: var(--md3-comp-dialog-elevation);
+		}
 
-	dialog::backdrop {
-		background-color: var(--md3-comp-dialog-scrim-color);
-		-webkit-backdrop-filter: none;
-		backdrop-filter: none;
+		dialog:not(.md3-color-picker__dialog)::backdrop {
+			background-color: var(--md3-comp-dialog-scrim-color);
+			-webkit-backdrop-filter: none;
+			backdrop-filter: none;
 	}
 
 	.dialog-frame {
@@ -352,7 +352,7 @@
 		background-color: var(--md3-state-pressed) !important;
 	}
 
-	.right-group label {
+		.right-group > :is(starlight-theme-select, starlight-lang-select) > label {
 		--sl-label-icon-size: 1rem;
 		--sl-caret-size: 1.125rem;
 		--sl-inline-padding: 0.75rem;
@@ -367,13 +367,13 @@
 		gap: 0;
 	}
 
-	.right-group label:hover {
+		.right-group > :is(starlight-theme-select, starlight-lang-select) > label:hover {
 		background-color: var(--md3-comp-header-control-hover-container-color);
 		border-color: color-mix(in srgb, var(--md-sys-color-outline) 72%, transparent);
 		color: var(--md3-comp-header-control-hover-label-color);
 	}
 
-	.right-group label:focus-within {
+		.right-group > :is(starlight-theme-select, starlight-lang-select) > label:focus-within {
 		background-color: var(--md3-comp-header-control-focus-container-color);
 		border-color: var(--md3-comp-header-control-focus-outline-color);
 		color: var(--md3-comp-header-control-focus-label-color);
@@ -381,25 +381,25 @@
 		outline-offset: 2px;
 	}
 
-	.right-group label:active {
+		.right-group > :is(starlight-theme-select, starlight-lang-select) > label:active {
 		background-color: var(--md3-comp-header-control-pressed-container-color);
 	}
 
-	.right-group label:has(select:disabled) {
+		.right-group > :is(starlight-theme-select, starlight-lang-select) > label:has(> select:disabled) {
 		background-color: var(--md3-comp-header-control-disabled-container-color);
 		border-color: transparent;
 		color: var(--md3-comp-header-control-disabled-label-color);
 	}
 
-	.right-group label .label-icon {
+		.right-group > :is(starlight-theme-select, starlight-lang-select) > label > .label-icon {
 		inset-inline-start: var(--sl-inline-padding);
 	}
 
-	.right-group label .caret {
+		.right-group > :is(starlight-theme-select, starlight-lang-select) > label > .caret {
 		inset-inline-end: var(--sl-inline-padding);
 	}
 
-	.right-group select {
+		.right-group > :is(starlight-theme-select, starlight-lang-select) > label > select {
 		box-sizing: border-box;
 		inline-size: 100%;
 		min-height: calc(var(--md3-density-header-control-height) - 2px);
@@ -413,16 +413,16 @@
 		line-height: var(--md-sys-typescale-label-large-line-height);
 	}
 
-	.right-group select:focus-visible {
+		.right-group > :is(starlight-theme-select, starlight-lang-select) > label > select:focus-visible {
 		outline: 0;
 	}
 
-	.right-group select option {
+		.right-group > :is(starlight-theme-select, starlight-lang-select) > label > select option {
 		background-color: var(--md-sys-color-surface-container);
 		color: var(--md-sys-color-on-surface);
 	}
 
-	.right-group select option:checked {
+		.right-group > :is(starlight-theme-select, starlight-lang-select) > label > select option:checked {
 		background-color: var(--md-sys-color-primary);
 		color: var(--md-sys-color-on-primary);
 	}

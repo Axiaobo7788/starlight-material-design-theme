@@ -11,7 +11,7 @@
 			starlight-tabs [role='tab'],
 			.sl-link-card,
 			starlight-menu-button button,
-			.right-group label,
+				.right-group > :is(starlight-theme-select, starlight-lang-select) > label,
 			.social-icons a
 		) {
 			position: relative;
@@ -75,7 +75,7 @@
 		}
 
 		button[data-open-modal],
-		.right-group label,
+		.right-group > :is(starlight-theme-select, starlight-lang-select) > label,
 		.social-icons a,
 		starlight-menu-button button,
 		.sl-link-button {
@@ -321,7 +321,7 @@
 			}
 		}
 
-		dialog {
+		dialog:not(.md3-color-picker__dialog) {
 			opacity: 0;
 			transform: scale(0.9);
 			transition:
@@ -336,19 +336,19 @@
 			transition-behavior: allow-discrete;
 		}
 
-		dialog[open] {
+		dialog:not(.md3-color-picker__dialog)[open] {
 			opacity: 1;
 			transform: scale(1);
 		}
 
-		dialog::backdrop {
+		dialog:not(.md3-color-picker__dialog)::backdrop {
 			opacity: 0;
 			transition:
 				background-color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard),
 				opacity var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-linear);
 		}
 
-		dialog[open]::backdrop {
+		dialog:not(.md3-color-picker__dialog)[open]::backdrop {
 			opacity: 1;
 		}
 
@@ -359,12 +359,12 @@
 		}
 
 		@starting-style {
-			dialog[open] {
+			dialog:not(.md3-color-picker__dialog)[open] {
 				opacity: 0;
 				transform: scale(0.9);
 			}
 
-			dialog[open]::backdrop {
+			dialog:not(.md3-color-picker__dialog)[open]::backdrop {
 				opacity: 0;
 			}
 		}

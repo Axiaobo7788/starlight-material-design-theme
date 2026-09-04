@@ -42,6 +42,10 @@ export default defineConfig({
 				md3Theme({
 					seed: '#00a99d',
 					variant: 'tonalSpot',
+					colorPicker: {
+						mode: 'both',
+						persist: true,
+					},
 				}),
 			],
 			sidebar: [
@@ -53,7 +57,10 @@ export default defineConfig({
 					label: 'Design',
 					items: [
 						{ label: 'Theme Direction', slug: 'guides/theme-concept' },
-						{ label: 'Implementation Overview', slug: 'guides/implementation-plan' },
+						{
+							label: 'Implementation Overview',
+							slug: 'guides/implementation-plan',
+						},
 						{ label: 'Theme Lab', slug: 'guides/theme-lab' },
 						{ label: 'Component Samples', slug: 'guides/component-samples' },
 					],

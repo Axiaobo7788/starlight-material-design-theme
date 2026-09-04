@@ -13,6 +13,7 @@ export interface StarlightPlugin {
 	name: string;
 	hooks: {
 		'config:setup'?(context: {
+			command: 'dev' | 'build' | 'preview' | 'sync';
 			config: {
 				customCss?: string[];
 				components?: StarlightComponents;

@@ -1,5 +1,25 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Added an opt-in MD3 runtime color picker with `off`, `author`, `visitor`, and
+  `both` modes. Author mode previews palettes and copies plugin configuration;
+  visitor mode applies, resets, and optionally persists generated light/dark
+  color roles without requiring Material Web Components at runtime.
+- Added a desktop modal dialog and mobile navigation-drawer row with a modal
+  bottom sheet, including a dependency-free saturation/value color surface,
+  hue track, hex input, animated segmented controls, and palette variants.
+
+### Changed
+
+- Shared Material Color Utilities palette generation between build-time plugin
+  configuration and the optional browser runtime.
+- Removed the unreliable experimental operating-system accent source because
+  browsers may return privacy-preserving fixed system colors instead of the
+  user's real accent.
+
 ## 0.2.1 - 2026-07-22
 
 ### Fixed
@@ -76,7 +96,6 @@ Initial public preview release of `starlight-theme-md3`.
 - `expressive` palette generation currently uses a HCT-based approximation while
   newer Material DynamicScheme entrypoints remain unstable in the target Node ESM
   matrix.
-- Runtime dynamic color picking and large-scale Starlight component overrides are
-  intentionally out of scope for this release.
+- Large-scale Starlight component overrides remain intentionally out of scope.
 - `--md3-comp-*` component tokens should be treated as public-preview tokens until
   they survive at least one release cycle.

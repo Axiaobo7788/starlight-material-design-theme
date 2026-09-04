@@ -1,6 +1,15 @@
 import { fileURLToPath } from 'node:url';
 import type { StarlightPlugin } from '@astrojs/starlight/types';
-import { generateSeedColorScheme, isHexSeed, type Md3SeedVariant } from './palette.js';
+import { generateSeedColorScheme, isHexSeed, normalizeHexSeed, type Md3SeedVariant } from './palette.js';
+
+export type Md3ColorPickerMode = 'off' | 'author' | 'visitor' | 'both';
+
+export interface Md3ColorPickerOptions {
+	/** Controls where the runtime color picker is available. Defaults to `off`. */
+	mode?: Md3ColorPickerMode;
+	/** Persists an applied visitor palette in local storage. Defaults to `true`. */
+	persist?: boolean;
+}
 
 export interface Md3ThemeOptions {
 	preset?: 'neutral' | 'playful' | 'highContrast';
@@ -13,11 +22,18 @@ export interface Md3ThemeOptions {
 	tonalSurface?: boolean;
 	motion?: boolean;
 	experimentalComponents?: boolean;
+	colorPicker?: boolean | Md3ColorPickerOptions;
 }
 
-interface ResolvedMd3ThemeOptions extends Required<Omit<Md3ThemeOptions, 'seed' | 'preset'>> {
+interface ResolvedMd3ColorPickerOptions {
+	mode: Md3ColorPickerMode;
+	persist: boolean;
+}
+
+interface ResolvedMd3ThemeOptions extends Required<Omit<Md3ThemeOptions, 'seed' | 'preset' | 'colorPicker'>> {
 	preset?: Md3ThemeOptions['preset'];
 	seed?: string;
+	colorPicker: ResolvedMd3ColorPickerOptions;
 }
 
 const accentPresets = {
@@ -133,7 +149,10 @@ export default function md3Theme(options: Md3ThemeOptions = {}): StarlightPlugin
 	return {
 		name: 'starlight-theme-md3',
 		hooks: {
-			'config:setup'({ config, updateConfig, logger }) {
+			'config:setup'({ command, config, updateConfig, logger }) {
+				const colorPickerMode = resolveMd3ColorPickerMode(resolved.colorPicker.mode, command);
+				const colorPickerEnabled = colorPickerMode !== 'off';
+
 				if (resolved.experimentalComponents) {
 					logger.warn('experimentalComponents is reserved for a future release and is ignored.');
 				}
@@ -142,11 +161,17 @@ export default function md3Theme(options: Md3ThemeOptions = {}): StarlightPlugin
 					logger.warn(`Ignoring invalid seed color "${resolved.seed}". Expected #rgb or #rrggbb.`);
 				}
 
+				if (colorPickerEnabled && config.components?.ThemeSelect) {
+					logger.warn(
+						'colorPicker cannot add its trigger because a custom ThemeSelect override is already configured.',
+					);
+				}
+
 				updateConfig({
 					customCss: [...(config.customCss ?? []), getThemeCssPath()],
 					components: {
 						...(config.components ?? {}),
-						ThemeSelect: config.components?.ThemeSelect ?? getThemeSelectPath(),
+						ThemeSelect: config.components?.ThemeSelect ?? getThemeSelectPath(colorPickerEnabled),
 					},
 					head: [
 						...(config.head ?? []),
@@ -155,6 +180,17 @@ export default function md3Theme(options: Md3ThemeOptions = {}): StarlightPlugin
 							attrs: { 'data-starlight-theme-md3': 'options' },
 							content: generateOptionsCss(resolved, { layered: false }),
 						},
+						...(colorPickerEnabled
+							? [
+									{
+										tag: 'script' as const,
+										attrs: {
+											'data-starlight-theme-md3': 'color-picker-bootstrap',
+										},
+										content: getColorPickerBootstrapScript(resolved, colorPickerMode),
+									},
+								]
+							: []),
 						...(resolved.motion
 							? [
 									{
@@ -182,8 +218,11 @@ function getThemeCssPath() {
 	return fileURLToPath(cssUrl);
 }
 
-function getThemeSelectPath() {
-	const componentUrl = new URL('./components/ThemeSelect.astro', import.meta.url);
+function getThemeSelectPath(withColorPicker = false) {
+	const componentUrl = new URL(
+		withColorPicker ? './components/ThemeSelectWithColorPicker.astro' : './components/ThemeSelect.astro',
+		import.meta.url,
+	);
 	return fileURLToPath(componentUrl);
 }
 
@@ -205,7 +244,27 @@ function resolveOptions(options: Md3ThemeOptions): ResolvedMd3ThemeOptions {
 		tonalSurface: options.tonalSurface ?? preset.tonalSurface ?? true,
 		motion: options.motion ?? preset.motion ?? true,
 		experimentalComponents: options.experimentalComponents ?? preset.experimentalComponents ?? false,
+		colorPicker: resolveColorPickerOptions(options.colorPicker),
 	};
+}
+
+function resolveColorPickerOptions(option: Md3ThemeOptions['colorPicker']): ResolvedMd3ColorPickerOptions {
+	if (!option) return { mode: 'off', persist: true };
+	if (option === true) return { mode: 'visitor', persist: true };
+
+	return {
+		mode: option.mode ?? 'visitor',
+		persist: option.persist ?? true,
+	};
+}
+
+export function resolveMd3ColorPickerMode(
+	mode: Md3ColorPickerMode,
+	command: 'dev' | 'build' | 'preview' | 'sync',
+): Exclude<Md3ColorPickerMode, 'both'> {
+	if (mode === 'both') return command === 'dev' ? 'author' : 'visitor';
+	if (mode === 'author' && command !== 'dev') return 'off';
+	return mode;
 }
 
 function generateOptionsCss(options: ResolvedMd3ThemeOptions, cssOptions: { layered?: boolean } = {}) {
@@ -434,6 +493,68 @@ function wrapTokenCss(content: string, layered: boolean) {
 	return layered ? `\n@layer md3.tokens {\n${trimmed}\n}` : trimmed;
 }
 
+function getColorPickerBootstrapScript(
+	options: ResolvedMd3ThemeOptions,
+	mode: Exclude<Md3ColorPickerMode, 'both' | 'off'>,
+) {
+	const fallbackSeed = accentPresets[options.accent].light.primary;
+	const config = JSON.stringify({
+		mode,
+		persist: options.colorPicker.persist,
+		deployedSeed: normalizeHexSeed(options.seed ?? '') ?? fallbackSeed,
+		deployedVariant: options.variant,
+		storageKey: 'starlight-theme-md3:color:v1',
+	}).replaceAll('<', '\\u003c');
+
+	return `
+(() => {
+	const config = ${config};
+	const root = document.documentElement;
+	root.dataset.md3ColorPickerMode = config.mode;
+	window.__starlightThemeMd3ColorPicker = config;
+
+	if (config.mode !== 'visitor' || !config.persist) return;
+
+	const isTokenMap = (value) =>
+		value &&
+		typeof value === 'object' &&
+		Object.entries(value).every(
+			([name, color]) => /^[a-z][a-z-]*$/.test(name) && typeof color === 'string' && /^#[0-9a-f]{6}$/i.test(color)
+		);
+	const renderTokens = (tokens) =>
+		Object.entries(tokens).map(([name, color]) => '--md-sys-color-' + name + ':' + color + ';').join('');
+	const applyStoredScheme = (stored) => {
+		if (
+			!stored ||
+			stored.version !== 1 ||
+			!/^#[0-9a-f]{6}$/i.test(stored.seed ?? '') ||
+			!['tonalSpot', 'expressive', 'content'].includes(stored.variant) ||
+			!isTokenMap(stored.light) ||
+			!isTokenMap(stored.dark)
+		) return false;
+
+		const style = document.createElement('style');
+		style.id = 'starlight-theme-md3-runtime-colors';
+		style.textContent =
+			':root[data-md3-color-runtime]{' + renderTokens(stored.dark) + '}' +
+			':root[data-md3-color-runtime][data-theme="light"]{' + renderTokens(stored.light) + '}';
+		document.head.append(style);
+		root.dataset.md3ColorRuntime = 'custom';
+		root.dataset.md3ColorSeed = stored.seed;
+		root.dataset.md3ColorVariant = stored.variant;
+		return true;
+	};
+
+	try {
+		const value = localStorage.getItem(config.storageKey);
+		if (value) applyStoredScheme(JSON.parse(value));
+	} catch {
+		// Storage may be disabled. The deployed palette remains the fallback.
+	}
+})();
+`;
+}
+
 function getRouteTransitionBootstrapScript() {
 	return `
 (() => {
@@ -498,7 +619,8 @@ function getMotionRuntimeScript() {
 			'.sl-link-card[href]',
 			'starlight-menu-button button',
 			'.social-icons a[href]',
-			'.right-group label'
+			'.right-group > :is(starlight-theme-select, starlight-lang-select) > label',
+			'.md3-color-picker__segments label'
 	].join(',');
 	const navigationSelector = [
 		'.sidebar-content a[href]',

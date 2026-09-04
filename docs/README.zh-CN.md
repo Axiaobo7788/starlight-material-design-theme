@@ -125,10 +125,39 @@ export default defineConfig({
 | `contrast` | `standard`, `medium`, `high` | `standard` | 控制状态层、描边和选中态强调程度 |
 | `tonalSurface` | `boolean` | `true` | 控制是否使用色调表面层级 |
 | `motion` | `boolean` | `true` | 控制主题交互动效运行时 |
+| `colorPicker` | `boolean` 或取色器配置 | `false` | 可选的作者/访客运行时取色器 |
 | `experimentalComponents` | `boolean` | `false` | 预留给未来 Astro 组件 override |
 
 `preset` 只填充默认配置。显式传入的 `seed`、`shape`、`tonalSurface`
 等选项会覆盖预设。
+
+### 运行时取色器
+
+取色器默认关闭，关闭时不会增加浏览器运行时代码。`both` 会在
+`astro dev` 中提供作者预览工具，并在生产构建中自动切换为访客取色器：
+
+```ts
+md3Theme({
+	seed: '#00a99d',
+		colorPicker: {
+			mode: 'both',
+			persist: true,
+		},
+});
+```
+
+| 模式 | 开发环境 | 生产环境 |
+| --- | --- | --- |
+| `off` | 隐藏 | 隐藏 |
+| `author` | 实时预览并复制配置 | 隐藏 |
+| `visitor` | 访客控件 | 访客控件 |
+| `both` | 作者控件 | 访客控件 |
+
+访客选色会先预览，再由 **Apply** 确认。启用 `persist: true` 后，已应用
+的色板保存在当前浏览器，并在首屏绘制前恢复；**Reset** 会回到站点作者
+部署的默认色板。取色器内置无额外依赖的饱和度/明度色板、色相轨道与十六进制输入。
+由于浏览器无法可靠提供真实的操作系统强调色，颜色来源只保留部署默认值与明确的
+自定义颜色。
 
 ## 全局换色
 

@@ -122,10 +122,41 @@ export default defineConfig({
 | `contrast` | `standard`, `medium`, `high` | `standard` | State, outline, and selected-tone emphasis |
 | `tonalSurface` | `boolean` | `true` | Preview token override |
 | `motion` | `boolean` | `true` | Preview token override |
+| `colorPicker` | `boolean` or picker options | `false` | Optional author/visitor runtime color picker |
 | `experimentalComponents` | `boolean` | `false` | Reserved |
 
 `preset` fills in default options only. Explicit options such as `seed`, `shape`,
 or `tonalSurface` override the preset.
+
+### Runtime color picker
+
+The picker is opt-in and does not add a runtime dependency when disabled. Use
+`both` to provide an author preview tool during `astro dev` and a visitor picker
+in production:
+
+```ts
+md3Theme({
+	seed: '#00a99d',
+		colorPicker: {
+			mode: 'both',
+			persist: true,
+		},
+});
+```
+
+| Mode | Development | Production |
+| --- | --- | --- |
+| `off` | Hidden | Hidden |
+| `author` | Live preview and **Copy config** | Hidden |
+| `visitor` | Visitor controls | Visitor controls |
+| `both` | Author controls | Visitor controls |
+
+Visitor changes are previewed before **Apply**. With `persist: true`, applied
+palettes are stored in the browser and restored before first paint; **Reset**
+returns to the palette deployed by the site author. The picker uses a bundled,
+dependency-free saturation/value surface, hue track, and hex field. Browsers do
+not expose the real operating-system accent color reliably, so the color source
+intentionally offers only the deployed default and an explicit custom color.
 
 ## Global Color
 

@@ -63,6 +63,16 @@ const themeMenuScenarios = themes.map((theme) => ({
 	viewport: viewports.find((viewport) => viewport.name === 'desktop')!.size,
 }));
 
+const colorPickerScenarios = viewports.flatMap((viewport) =>
+	themes.map((theme) => ({
+		name: `color-picker-${viewport.name}-${theme}`,
+		path: '/guides/theme-lab/',
+		theme,
+		viewport: viewport.size,
+		mobile: viewport.name === 'mobile',
+	})),
+);
+
 test.describe('Theme page screenshots', () => {
 	for (const scenario of scenarios) {
 		test(scenario.name, async ({ page }) => {
@@ -146,6 +156,330 @@ test.describe('Theme interaction screenshots', () => {
 			await takeScreenshot(page, scenario.name, { fullPage: false });
 		});
 	}
+
+	for (const scenario of colorPickerScenarios) {
+		test(scenario.name, async ({ page }) => {
+			await page.setViewportSize(scenario.viewport);
+			await setThemeBeforeNavigation(page, scenario.theme);
+			await page.goto(scenario.path);
+			await settlePage(page, scenario.theme);
+
+			if (scenario.mobile) {
+				await page.locator('starlight-menu-button button').click();
+				await expect(page.locator('starlight-menu-button')).toHaveAttribute('aria-expanded', 'true');
+			}
+
+			const picker = page.locator('starlight-md3-color-picker:visible');
+			await picker.locator('.md3-color-picker__trigger').click();
+			await expect(picker.locator('.md3-color-picker__dialog')).toHaveAttribute('open', '');
+			await expect(picker.locator('.md3-color-picker__dialog')).toHaveAttribute('data-md3-dialog-state', 'open');
+			await page.evaluate(() => window.getSelection()?.removeAllRanges());
+
+			await takeScreenshot(page, scenario.name, { fullPage: false });
+		});
+	}
+});
+
+test.describe('Runtime color picker behavior', () => {
+	test('desktop picker isolates form labels from header select styling', async ({ page }) => {
+		await page.setViewportSize({ width: 1060, height: 800 });
+		await setThemeBeforeNavigation(page, 'light');
+		await page.goto('/guides/theme-lab/');
+		await settlePage(page, 'light');
+
+		const picker = page.locator('starlight-md3-color-picker:visible');
+		await picker.locator('.md3-color-picker__trigger').click();
+		const dialog = picker.locator('.md3-color-picker__dialog');
+		await expect(dialog).toHaveAttribute('data-md3-dialog-state', 'open');
+
+		const geometry = await dialog.evaluate((element) => {
+			const segment = element.querySelector<HTMLElement>('.md3-color-picker__segments label')!;
+			const variantSegments = element.querySelector<HTMLElement>('.md3-color-picker__segments--variant')!;
+			const seed = element.querySelector<HTMLElement>('.md3-color-picker__seed-field')!;
+			const seedLabel = seed.firstElementChild as HTMLElement;
+			const actions = element.querySelector<HTMLElement>('.md3-color-picker__actions')!;
+			const firstAction = [...actions.querySelectorAll<HTMLElement>('button')].find(
+				(button) => getComputedStyle(button).display !== 'none',
+			)!;
+			const dialogRect = element.getBoundingClientRect();
+			const variantSegmentsRect = variantSegments.getBoundingClientRect();
+			const seedRect = seed.getBoundingClientRect();
+			const seedLabelRect = seedLabel.getBoundingClientRect();
+			const actionsRect = actions.getBoundingClientRect();
+			const firstActionRect = firstAction.getBoundingClientRect();
+			const segmentStyles = getComputedStyle(segment);
+			const seedStyles = getComputedStyle(seed);
+
+			return {
+				dialogWidth: Math.round(dialogRect.width),
+				dialogScrollWidth: element.scrollWidth,
+				dialogClientWidth: element.clientWidth,
+				segmentBackground: segmentStyles.backgroundColor,
+				segmentBorderRadius: segmentStyles.borderRadius,
+				segmentHeight: Math.round(segment.getBoundingClientRect().height),
+				seedTagName: seed.tagName,
+				seedBorderRadius: seedStyles.borderRadius,
+				seedOverflow: seedStyles.overflow,
+				seedLabelInside:
+					seedLabelRect.top >= seedRect.top && seedLabelRect.bottom <= seedRect.bottom,
+				actionGap: Math.round(firstActionRect.top - variantSegmentsRect.bottom),
+				actionsInside:
+					actionsRect.left >= dialogRect.left && actionsRect.right <= dialogRect.right,
+			};
+		});
+
+		expect(geometry.dialogWidth).toBe(400);
+		expect(geometry.dialogScrollWidth).toBeLessThanOrEqual(geometry.dialogClientWidth);
+		expect(geometry.segmentBackground).toBe('rgba(0, 0, 0, 0)');
+		expect(geometry.segmentBorderRadius).toBe('0px');
+		expect(geometry.segmentHeight).toBe(40);
+		expect(geometry.seedTagName).toBe('DIV');
+		expect(geometry.seedBorderRadius).toBe('0px');
+		expect(geometry.seedOverflow).toBe('visible');
+		expect(geometry.seedLabelInside).toBe(true);
+		expect(geometry.actionGap).toBe(24);
+		expect(geometry.actionsInside).toBe(true);
+	});
+
+	test('picker uses device-appropriate MD3 exit timing', async ({ page }) => {
+		await page.emulateMedia({ reducedMotion: 'no-preference' });
+
+		for (const scenario of [
+			{ width: 1060, height: 800, mobile: false, duration: '0.15s' },
+			{ width: 390, height: 844, mobile: true, duration: '0.2s' },
+		]) {
+			await page.setViewportSize({ width: scenario.width, height: scenario.height });
+			await setThemeBeforeNavigation(page, 'light');
+			await page.goto('/guides/theme-lab/');
+			await page.locator('main').waitFor({ state: 'visible' });
+			await page.evaluate(() => document.fonts?.ready);
+			if (scenario.mobile) await page.locator('starlight-menu-button button').click();
+
+			const picker = page.locator('starlight-md3-color-picker:visible');
+			await picker.locator('.md3-color-picker__trigger').click();
+			const dialog = picker.locator('.md3-color-picker__dialog');
+			await expect(dialog).toHaveAttribute('data-md3-dialog-state', 'open');
+
+			const closingStyles = await picker.locator('.md3-color-picker__cancel').evaluate((button) => {
+				(button as HTMLButtonElement).click();
+				const dialog = button.closest('dialog')!;
+				const styles = getComputedStyle(dialog);
+				return {
+					state: dialog.getAttribute('data-md3-dialog-state'),
+					duration: styles.transitionDuration,
+					timing: styles.transitionTimingFunction,
+				};
+			});
+
+			expect(closingStyles.state).toBe('closing');
+			expect(closingStyles.duration).toBe(scenario.duration);
+			expect(closingStyles.timing).toBe('cubic-bezier(0.3, 0, 0.8, 0.15)');
+			await expect(dialog).not.toHaveAttribute('open', '');
+		}
+	});
+
+	test('picker exposes reliable custom color controls with an animated segmented indicator', async ({ page }) => {
+		await page.emulateMedia({ reducedMotion: 'no-preference' });
+		await page.setViewportSize({ width: 1060, height: 800 });
+		await setThemeBeforeNavigation(page, 'light');
+		await page.goto('/guides/theme-lab/');
+		await page.locator('main').waitFor({ state: 'visible' });
+
+		const picker = page.locator('starlight-md3-color-picker:visible');
+		await picker.locator('.md3-color-picker__trigger').click();
+		await expect(picker.getByText('System', { exact: true })).toHaveCount(0);
+
+		const sourceSegments = picker.locator('.md3-color-picker__segments--source');
+		const customControls = picker.locator('.md3-color-picker__custom-controls');
+		const expandedHeight = await customControls.evaluate((element) => element.getBoundingClientRect().height);
+		const indicator = await sourceSegments.evaluate((element) => {
+			const styles = getComputedStyle(element, '::before');
+			const label = element.querySelector<HTMLElement>('label span')!;
+			return {
+				count: getComputedStyle(element).getPropertyValue('--md3-segment-count').trim(),
+				position: element.dataset.md3SegmentPosition,
+				inset: styles.insetBlockStart,
+				properties: styles.transitionProperty,
+				duration: styles.transitionDuration,
+				easing: styles.transitionTimingFunction,
+				startRadius: styles.borderTopLeftRadius,
+				endRadius: styles.borderTopRightRadius,
+				fontSize: getComputedStyle(label).fontSize,
+			};
+		});
+		expect(indicator.count).toBe('2');
+		expect(indicator.position).toBe('last');
+		expect(indicator.inset).toBe('0px');
+		expect(indicator.properties).toBe('transform, border-radius');
+		expect(indicator.duration.split(', ')).toEqual(['0.22s', '0.22s']);
+		expect(indicator.easing).toBe(
+			'cubic-bezier(0.2, 0, 0, 1), cubic-bezier(0.2, 0, 0, 1)',
+		);
+		expect(Number.parseFloat(indicator.startRadius)).toBe(0);
+		expect(Number.parseFloat(indicator.endRadius)).toBeGreaterThan(0);
+		expect(indicator.fontSize).toBe('14px');
+
+		const indicatorPosition = () =>
+			sourceSegments.evaluate((element) => {
+				const transform = getComputedStyle(element, '::before').transform;
+				return transform === 'none' ? 0 : new DOMMatrixReadOnly(transform).m41;
+			});
+		const customPosition = await indicatorPosition();
+		await sourceSegments.getByText('Default', { exact: true }).click();
+		await page.waitForTimeout(60);
+		const movingPosition = await indicatorPosition();
+		const collapsing = await customControls.evaluate((element) => ({
+			height: element.getBoundingClientRect().height,
+			expanded: element.dataset.md3Expanded,
+			hidden: element.getAttribute('aria-hidden'),
+			inert: element.hasAttribute('inert'),
+		}));
+		expect(movingPosition).toBeGreaterThan(0);
+		expect(movingPosition).toBeLessThan(customPosition);
+		expect(collapsing).toMatchObject({ expanded: 'false', hidden: 'true', inert: true });
+		expect(collapsing.height).toBeGreaterThan(0);
+		expect(collapsing.height).toBeLessThan(expandedHeight);
+		await sourceSegments.getByText('Custom', { exact: true }).click();
+		await expect(customControls).toHaveAttribute('data-md3-expanded', 'true');
+		await expect(customControls).toHaveAttribute('aria-hidden', 'false');
+		await expect(customControls).not.toHaveAttribute('inert', '');
+		await page.waitForTimeout(340);
+		expect(await indicatorPosition()).toBeCloseTo(customPosition, 0);
+		expect(await customControls.evaluate((element) => element.getBoundingClientRect().height)).toBeCloseTo(expandedHeight, 0);
+
+		await sourceSegments.getByText('Default', { exact: true }).click();
+		await page.waitForTimeout(240);
+		const collapsed = await customControls.evaluate((element) => {
+			const styles = getComputedStyle(element);
+			return { height: element.getBoundingClientRect().height, opacity: styles.opacity };
+		});
+		expect(collapsed.height).toBeCloseTo(0, 0);
+		expect(collapsed.opacity).toBe('0');
+
+		const colorArea = picker.locator('.md3-color-picker__sv');
+		const hue = picker.locator('.md3-color-picker__hue');
+		await expect(colorArea).toHaveAttribute('role', 'slider');
+		await expect(hue).toHaveAttribute('type', 'range');
+		await expect(picker.locator('.md3-color-picker__native-color')).toHaveCount(0);
+	});
+
+	test('custom color surface supports pointer and keyboard input', async ({ page }) => {
+		await page.setViewportSize({ width: 1060, height: 800 });
+		await setThemeBeforeNavigation(page, 'light');
+		await page.goto('/guides/theme-lab/');
+		await settlePage(page, 'light');
+
+		const picker = page.locator('starlight-md3-color-picker:visible');
+		await picker.locator('.md3-color-picker__trigger').click();
+		const colorArea = picker.locator('.md3-color-picker__sv');
+		const box = await colorArea.boundingBox();
+		expect(box).not.toBeNull();
+		await page.mouse.click(box!.x + box!.width * 0.25, box!.y + box!.height * 0.25);
+
+		const pointerSeed = await picker.locator('.md3-color-picker__hex').inputValue();
+		expect(pointerSeed).toMatch(/^#[0-9A-F]{6}$/);
+		await expect(colorArea).toHaveAttribute('aria-valuetext', /Saturation 25%, Brightness 75%/i);
+
+		await colorArea.focus();
+		await colorArea.press('Shift+ArrowRight');
+		await expect(colorArea).toHaveAttribute('aria-valuetext', /Saturation 35%, Brightness 75%/i);
+		await expect(picker.locator('.md3-color-picker__hex')).not.toHaveValue(pointerSeed);
+	});
+
+	test('both mode previews author colors and cancel restores the deployed palette', async ({ page }) => {
+		await page.setViewportSize(viewports.find((viewport) => viewport.name === 'desktop')!.size);
+		await setThemeBeforeNavigation(page, 'light');
+		await page.goto('/guides/theme-lab/');
+		await settlePage(page, 'light');
+
+		await expect(page.locator('html')).toHaveAttribute('data-md3-color-picker-mode', 'author');
+		const picker = page.locator('starlight-md3-color-picker:visible');
+		await picker.locator('.md3-color-picker__trigger').click();
+		await expect(picker.locator('.md3-color-picker__copy')).toBeVisible();
+		await expect(picker.locator('.md3-color-picker__apply')).toBeHidden();
+
+		const deployedPrimary = await page
+			.locator('html')
+			.evaluate((element) => getComputedStyle(element).getPropertyValue('--md-sys-color-primary').trim());
+		await picker.locator('.md3-color-picker__hex').fill('#6750A4');
+		await expect(page.locator('html')).toHaveAttribute('data-md3-color-runtime', 'custom');
+		await expect
+			.poll(() =>
+				page
+					.locator('html')
+					.evaluate((element) => getComputedStyle(element).getPropertyValue('--md-sys-color-primary').trim()),
+			)
+			.not.toBe(deployedPrimary);
+
+		await picker.locator('.md3-color-picker__cancel').click();
+		await expect(picker.locator('.md3-color-picker__dialog')).not.toHaveAttribute('open', '');
+		await expect(page.locator('html')).not.toHaveAttribute('data-md3-color-runtime', /.+/);
+		await expect
+			.poll(() =>
+				page
+					.locator('html')
+					.evaluate((element) => getComputedStyle(element).getPropertyValue('--md-sys-color-primary').trim()),
+			)
+			.toBe(deployedPrimary);
+	});
+
+	test('mobile picker uses a drawer row and modal bottom sheet', async ({ page }) => {
+		await page.setViewportSize(viewports.find((viewport) => viewport.name === 'mobile')!.size);
+		await setThemeBeforeNavigation(page, 'dark');
+		await page.goto('/guides/theme-lab/');
+		await settlePage(page, 'dark');
+		await page.locator('starlight-menu-button button').click();
+
+		const picker = page.locator('.mobile-preferences starlight-md3-color-picker');
+		const trigger = picker.locator('.md3-color-picker__trigger');
+		await expect(trigger).toBeVisible();
+		await expect(trigger).toContainText('Theme color');
+		await trigger.click();
+
+		const dialog = picker.locator('.md3-color-picker__dialog');
+		await expect(dialog).toBeVisible();
+		const geometry = await dialog.evaluate((element) => {
+			const rect = element.getBoundingClientRect();
+			const variantSegments = element.querySelector<HTMLElement>('.md3-color-picker__segments--variant')!;
+			const firstAction = [...element.querySelectorAll<HTMLElement>('.md3-color-picker__actions button')].find(
+				(button) => getComputedStyle(button).display !== 'none',
+			)!;
+			return {
+				actionGap: Math.round(
+					firstAction.getBoundingClientRect().top - variantSegments.getBoundingClientRect().bottom,
+				),
+				bottom: Math.round(rect.bottom),
+				height: Math.round(rect.height),
+				top: Math.round(rect.top),
+			};
+		});
+		expect(geometry.actionGap).toBe(16);
+		expect(geometry.bottom).toBe(844);
+		expect(geometry.top).toBeGreaterThan(0);
+		expect(geometry.height).toBeLessThan(844);
+	});
+
+	test('picker actions do not overflow a 320px viewport', async ({ page }) => {
+		await page.setViewportSize({ width: 320, height: 720 });
+		await setThemeBeforeNavigation(page, 'dark');
+		await page.goto('/guides/theme-lab/');
+		await settlePage(page, 'dark');
+		await page.locator('starlight-menu-button button').click();
+
+		const picker = page.locator('.mobile-preferences starlight-md3-color-picker');
+		await picker.locator('.md3-color-picker__trigger').click();
+		const dialog = picker.locator('.md3-color-picker__dialog');
+		const overflow = await dialog.evaluate((element) => ({
+			clientWidth: element.clientWidth,
+			scrollWidth: element.scrollWidth,
+			actionWidths: [...element.querySelectorAll<HTMLElement>('.md3-color-picker__actions button')]
+				.filter((button) => getComputedStyle(button).display !== 'none')
+				.map((button) => Math.round(button.getBoundingClientRect().width)),
+		}));
+
+		expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.clientWidth);
+		expect(overflow.actionWidths).toEqual([272, 272, 272]);
+	});
 });
 
 test.describe('Theme motion behavior', () => {

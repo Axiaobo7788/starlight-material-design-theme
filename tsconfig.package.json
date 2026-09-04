@@ -16,5 +16,5 @@
     "target": "ES2022",
     "types": ["node"]
   },
-  "include": ["src/index.ts"]
+  "include": ["src/index.ts", "src/client-palette.ts", "src/palette-core.ts"]
 }
