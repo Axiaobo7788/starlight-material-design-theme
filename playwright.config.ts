@@ -27,7 +27,7 @@ export default defineConfig({
 		},
 	],
 	webServer: {
-		command: 'pnpm exec astro dev --host 127.0.0.1 --port 4325',
+		command: 'ASTRO_DEV_BACKGROUND=0 pnpm exec astro dev --host 127.0.0.1 --port 4325',
 		reuseExistingServer: !process.env.CI,
 		timeout: 120_000,
 		url: 'http://127.0.0.1:4325',

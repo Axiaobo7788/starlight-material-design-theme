@@ -10,7 +10,7 @@
 			.pagination-links a,
 			starlight-tabs [role='tab'],
 			.sl-link-card,
-			starlight-menu-button button,
+				:is(starlight-menu-button button, .sl-menu-button),
 				.right-group > :is(starlight-theme-select, starlight-lang-select) > label,
 			.social-icons a
 		) {
@@ -77,7 +77,7 @@
 		button[data-open-modal],
 		.right-group > :is(starlight-theme-select, starlight-lang-select) > label,
 		.social-icons a,
-		starlight-menu-button button,
+		:is(starlight-menu-button button, .sl-menu-button),
 		.sl-link-button {
 			transition-duration: var(--md3-motion-duration-control);
 		}
@@ -88,7 +88,7 @@
 
 		@media (max-width: 49.999rem) {
 			.page > .header button[data-open-modal],
-			starlight-menu-button button {
+				:is(starlight-menu-button button, .sl-menu-button) {
 				transition:
 					background-color var(--md3-motion-duration-control) var(--md-sys-motion-easing-standard),
 					color var(--md3-motion-duration-state) var(--md-sys-motion-easing-standard),
@@ -97,11 +97,11 @@
 			}
 
 			.page > .header button[data-open-modal]:active,
-			starlight-menu-button button:active {
+				:is(starlight-menu-button button, .sl-menu-button):active {
 				transform: scale(0.96);
 			}
 
-			starlight-menu-button button :where(.open-menu, .close-menu) {
+			:is(starlight-menu-button button, .sl-menu-button) :where(.open-menu, .close-menu) {
 				transition:
 					opacity var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-linear),
 					transform var(--md-sys-motion-duration-medium1) var(--md-sys-motion-easing-emphasized);
@@ -112,7 +112,7 @@
 					var(--md-sys-motion-easing-emphasized-accelerate);
 			}
 
-			.sidebar:has(starlight-menu-button[aria-expanded='true'])::before {
+			.sidebar:has(:is(starlight-menu-button[aria-expanded='true'], .sidebar-pane:popover-open))::before {
 				transition: opacity var(--md3-motion-duration-sidebar-expand) var(--md-sys-motion-easing-emphasized-decelerate);
 			}
 
@@ -125,7 +125,8 @@
 					box-shadow var(--md3-motion-duration-control) var(--md-sys-motion-easing-standard);
 			}
 
-			starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane {
+			starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane,
+			.sidebar-pane:popover-open {
 				transition:
 					visibility 0s linear 0s,
 					opacity var(--md3-motion-duration-sidebar-expand) var(--md-sys-motion-easing-emphasized-decelerate),
@@ -140,7 +141,8 @@
 					transform var(--md3-motion-duration-sidebar-collapse) var(--md-sys-motion-easing-emphasized-accelerate);
 			}
 
-			starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane .sidebar-content {
+			starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane .sidebar-content,
+			.sidebar-pane:popover-open .sidebar-content {
 				transition:
 					opacity var(--md-sys-motion-duration-medium4) var(--md-sys-motion-easing-emphasized-decelerate),
 					transform var(--md-sys-motion-duration-medium4) var(--md-sys-motion-easing-emphasized-decelerate);
@@ -148,25 +150,29 @@
 			}
 
 			@starting-style {
-				starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane {
+				starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane,
+				.sidebar-pane:popover-open {
 					opacity: 0;
 					transform: translateX(calc(-1 * var(--md3-mobile-drawer-offset, min(1.25rem, 4vw))));
 				}
 
-				:root[dir='rtl'] starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane {
+				:root[dir='rtl'] starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane,
+				:root[dir='rtl'] .sidebar-pane:popover-open {
 					transform: translateX(var(--md3-mobile-drawer-offset, min(1.25rem, 4vw)));
 				}
 
-				.sidebar:has(starlight-menu-button[aria-expanded='true'])::before {
+				.sidebar:has(:is(starlight-menu-button[aria-expanded='true'], .sidebar-pane:popover-open))::before {
 					opacity: 0;
 				}
 
-				starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane .sidebar-content {
+				starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane .sidebar-content,
+				.sidebar-pane:popover-open .sidebar-content {
 					opacity: 0.86;
 					transform: translateX(-0.25rem);
 				}
 
-				:root[dir='rtl'] starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane .sidebar-content {
+				:root[dir='rtl'] starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane .sidebar-content,
+				:root[dir='rtl'] .sidebar-pane:popover-open .sidebar-content {
 					transform: translateX(0.25rem);
 				}
 			}
@@ -266,7 +272,7 @@
 		.social-icons a:active,
 		.sl-link-button:active,
 		button[data-open-modal]:active,
-		starlight-menu-button button:active {
+		:is(starlight-menu-button button, .sl-menu-button):active {
 			transition-duration: var(--md-sys-motion-duration-short1);
 		}
 

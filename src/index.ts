@@ -618,6 +618,7 @@ function getMotionRuntimeScript() {
 			'starlight-tabs [role="tab"]:not([aria-disabled="true"])',
 			'.sl-link-card[href]',
 			'starlight-menu-button button',
+			'.sl-menu-button',
 			'.social-icons a[href]',
 			'.right-group > :is(starlight-theme-select, starlight-lang-select) > label',
 			'.md3-color-picker__segments label'
@@ -1304,17 +1305,20 @@ function getMotionRuntimeScript() {
 
 	document.addEventListener('pointerdown', (event) => {
 		const targetElement = event.target instanceof Element ? event.target : null;
-		const openMobileMenu = document.querySelector('starlight-menu-button[aria-expanded="true"]');
+		const openSidebarPane = document.querySelector('#starlight__sidebar:popover-open');
+		const legacyMobileMenu = document.querySelector('starlight-menu-button[aria-expanded="true"]');
 		if (
-			openMobileMenu &&
+			(openSidebarPane || legacyMobileMenu) &&
 			targetElement &&
 			!targetElement.closest('#starlight__sidebar') &&
-			!targetElement.closest('starlight-menu-button')
+			!targetElement.closest('starlight-menu-button, .sl-menu-button')
 		) {
-			if (typeof openMobileMenu.setExpanded === 'function') {
-				openMobileMenu.setExpanded(false);
+			if (openSidebarPane && typeof openSidebarPane.hidePopover === 'function') {
+				openSidebarPane.hidePopover();
+			} else if (typeof legacyMobileMenu?.setExpanded === 'function') {
+				legacyMobileMenu.setExpanded(false);
 			} else {
-				openMobileMenu.setAttribute('aria-expanded', 'false');
+				legacyMobileMenu?.setAttribute('aria-expanded', 'false');
 				document.body.removeAttribute('data-mobile-menu-expanded');
 			}
 		}

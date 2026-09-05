@@ -47,6 +47,28 @@ Use `seed` when you want the theme to generate a light and dark color scheme
 from one color. If `seed` is omitted, the `accent` option provides named
 fallback presets for primary color roles.
 
+## Configure Theme Interactions
+
+The light, dark, and automatic appearance switcher is always present. It uses a
+labelled control in both the desktop top app bar and mobile navigation drawer;
+both open the same labelled menu. When enabled, the runtime color picker uses a
+compact color-swatch button beside social actions on mobile.
+
+```ts
+md3Theme({
+	motion: true,
+	colorPicker: {
+		mode: 'both',
+		persist: true,
+	},
+});
+```
+
+`motion` enables the theme's state layers, ripples, navigation motion, and route
+feedback while continuing to respect `prefers-reduced-motion`. `colorPicker`
+is optional: use `author` for development-only palette work, `visitor` for a
+public picker, or `both` to use the appropriate mode in each environment.
+
 ## What The Plugin Changes
 
 - Adds Material-style system tokens with `--md-sys-*` names.

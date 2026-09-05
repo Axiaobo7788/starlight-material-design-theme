@@ -101,6 +101,11 @@ tokens are set to `0ms`.
 The CSS also respects `prefers-reduced-motion: reduce`, so users who request
 reduced motion do not need a separate Starlight configuration.
 
+The appearance switcher itself does not require a plugin option. Desktop uses
+an icon-and-label control in the top app bar, and mobile retains the labelled
+control in the navigation drawer. Both triggers open the same labelled Dark,
+Light, and Auto menu and retain a dynamic accessible name.
+
 ## `colorPicker`
 
 Adds an optional Material Design 3 color tool without requiring users to add a
@@ -124,10 +129,10 @@ md3Theme({
 | `both` | Author mode | Visitor mode |
 
 Passing `colorPicker: true` is shorthand for visitor mode. The desktop trigger
-opens a modal dialog; mobile places a **Theme color** row in the navigation
-drawer and opens a bottom sheet. Visitor previews do not persist until **Apply**
-is selected. **Reset** clears the browser override and restores the deployed
-`seed` or `accent` palette.
+opens a modal dialog; mobile places a compact 48px color-swatch button beside
+social actions in the navigation drawer and opens a bottom sheet. Visitor
+previews do not persist until **Apply** is selected. **Reset** clears the browser
+override and restores the deployed `seed` or `accent` palette.
 
 `persist` defaults to `true` and stores the generated light and dark role maps
 in local storage so they can be restored before first paint. The picker uses a

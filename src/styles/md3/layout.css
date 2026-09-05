@@ -427,7 +427,7 @@
 		color: var(--md-sys-color-on-primary);
 	}
 
-	starlight-menu-button button {
+	:is(starlight-menu-button button, .sl-menu-button) {
 		--sl-menu-button-size: 48px;
 		position: fixed !important;
 		background-color: transparent;
@@ -436,20 +436,26 @@
 		box-shadow: none;
 	}
 
-	starlight-menu-button button .icon {
+	:is(starlight-menu-button button, .sl-menu-button) .icon {
 		inline-size: 1.25rem;
 		block-size: 1.25rem;
 	}
 
-	starlight-menu-button button:hover {
+	:is(starlight-menu-button button, .sl-menu-button):hover {
 		background-color: var(--md3-state-on-surface-hover);
 	}
 
-	starlight-menu-button[aria-expanded='true'] button {
+	:is(
+		starlight-menu-button[aria-expanded='true'] button,
+		.sl-menu-button:has(~ .sidebar-pane:popover-open)
+	) {
 		background-color: var(--md-sys-color-surface-container-high);
 	}
 
 	.mobile-preferences {
+		align-items: center;
+		justify-content: flex-start;
+		column-gap: 0.5rem;
 		margin-block-start: 0.5rem;
 		padding-block: 0.75rem 0.5rem;
 		padding-inline: 0.5rem 0.875rem;
@@ -457,6 +463,9 @@
 	}
 
 	.mobile-preferences .social-icons {
+		order: 1;
+		margin-inline-end: 0;
+		gap: 0.5rem;
 		padding-block: 0;
 	}
 
@@ -782,7 +791,7 @@
 			pointer-events: none;
 		}
 
-		.sidebar:has(starlight-menu-button[aria-expanded='true'])::before {
+		.sidebar:has(:is(starlight-menu-button[aria-expanded='true'], .sidebar-pane:popover-open))::before {
 			opacity: 1;
 			pointer-events: auto;
 		}
@@ -842,7 +851,7 @@
 			border-top-color: transparent;
 		}
 
-		starlight-menu-button button {
+		:is(starlight-menu-button button, .sl-menu-button) {
 			display: grid;
 			place-items: center;
 			background-color: var(--md-sys-color-surface-container-high);
@@ -850,7 +859,7 @@
 			-webkit-tap-highlight-color: transparent;
 		}
 
-		starlight-menu-button button :where(.open-menu, .close-menu) {
+		:is(starlight-menu-button button, .sl-menu-button) :where(.open-menu, .close-menu) {
 			grid-area: 1 / 1;
 			display: block;
 			inline-size: 1.5rem;
@@ -858,26 +867,42 @@
 			transform-origin: center;
 		}
 
-		starlight-menu-button:not([aria-expanded='true']) button .open-menu,
-		starlight-menu-button[aria-expanded='true'] button .close-menu {
+		:is(
+			starlight-menu-button:not([aria-expanded='true']) button,
+			.sl-menu-button:not(:has(~ .sidebar-pane:popover-open))
+		) .open-menu,
+		:is(
+			starlight-menu-button[aria-expanded='true'] button,
+			.sl-menu-button:has(~ .sidebar-pane:popover-open)
+		) .close-menu {
 			opacity: 1;
 			transform: rotate(0) scale(1);
 		}
 
-		starlight-menu-button:not([aria-expanded='true']) button .close-menu {
+		:is(
+			starlight-menu-button:not([aria-expanded='true']) button,
+			.sl-menu-button:not(:has(~ .sidebar-pane:popover-open))
+		) .close-menu {
 			opacity: 0;
 			transform: rotate(-90deg) scale(0.76);
 		}
 
-		starlight-menu-button[aria-expanded='true'] button .open-menu {
+		:is(
+			starlight-menu-button[aria-expanded='true'] button,
+			.sl-menu-button:has(~ .sidebar-pane:popover-open)
+		) .open-menu {
 			opacity: 0;
 			transform: rotate(90deg) scale(0.76);
 		}
 
-		starlight-menu-button[aria-expanded='true'] button,
-		starlight-menu-button[aria-expanded='true'] button:hover,
-		starlight-menu-button[aria-expanded='true'] button:focus-visible,
-		starlight-menu-button[aria-expanded='true'] button:active {
+		:is(
+			starlight-menu-button[aria-expanded='true'] button,
+			.sl-menu-button:has(~ .sidebar-pane:popover-open)
+		),
+		:is(
+			starlight-menu-button[aria-expanded='true'] button,
+			.sl-menu-button:has(~ .sidebar-pane:popover-open)
+		):is(:hover, :focus-visible, :active) {
 			background-color: var(--md-sys-color-secondary-container);
 			color: var(--md-sys-color-on-secondary-container);
 		}
@@ -907,7 +932,8 @@
 			transform-origin: right center;
 		}
 
-		starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane {
+		starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane,
+		.sidebar-pane:popover-open {
 			opacity: 1;
 			pointer-events: auto;
 			transform: translateX(0);
@@ -927,7 +953,8 @@
 			transform: translateX(0.25rem);
 		}
 
-		starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane .sidebar-content {
+		starlight-menu-button[aria-expanded='true'] ~ .sidebar-pane .sidebar-content,
+		.sidebar-pane:popover-open .sidebar-content {
 			opacity: 1;
 			transform: translateX(0);
 		}

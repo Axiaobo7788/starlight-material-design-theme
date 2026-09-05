@@ -16,7 +16,8 @@ integration shape as `plugins: [md3Theme()]`.
 ## Compatibility
 
 `starlight-theme-md3@0.2.x` targets Astro 7 and Starlight 0.41 or newer.
-Use the 0.1.x release line for Astro 6 / Starlight 0.40 projects.
+It therefore requires Node.js 22.12 or newer. Use the 0.1.x release line for
+Astro 6 / Starlight 0.40 projects.
 
 ## Preview
 
@@ -127,6 +128,37 @@ export default defineConfig({
 
 `preset` fills in default options only. Explicit options such as `seed`, `shape`,
 or `tonalSurface` override the preset.
+
+## Theme Interaction Configuration
+
+Light, dark, and automatic appearance modes are always available through the
+theme switcher. No plugin option is required for them: the desktop top app bar
+and mobile navigation drawer both use an icon-and-label button. Opening either
+control shows the same fully labelled **Dark**, **Light**, and **Auto** menu.
+When the optional color picker is enabled, mobile presents its 48px color-swatch
+button beside the configured social links instead of adding a full-width row.
+
+Use `motion` and `colorPicker` to configure the optional interaction layers:
+
+```ts
+md3Theme({
+	motion: true,
+	colorPicker: {
+		mode: 'both',
+		persist: true,
+	},
+});
+```
+
+| Setting | Effect |
+| --- | --- |
+| `motion: true` | Enables MD3 state layers, pointer ripples, menu/drawer motion, TOC tracking, and route feedback. |
+| `motion: false` | Removes decorative motion and skips the motion runtime; focus and accessible control semantics remain. |
+| `colorPicker: false` | Ships only the deployed `seed` or `accent` palette. |
+| `colorPicker.mode` | Chooses whether the runtime palette tool is available to authors, visitors, both, or neither. |
+
+The theme also follows `prefers-reduced-motion`. This media preference reduces
+motion even when `motion` is enabled.
 
 ### Runtime color picker
 

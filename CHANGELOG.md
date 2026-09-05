@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.2 - 2026-09-05
 
 ### Added
 
@@ -16,9 +16,23 @@
 
 - Shared Material Color Utilities palette generation between build-time plugin
   configuration and the optional browser runtime.
+- Updated the mobile runtime color picker to a compact 48px MD3 swatch button
+  beside social actions while retaining the labelled appearance switcher.
+- Refined the picker with selected checkmarks for single-choice segmented
+  buttons, an animated filled-field active indicator, and a fully inset color
+  preview outline that cannot be clipped by the expanding control surface.
+- Updated the demo toolchain to Astro 7.3, Starlight 0.42, Playwright 1.63, and
+  compatible current build/check dependencies.
+- Added Starlight 0.41/0.42 mobile navigation compatibility for both the legacy
+  expanded-state element and the current Popover-based sidebar.
 - Removed the unreliable experimental operating-system accent source because
   browsers may return privacy-preserving fixed system colors instead of the
   user's real accent.
+
+### Fixed
+
+- Kept dialog and bottom-sheet contents attached to their container during exit
+  motion so applying a visitor palette no longer leaves a briefly empty surface.
 
 ## 0.2.1 - 2026-07-22
 

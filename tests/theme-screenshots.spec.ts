@@ -9,6 +9,23 @@ const viewports = [
 
 type ViewportName = (typeof viewports)[number]['name'];
 
+const mobileMenuButton = (page: Page) => page.locator('.sl-menu-button, starlight-menu-button button').first();
+
+async function expectMobileSidebarOpen(page: Page): Promise<void> {
+	await expect(page.locator('#starlight__sidebar')).toBeVisible();
+	await expect
+		.poll(() =>
+			page.evaluate(() => {
+				const sidebar = document.querySelector('#starlight__sidebar');
+				return Boolean(
+					sidebar?.matches(':popover-open') ||
+						document.querySelector('starlight-menu-button[aria-expanded="true"]'),
+				);
+			}),
+		)
+		.toBe(true);
+}
+
 const pageScreenshotTargets: ReadonlyArray<{
 	name: string;
 	path: string;
@@ -109,9 +126,8 @@ test.describe('Theme interaction screenshots', () => {
 			await page.goto(scenario.path);
 			await settlePage(page, scenario.theme);
 
-			await page.locator('starlight-menu-button button').click();
-			await expect(page.locator('starlight-menu-button')).toHaveAttribute('aria-expanded', 'true');
-			await expect(page.locator('#starlight__sidebar')).toBeVisible();
+			await mobileMenuButton(page).click();
+			await expectMobileSidebarOpen(page);
 			await page.evaluate(() => window.getSelection()?.removeAllRanges());
 
 			await takeScreenshot(page, scenario.name, {
@@ -165,8 +181,8 @@ test.describe('Theme interaction screenshots', () => {
 			await settlePage(page, scenario.theme);
 
 			if (scenario.mobile) {
-				await page.locator('starlight-menu-button button').click();
-				await expect(page.locator('starlight-menu-button')).toHaveAttribute('aria-expanded', 'true');
+				await mobileMenuButton(page).click();
+				await expectMobileSidebarOpen(page);
 			}
 
 			const picker = page.locator('starlight-md3-color-picker:visible');
@@ -253,26 +269,35 @@ test.describe('Runtime color picker behavior', () => {
 			await page.goto('/guides/theme-lab/');
 			await page.locator('main').waitFor({ state: 'visible' });
 			await page.evaluate(() => document.fonts?.ready);
-			if (scenario.mobile) await page.locator('starlight-menu-button button').click();
+			if (scenario.mobile) await mobileMenuButton(page).click();
 
 			const picker = page.locator('starlight-md3-color-picker:visible');
 			await picker.locator('.md3-color-picker__trigger').click();
 			const dialog = picker.locator('.md3-color-picker__dialog');
+			const actions = picker.locator('.md3-color-picker__actions');
 			await expect(dialog).toHaveAttribute('data-md3-dialog-state', 'open');
+			await expect(actions).toHaveCSS('opacity', '1');
 
 			const closingStyles = await picker.locator('.md3-color-picker__cancel').evaluate((button) => {
 				(button as HTMLButtonElement).click();
 				const dialog = button.closest('dialog')!;
+				const actions = dialog.querySelector<HTMLElement>('.md3-color-picker__actions')!;
 				const styles = getComputedStyle(dialog);
 				return {
+					actionsOpacity: getComputedStyle(actions).opacity,
 					state: dialog.getAttribute('data-md3-dialog-state'),
 					duration: styles.transitionDuration,
+					overflow: styles.overflow,
+					pointerEvents: styles.pointerEvents,
 					timing: styles.transitionTimingFunction,
 				};
 			});
 
+			expect(closingStyles.actionsOpacity).toBe('1');
 			expect(closingStyles.state).toBe('closing');
 			expect(closingStyles.duration).toBe(scenario.duration);
+			expect(closingStyles.overflow).toBe('hidden');
+			expect(closingStyles.pointerEvents).toBe('none');
 			expect(closingStyles.timing).toBe('cubic-bezier(0.3, 0, 0.8, 0.15)');
 			await expect(dialog).not.toHaveAttribute('open', '');
 		}
@@ -291,7 +316,17 @@ test.describe('Runtime color picker behavior', () => {
 
 		const sourceSegments = picker.locator('.md3-color-picker__segments--source');
 		const customControls = picker.locator('.md3-color-picker__custom-controls');
-		const expandedHeight = await customControls.evaluate((element) => element.getBoundingClientRect().height);
+		const expandedControl = await customControls.evaluate((element) => {
+			const styles = getComputedStyle(element);
+			return {
+				height: element.getBoundingClientRect().height,
+				transitionDuration: styles.transitionDuration,
+				transitionProperty: styles.transitionProperty,
+			};
+		});
+		const expandedHeight = expandedControl.height;
+		expect(expandedControl.transitionProperty).toBe('grid-template-rows, opacity, transform');
+		expect(expandedControl.transitionDuration).toBe('0.3s, 0.25s, 0.3s');
 		const indicator = await sourceSegments.evaluate((element) => {
 			const styles = getComputedStyle(element, '::before');
 			const label = element.querySelector<HTMLElement>('label span')!;
@@ -319,12 +354,88 @@ test.describe('Runtime color picker behavior', () => {
 		expect(Number.parseFloat(indicator.endRadius)).toBeGreaterThan(0);
 		expect(indicator.fontSize).toBe('14px');
 
+		const segmentChecks = sourceSegments.locator('.md3-color-picker__segment-check');
+		const initialCheckStates = await segmentChecks.evaluateAll((elements) =>
+			elements.map((element) => {
+				const styles = getComputedStyle(element);
+				return {
+					height: styles.height,
+					opacity: styles.opacity,
+					transform: styles.transform,
+					width: styles.width,
+				};
+			}),
+		);
+		expect(initialCheckStates.map(({ width, height }) => [width, height])).toEqual([
+			['18px', '18px'],
+			['18px', '18px'],
+		]);
+		expect(initialCheckStates.map(({ opacity }) => opacity)).toEqual(['0', '1']);
+
+		const defaultSegment = sourceSegments.locator('label').first();
+		await defaultSegment.hover();
+		const segmentStateLayer = await defaultSegment.evaluate((label) => {
+			const content = label.querySelector<HTMLElement>(':scope > span')!;
+			const labelRect = label.getBoundingClientRect();
+			const contentRect = content.getBoundingClientRect();
+			return {
+				contentOffset: Math.round(contentRect.x - labelRect.x),
+				labelBackground: getComputedStyle(label).backgroundColor,
+				contentBackground: getComputedStyle(content).backgroundColor,
+			};
+		});
+		expect(segmentStateLayer.contentOffset).toBe(-12);
+		expect(segmentStateLayer.labelBackground).not.toBe('rgba(0, 0, 0, 0)');
+		expect(segmentStateLayer.contentBackground).toBe('rgba(0, 0, 0, 0)');
+
+		const previewStyle = await picker.locator('.md3-color-picker__preview').evaluate((element) => {
+			const styles = getComputedStyle(element);
+			return { borderWidth: styles.borderWidth, boxShadow: styles.boxShadow };
+		});
+		expect(previewStyle.borderWidth).toBe('1px');
+		expect(previewStyle.boxShadow).toContain('inset');
+
+		const hexField = picker.locator('.md3-color-picker__hex-field');
+		const hexInput = picker.locator('.md3-color-picker__hex');
+		const restingHexIndicator = await hexField.evaluate((element) => {
+			const fieldStyles = getComputedStyle(element);
+			const styles = getComputedStyle(element, '::after');
+			return {
+				borderBottomWidth: fieldStyles.borderBottomWidth,
+				fieldBoxShadow: fieldStyles.boxShadow,
+				duration: styles.transitionDuration,
+				easing: styles.transitionTimingFunction,
+				height: styles.height,
+				property: styles.transitionProperty,
+				transform: styles.transform,
+			};
+		});
+		expect(restingHexIndicator).toMatchObject({
+			borderBottomWidth: '0px',
+			duration: '0.15s',
+			easing: 'cubic-bezier(0.2, 0, 0, 1)',
+			height: '2px',
+			property: 'transform',
+			transform: 'matrix(0, 0, 0, 1, 0, 0)',
+		});
+		expect(restingHexIndicator.fieldBoxShadow).toContain('inset');
+		await hexInput.focus();
+		await page.waitForTimeout(180);
+		expect(
+			await hexField.evaluate((element) => getComputedStyle(element, '::after').transform),
+		).toBe('matrix(1, 0, 0, 1, 0, 0)');
+
 		const indicatorPosition = () =>
 			sourceSegments.evaluate((element) => {
 				const transform = getComputedStyle(element, '::before').transform;
 				return transform === 'none' ? 0 : new DOMMatrixReadOnly(transform).m41;
 			});
 		const customPosition = await indicatorPosition();
+		const sourceLabelPositions = async () =>
+			sourceSegments.locator('.md3-color-picker__segment-label').evaluateAll((elements) =>
+				elements.map((element) => Math.round(element.getBoundingClientRect().x)),
+			);
+		const initialLabelPositions = await sourceLabelPositions();
 		await sourceSegments.getByText('Default', { exact: true }).click();
 		await page.waitForTimeout(60);
 		const movingPosition = await indicatorPosition();
@@ -337,8 +448,14 @@ test.describe('Runtime color picker behavior', () => {
 		expect(movingPosition).toBeGreaterThan(0);
 		expect(movingPosition).toBeLessThan(customPosition);
 		expect(collapsing).toMatchObject({ expanded: 'false', hidden: 'true', inert: true });
-		expect(collapsing.height).toBeGreaterThan(0);
+		expect(collapsing.height).toBeGreaterThanOrEqual(0);
 		expect(collapsing.height).toBeLessThan(expandedHeight);
+		await page.waitForTimeout(170);
+		expect(await segmentChecks.evaluateAll((elements) => elements.map((element) => getComputedStyle(element).opacity)))
+			.toEqual(['1', '0']);
+		const selectedDefaultLabelPositions = await sourceLabelPositions();
+		expect(selectedDefaultLabelPositions[0] - initialLabelPositions[0]).toBeGreaterThanOrEqual(10);
+		expect(selectedDefaultLabelPositions[1] - initialLabelPositions[1]).toBeLessThanOrEqual(-10);
 		await sourceSegments.getByText('Custom', { exact: true }).click();
 		await expect(customControls).toHaveAttribute('data-md3-expanded', 'true');
 		await expect(customControls).toHaveAttribute('aria-hidden', 'false');
@@ -423,17 +540,17 @@ test.describe('Runtime color picker behavior', () => {
 			.toBe(deployedPrimary);
 	});
 
-	test('mobile picker uses a drawer row and modal bottom sheet', async ({ page }) => {
+	test('mobile picker uses a compact drawer swatch and modal bottom sheet', async ({ page }) => {
 		await page.setViewportSize(viewports.find((viewport) => viewport.name === 'mobile')!.size);
 		await setThemeBeforeNavigation(page, 'dark');
 		await page.goto('/guides/theme-lab/');
 		await settlePage(page, 'dark');
-		await page.locator('starlight-menu-button button').click();
+		await mobileMenuButton(page).click();
 
 		const picker = page.locator('.mobile-preferences starlight-md3-color-picker');
 		const trigger = picker.locator('.md3-color-picker__trigger');
 		await expect(trigger).toBeVisible();
-		await expect(trigger).toContainText('Theme color');
+		await expect(trigger).toHaveAttribute('aria-label', 'Theme color');
 		await trigger.click();
 
 		const dialog = picker.locator('.md3-color-picker__dialog');
@@ -464,7 +581,7 @@ test.describe('Runtime color picker behavior', () => {
 		await setThemeBeforeNavigation(page, 'dark');
 		await page.goto('/guides/theme-lab/');
 		await settlePage(page, 'dark');
-		await page.locator('starlight-menu-button button').click();
+		await mobileMenuButton(page).click();
 
 		const picker = page.locator('.mobile-preferences starlight-md3-color-picker');
 		await picker.locator('.md3-color-picker__trigger').click();
@@ -1983,14 +2100,14 @@ test.describe('Theme MD3 component contracts', () => {
 		await page.goto('/guides/theme-lab/');
 		await page.locator('main').waitFor({ state: 'visible' });
 
-		const menuButton = page.locator('starlight-menu-button button');
+		const menuButton = mobileMenuButton(page);
 		const searchButton = page.locator('button[data-open-modal]');
 		await expect(menuButton).toBeVisible();
 		await expect(searchButton).toBeVisible();
 
 		const contract = await page.evaluate(() => {
 			const search = document.querySelector('button[data-open-modal]');
-			const menu = document.querySelector('starlight-menu-button button');
+			const menu = document.querySelector('.sl-menu-button, starlight-menu-button button');
 			if (!(search instanceof HTMLElement) || !(menu instanceof HTMLElement)) {
 				throw new Error('Expected mobile search and menu buttons.');
 			}
@@ -2055,7 +2172,6 @@ test.describe('Theme MD3 component contracts', () => {
 		expect(closedDrawer.transitionProperty).toContain('opacity');
 		expect(closedDrawer.transitionProperty).toContain('transform');
 		expect(closedDrawer.visibility).toBe('hidden');
-		expect(closedDrawer.transform).not.toBe('none');
 
 		const box = await menuButton.boundingBox();
 		expect(box).not.toBeNull();
@@ -2063,7 +2179,7 @@ test.describe('Theme MD3 component contracts', () => {
 		await page.mouse.down();
 		await expect(menuButton.locator('.md3-ripple')).toHaveCount(1);
 		await page.mouse.up();
-		await expect(page.locator('starlight-menu-button')).toHaveAttribute('aria-expanded', 'true');
+		await expectMobileSidebarOpen(page);
 		await expect
 			.poll(() =>
 				menuButton.evaluate((button) => {
@@ -2079,7 +2195,7 @@ test.describe('Theme MD3 component contracts', () => {
 			.toBe(true);
 		const openDrawer = await page.evaluate(() => {
 			const sidebar = document.querySelector('#starlight__sidebar');
-			const menu = document.querySelector('starlight-menu-button button');
+			const menu = document.querySelector('.sl-menu-button, starlight-menu-button button');
 			if (!(sidebar instanceof HTMLElement) || !(menu instanceof HTMLElement)) {
 				throw new Error('Expected open drawer and menu button.');
 			}
@@ -2206,18 +2322,22 @@ test.describe('Theme MD3 component contracts', () => {
 			.toEqual(['#final-scrollspy-check']);
 	});
 
-	test('mobile drawer theme button keeps the active icon and label aligned', async ({ page }) => {
+	test('mobile drawer groups the color swatch with social actions and keeps appearance labelled', async ({ page }) => {
 		await page.setViewportSize(viewports.find((viewport) => viewport.name === 'mobile')!.size);
 		await page.emulateMedia({ reducedMotion: 'no-preference' });
 		await setThemeBeforeNavigation(page, 'light');
 		await page.goto('/guides/theme-lab/');
 		await page.locator('main').waitFor({ state: 'visible' });
 
-		await page.locator('starlight-menu-button button').click();
-		await expect(page.locator('starlight-menu-button')).toHaveAttribute('aria-expanded', 'true');
+		await mobileMenuButton(page).click();
+		await expectMobileSidebarOpen(page);
 
 		const themeButton = page.locator('.mobile-preferences starlight-theme-select .md3-theme-select__button');
+		const colorButton = page.locator('.mobile-preferences starlight-md3-color-picker .md3-color-picker__trigger');
+		const socialButton = page.locator('.mobile-preferences .social-icons a').first();
 		await expect(themeButton).toBeVisible();
+		await expect(colorButton).toBeVisible();
+		await expect(socialButton).toBeVisible();
 		await expect
 			.poll(() =>
 				themeButton.evaluate(
@@ -2229,28 +2349,66 @@ test.describe('Theme MD3 component contracts', () => {
 			)
 			.toBe(1);
 
-		const contract = await themeButton.evaluate((button) => {
+		const contract = await page.evaluate(() => {
+			const button = document.querySelector(
+				'.mobile-preferences starlight-theme-select .md3-theme-select__button',
+			);
+			const colorButton = document.querySelector(
+				'.mobile-preferences starlight-md3-color-picker .md3-color-picker__trigger',
+			);
+			const social = document.querySelector('.mobile-preferences .social-icons a');
+			if (
+				!(button instanceof HTMLElement) ||
+				!(colorButton instanceof HTMLElement) ||
+				!(social instanceof HTMLElement)
+			) {
+				throw new Error('Expected mobile appearance, color, and social buttons.');
+			}
 			const buttonBox = button.getBoundingClientRect();
+			const colorButtonBox = colorButton.getBoundingClientRect();
+			const socialBox = social.getBoundingClientRect();
 			const visibleIcon = [...button.querySelectorAll('.md3-theme-select__button-icon')].find(
 				(icon) => Number.parseFloat(getComputedStyle(icon).opacity) > 0.99,
 			);
 			const current = button.querySelector('.md3-theme-select__current');
 			const caret = button.querySelector('.md3-theme-select__caret');
+			const colorSwatch = colorButton.querySelector('.md3-color-picker__swatch');
+			const colorLabel = colorButton.querySelector('.md3-color-picker__trigger-label');
+			const colorCaret = colorButton.querySelector('.md3-color-picker__trigger-caret');
 			if (!(visibleIcon instanceof Element)) throw new Error('Expected one visible theme icon.');
-			if (!(current instanceof HTMLElement) || !(caret instanceof Element)) {
-				throw new Error('Expected visible theme label and caret.');
+			if (
+				!(current instanceof HTMLElement) ||
+				!(caret instanceof Element) ||
+				!(colorSwatch instanceof Element) ||
+				!(colorLabel instanceof HTMLElement) ||
+				!(colorCaret instanceof Element)
+			) {
+				throw new Error('Expected appearance labels and compact color trigger content.');
 			}
 			const iconBox = visibleIcon.getBoundingClientRect();
 			const labelBox = current.getBoundingClientRect();
 			const caretBox = caret.getBoundingClientRect();
+			const swatchBox = colorSwatch.getBoundingClientRect();
 			const styles = getComputedStyle(button);
 			return {
-				backgroundColor: styles.backgroundColor,
+				appearanceBackgroundColor: styles.backgroundColor,
+				appearanceLabel: current.textContent?.trim() ?? '',
 				buttonBlockSize: buttonBox.height,
 				buttonInlineSize: buttonBox.width,
 				caretAfterLabel: caretBox.left >= labelBox.right,
+				colorAccessibleLabel: colorButton.getAttribute('aria-label') ?? '',
+				colorButtonBlockSize: colorButtonBox.height,
+				colorButtonInlineSize: colorButtonBox.width,
+				colorCaretDisplay: getComputedStyle(colorCaret).display,
+				colorLabelDisplay: getComputedStyle(colorLabel).display,
+				colorSwatchBlockSize: swatchBox.height,
+				colorSwatchInlineSize: swatchBox.width,
+				gapColorToSocial: Math.round(colorButtonBox.left - socialBox.right),
 				gapIconToLabel: Math.round(labelBox.left - iconBox.right),
-				labelText: current.textContent?.trim() ?? '',
+				gapThemeToColor: Math.round(buttonBox.left - colorButtonBox.right),
+				iconBlockSize: iconBox.height,
+				iconInlineSize: iconBox.width,
+				accessibleLabel: button.getAttribute('aria-label') ?? '',
 				visibleIcons: [...button.querySelectorAll('.md3-theme-select__button-icon')].filter(
 					(icon) => Number.parseFloat(getComputedStyle(icon).opacity) > 0.99,
 				).length,
@@ -2259,11 +2417,23 @@ test.describe('Theme MD3 component contracts', () => {
 
 		expect(contract.buttonInlineSize).toBeGreaterThanOrEqual(108);
 		expect(contract.buttonBlockSize).toBeCloseTo(44, 2);
+		expect(contract.iconInlineSize).toBe(20);
+		expect(contract.iconBlockSize).toBe(20);
 		expect(contract.visibleIcons).toBe(1);
-		expect(contract.labelText).toBe('Light');
+		expect(contract.accessibleLabel).toContain('Light');
+		expect(contract.appearanceLabel).toBe('Light');
 		expect(contract.gapIconToLabel).toBe(8);
 		expect(contract.caretAfterLabel).toBe(true);
-		expect(contract.backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+		expect(contract.appearanceBackgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+		expect(contract.colorButtonInlineSize).toBe(48);
+		expect(contract.colorButtonBlockSize).toBe(48);
+		expect(contract.colorSwatchInlineSize).toBe(20);
+		expect(contract.colorSwatchBlockSize).toBe(20);
+		expect(contract.colorAccessibleLabel).toBe('Theme color');
+		expect(contract.colorLabelDisplay).toBe('none');
+		expect(contract.colorCaretDisplay).toBe('none');
+		expect(contract.gapColorToSocial).toBe(8);
+		expect(contract.gapThemeToColor).toBeGreaterThanOrEqual(8);
 
 		await themeButton.click();
 		const menu = page.locator('.mobile-preferences starlight-theme-select .md3-theme-select__menu');

@@ -19,7 +19,8 @@ plugins: [md3Theme()]
 ## 兼容性
 
 `starlight-theme-md3@0.2.x` 面向 Astro 7 和 Starlight 0.41 及以上版本。
-如果项目仍在使用 Astro 6 / Starlight 0.40，请继续使用 0.1.x 版本线。
+因此需要 Node.js 22.12 或更高版本。如果项目仍在使用 Astro 6 /
+Starlight 0.40，请继续使用 0.1.x 版本线。
 
 ## 预览
 
@@ -130,6 +131,35 @@ export default defineConfig({
 
 `preset` 只填充默认配置。显式传入的 `seed`、`shape`、`tonalSurface`
 等选项会覆盖预设。
+
+## 主题交互配置
+
+浅色、深色和跟随系统三种外观模式始终可用，不需要额外开启插件选项。桌面端
+顶栏和移动端导航抽屉都使用“图标 + 文字”按钮，并打开同一套带完整文字的
+**Dark**、**Light** 和 **Auto** 菜单。启用可选取色器时，移动端会把它显示为与社交
+链接并排的 48px 彩色圆点按钮，而不是占满一行的文字控件。
+
+通过 `motion` 与 `colorPicker` 配置可选的交互层：
+
+```ts
+md3Theme({
+	motion: true,
+	colorPicker: {
+		mode: 'both',
+		persist: true,
+	},
+});
+```
+
+| 配置 | 效果 |
+| --- | --- |
+| `motion: true` | 启用 MD3 状态层、指针水波纹、菜单/抽屉动效、TOC 跟随和页面切换反馈。 |
+| `motion: false` | 关闭装饰性动效并跳过动效运行时；焦点与控件无障碍语义保持不变。 |
+| `colorPicker: false` | 只使用部署时生成的 `seed` 或 `accent` 色板。 |
+| `colorPicker.mode` | 决定运行时取色工具仅供作者、仅供访客、双方可用或完全关闭。 |
+
+主题同时遵循 `prefers-reduced-motion`；即使开启 `motion`，系统的减少动态效果
+偏好仍会优先降低动效。
 
 ### 运行时取色器
 
