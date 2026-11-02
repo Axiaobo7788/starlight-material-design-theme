@@ -30,7 +30,7 @@ tests, and release automation aligned.
 
 - [ ] Verify the lower supported Astro version in a clean fixture.
 - [ ] Verify the lower supported Starlight version in a clean fixture.
-- [ ] Keep current-version compatibility covered by CI and screenshot tests.
+- [x] Keep current-version compatibility covered by CI and screenshot tests.
 - [ ] Revisit peer ranges only when actual compatibility evidence exists.
 
 Do not widen or tighten peer ranges solely to match the latest installed demo
@@ -128,7 +128,7 @@ Dependency upgrades should normally be split into reviewable batches.
 
 - [x] Review current stable versions and migration notes.
 - [x] Upgrade Actions in a separate commit/PR from visual changes.
-- [ ] Verify CI.
+- [x] Verify CI.
 - [ ] Verify Pages build/deploy.
 - [ ] Verify visual-regression artifact upload.
 - [ ] Verify npm publish dry-run path.
