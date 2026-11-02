@@ -63,7 +63,7 @@ Do not reintroduce claims that runtime dynamic color picking is absent.
 
 ## Toolchain and package constraints
 
-- Node engine: `>=22.12.0`.
+- Node engine: `>=22.23.4`.
 - CI currently uses Node 24.
 - Package manager is pnpm.
 - The repository commits `pnpm-lock.yaml`.

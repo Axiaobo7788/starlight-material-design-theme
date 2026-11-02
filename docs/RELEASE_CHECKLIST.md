@@ -21,7 +21,7 @@ tests, and release automation aligned.
 
 - Package: `starlight-theme-md3`
 - Current version: `0.2.2`
-- Node: `>=22.12.0`
+- Node: `>=22.23.4`
 - Astro peer: `>=7.0.0 <8`
 - Starlight peer: `>=0.41.0`
 - Runtime dependency: `@material/material-color-utilities`
@@ -59,7 +59,7 @@ versions.
   included in the package.
 - [ ] Re-run `pnpm pack --dry-run` before every release.
 - [ ] Re-run the package-consumption fixture before every release.
-- [ ] Confirm the creator package/template still installs a compatible set.
+- [x] Confirm the creator package/template still installs a compatible set.
 
 ## Public Documentation
 
@@ -117,17 +117,17 @@ Dependency upgrades should normally be split into reviewable batches.
 
 ### Batch 1: compatible npm/pnpm dependency refresh
 
-- [ ] Inspect `pnpm outdated`.
-- [ ] Update compatible patch/minor releases.
-- [ ] Check root, workspace package, and creator template.
-- [ ] Refresh `pnpm-lock.yaml`.
-- [ ] Run the full verification gate.
-- [ ] Record the resulting version matrix in `docs/进度.md`.
+- [x] Inspect `pnpm outdated`.
+- [x] Update compatible patch/minor releases.
+- [x] Check root, workspace package, and creator template.
+- [x] Refresh `pnpm-lock.yaml`.
+- [x] Run the full verification gate.
+- [x] Record the resulting version matrix in `docs/进度.md`.
 
 ### Batch 2: GitHub Actions
 
-- [ ] Review current stable versions and migration notes.
-- [ ] Upgrade Actions in a separate commit/PR from visual changes.
+- [x] Review current stable versions and migration notes.
+- [x] Upgrade Actions in a separate commit/PR from visual changes.
 - [ ] Verify CI.
 - [ ] Verify Pages build/deploy.
 - [ ] Verify visual-regression artifact upload.
