@@ -69,7 +69,7 @@
     "@astrojs/starlight": "^0.42.8",
     "@playwright/test": "^1.64.1",
     "@types/node": "^26.6.6",
-    "astro": "^7.4.4",
+    "astro": "^7.4.5",
     "lightningcss-cli": "^1.33.0",
     "sharp": "^0.35.5",
     "typescript": "^5.9.3"
