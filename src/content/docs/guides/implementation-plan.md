@@ -19,8 +19,9 @@ plugins: [md3Theme()]
 
 The plugin appends the bundled CSS entrypoint and writes option-driven custom
 properties into the page head. The CSS stays static and reusable, while options
-such as `seed`, `variant`, `density`, `shape`, `contrast`, `tonalSurface`, and
-`motion` customize the generated token values.
+such as `seed`, `variant`, `density`, `shape`, `contrast`,
+`tonalSurface`, `motion`, and `colorPicker` configure the generated and
+runtime theme behavior.
 
 ## CSS Layer Stack
 
@@ -50,6 +51,25 @@ daily reading experience:
 - Markdown prose, links, headings, lists, blockquotes, tables, and Chinese paragraphs.
 - Cards, link cards, asides, badges, tabs, steps, code blocks, and inline code.
 - Homepage splash preview and dense Theme Lab examples.
+- Optional runtime Material color picker for author preview and visitor palette
+  changes.
+
+## Runtime Color Picker
+
+The runtime color picker is opt-in and does not replace the build-time seed
+configuration.
+
+It can be configured for author-only, visitor-only, both, or disabled usage. The
+visitor flow previews a generated palette before applying it, can optionally
+persist the selected palette, and resets to the palette deployed by the site
+author.
+
+The picker uses the same Material Color Utilities based palette generation as
+the build-time integration, while keeping its browser UI dependency-free.
+
+Browsers do not expose a reliable representation of the user's real operating
+system accent color, so the current picker intentionally supports the deployed
+default and explicit custom colors rather than claiming to read the OS accent.
 
 ## Material Design 3 Alignment
 
@@ -66,27 +86,33 @@ runtime dependency:
 
 ## Package Surface
 
-The package is ready for v0.x public preview. The core plugin, CSS bundle,
-package exports, seed color generation, and demo documentation are in place.
+The package is in the v0.x public-preview line. The core plugin, CSS bundle,
+package exports, seed color generation, runtime color picker, demo documentation,
+package-consumption fixture, and visual regression coverage are in place.
 
 | Area | Status |
 | --- | --- |
 | Plugin API | Stable enough for preview use as `md3Theme()` |
 | CSS exports | Bundled to `dist/css/index.css` with subpath exports |
 | Color generation | Uses `@material/material-color-utilities` for seed roles |
+| Runtime color picker | Optional author/visitor control, introduced in 0.2.2 |
 | Component tokens | Available as public-preview `--md3-comp-*` custom properties |
 | Motion runtime | Optional through the `motion` plugin option |
+| Visual regression | Covered by Playwright screenshot tests |
 
 ## Current Boundaries
 
 - `@material/web` is a design reference only and is not a runtime dependency.
 - Tailwind is not part of the theme runtime or peer dependency surface.
-- Runtime dynamic color picking is not included; seed roles are generated during
-  Astro configuration.
+- Runtime color picking is optional; the default deployed theme still works
+  entirely from the author-provided configuration.
 - Large-scale Starlight component rewrites are intentionally avoided.
 - `--md3-comp-*` tokens are public-preview tokens and may still change before a
   stable release.
 - `expressive` palette generation keeps a HCT-based approximation while newer
   Material DynamicScheme imports remain unstable in the target Node ESM matrix.
+- Peer lower-bound compatibility should be validated before the current Astro and
+  Starlight minimum ranges are treated as long-term stable guarantees.
 
-For repository-maintenance notes, see the repository-level `docs/` directory.
+For repository-maintenance notes, see `docs/进度.md`, `docs/记忆.md`, and the
+repository-level `docs/design/` decision files.
