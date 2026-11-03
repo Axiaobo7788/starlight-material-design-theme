@@ -72,14 +72,14 @@ jobs:
 
       - name: Publish dry run
         if: ${{ inputs.dry_run == true }}
-        run: pnpm publish --dry-run --access public
+        run: pnpm publish --dry-run --no-git-checks --access public
 
       - name: Publish with npm token
         if: ${{ inputs.dry_run != true && env.HAS_NPM_TOKEN == 'true' }}
-        run: pnpm publish --provenance --access public
+        run: pnpm publish --no-git-checks --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish with trusted publishing
         if: ${{ inputs.dry_run != true && env.HAS_NPM_TOKEN != 'true' }}
-        run: pnpm publish --provenance --access public
+        run: pnpm publish --no-git-checks --provenance --access public
