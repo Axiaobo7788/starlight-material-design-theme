@@ -14,6 +14,10 @@ package version on `main` is `0.2.3`, with Astro 7 / Starlight 0.41+ support,
 runtime color picking, package-consumption checks, Playwright visual regression,
 GitHub Pages deployment, and npm publishing automation already present.
 
+The companion `create-starlight-theme-md3` package is published at `0.2.2`.
+Its starter targets Astro `^7.4.5`, Starlight `^0.42.8`,
+`starlight-theme-md3 ^0.2.3`, and Node `>=22.23.4`.
+
 The current focus is keeping dependencies, compatibility claims, public docs,
 tests, and release automation aligned.
 
@@ -60,6 +64,8 @@ versions.
 - [ ] Re-run `pnpm pack --dry-run` before every release.
 - [ ] Re-run the package-consumption fixture before every release.
 - [x] Confirm the creator package/template still installs a compatible set.
+- [x] Publish creator `0.2.2` and verify npm/pnpm creation from the public
+  registry followed by a generated-project production build.
 
 ## Public Documentation
 
@@ -141,18 +147,28 @@ migration.
 
 ## npm Publishing Automation
 
-The repository has `.github/workflows/publish-npm.yml` with:
+The repository has two package-specific publishing workflows:
+
+- `.github/workflows/publish-npm.yml` for `starlight-theme-md3` and `v*` tags;
+- `.github/workflows/publish-creator-npm.yml` for
+  `create-starlight-theme-md3` and `create-v*` tags.
+
+Both include:
 
 - tag and manual triggers,
 - pre-publish verification,
 - unpublished-version guard,
-- token path when `NPM_TOKEN` exists,
-- trusted-publishing path when a token is absent.
+- trusted-publishing/OIDC publication with provenance.
+
+The root theme workflow retains an optional `NPM_TOKEN` fallback. The creator
+workflow intentionally uses Trusted Publishing only.
 
 Trusted publishing was verified by the `starlight-theme-md3@0.2.3` release on
-2026-11-03. GitHub Actions publishes with OIDC when `NPM_TOKEN` is absent.
+2026-11-03 and by the `create-starlight-theme-md3@0.2.2` release from workflow
+run `41626177732`. The creator publisher is restricted to direct/staged publish
+and does not have `npm dist-tag` permission.
 
-- [x] Confirm npm trusted publishing / OIDC in npm settings before relying on it.
+- [x] Confirm npm trusted publishing / OIDC for both packages in npm settings.
 - [ ] If intentionally using token fallback, confirm the granular automation token
   and repository secret exist.
 
@@ -169,6 +185,7 @@ pnpm run typecheck
 pnpm run check:contrast
 pnpm run build
 pnpm run verify:package
+pnpm run verify:creator
 pnpm pack --dry-run
 ```
 
@@ -196,6 +213,8 @@ Before release:
 - [ ] Demo routes and assets load from the deployed base path.
 - [ ] Manual visual regression can upload artifacts.
 - [x] npm publish workflow and Trusted Publishing succeed when intentionally tested.
+- [x] Creator publish workflow, provenance, public Registry creation, dependency
+  installation, and generated-project production build succeed.
 
 ## Release Steps
 
@@ -205,11 +224,15 @@ Only perform these when a release is explicitly intended.
 - [ ] Decide the release version.
 - [ ] Update `package.json` and any workspace package version that is actually
   being released.
+- [ ] When either package changes, inspect both root and creator release surfaces
+  and explicitly record whether each package is being published.
 - [ ] Update `CHANGELOG.md`.
 - [ ] Update compatibility/public docs if needed.
 - [ ] Update `docs/进度.md`.
 - [ ] Run all verification gates.
 - [ ] Inspect `pnpm pack --dry-run`.
+- [ ] If creator changes, run `pnpm run verify:creator` and inspect the creator
+  package's own `pnpm pack --dry-run` output.
 - [ ] Review visual regression.
 - [ ] Commit release metadata.
 - [ ] Create the intended release tag.
