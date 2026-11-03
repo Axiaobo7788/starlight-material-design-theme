@@ -3,7 +3,7 @@
 This checklist tracks release and maintenance readiness for the current
 `starlight-theme-md3` v0.x line.
 
-Last maintenance rewrite: 2026-11-02.
+Last maintenance rewrite: 2026-11-03.
 
 ## Current Release Readiness
 
@@ -149,10 +149,10 @@ The repository has `.github/workflows/publish-npm.yml` with:
 - token path when `NPM_TOKEN` exists,
 - trusted-publishing path when a token is absent.
 
-Repository source alone cannot prove the external npm trusted-publishing setup is
-currently configured.
+Trusted publishing was verified by the `starlight-theme-md3@0.2.3` release on
+2026-11-03. GitHub Actions publishes with OIDC when `NPM_TOKEN` is absent.
 
-- [ ] Confirm npm trusted publishing / OIDC in npm settings before relying on it.
+- [x] Confirm npm trusted publishing / OIDC in npm settings before relying on it.
 - [ ] If intentionally using token fallback, confirm the granular automation token
   and repository secret exist.
 
@@ -191,11 +191,11 @@ Also run `git diff --check` before handoff.
 
 Before release:
 
-- [ ] CI workflow passes for the target commit.
+- [x] CI workflow passes for the target commit.
 - [ ] GitHub Pages deployment succeeds.
 - [ ] Demo routes and assets load from the deployed base path.
 - [ ] Manual visual regression can upload artifacts.
-- [ ] npm publish workflow dry-run succeeds when intentionally tested.
+- [x] npm publish workflow and Trusted Publishing succeed when intentionally tested.
 
 ## Release Steps
 
