@@ -1,0 +1,72 @@
+name: Publish creator to npm
+
+on:
+  push:
+    tags:
+      - 'create-v*'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Run npm publish in dry-run mode.
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: npm-publish-creator-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify packed creator and generated project
+        run: pnpm run verify:creator
+
+      - name: Pack dry run
+        working-directory: packages/create-starlight-theme-md3
+        run: pnpm pack --dry-run
+
+      - name: Ensure package version is unpublished
+        if: ${{ inputs.dry_run != true }}
+        working-directory: packages/create-starlight-theme-md3
+        run: |
+          PACKAGE_NAME="$(node -p "require('./package.json').name")"
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          if npm view "${PACKAGE_NAME}@${PACKAGE_VERSION}" version >/dev/null 2>&1; then
+            echo "::error::${PACKAGE_NAME}@${PACKAGE_VERSION} is already published."
+            exit 1
+          fi
+
+      - name: Publish dry run
+        if: ${{ inputs.dry_run == true }}
+        working-directory: packages/create-starlight-theme-md3
+        run: pnpm publish --dry-run --no-git-checks --access public
+
+      - name: Publish with trusted publishing
+        if: ${{ inputs.dry_run != true }}
+        working-directory: packages/create-starlight-theme-md3
+        run: pnpm publish --no-git-checks --provenance --access public

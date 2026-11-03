@@ -40,5 +40,8 @@ jobs:
       - name: Package consumption fixture
         run: pnpm run verify:package
 
+      - name: Creator consumption fixture
+        run: pnpm run verify:creator
+
       - name: Pack dry run
         run: pnpm pack --dry-run
