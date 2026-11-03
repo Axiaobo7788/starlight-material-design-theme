@@ -16,8 +16,8 @@ integration shape as `plugins: [md3Theme()]`.
 ## Compatibility
 
 `starlight-theme-md3@0.2.x` targets Astro 7 and Starlight 0.41 or newer.
-It therefore requires Node.js 22.12 or newer. Use the 0.1.x release line for
-Astro 6 / Starlight 0.40 projects.
+The current Astro 7 toolchain requires Node.js 22.23.4 or newer. Use the 0.1.x
+release line for Astro 6 / Starlight 0.40 projects.
 
 ## Preview
 

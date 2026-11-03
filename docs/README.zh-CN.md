@@ -19,7 +19,7 @@ plugins: [md3Theme()]
 ## 兼容性
 
 `starlight-theme-md3@0.2.x` 面向 Astro 7 和 Starlight 0.41 及以上版本。
-因此需要 Node.js 22.12 或更高版本。如果项目仍在使用 Astro 6 /
+当前 Astro 7 工具链需要 Node.js 22.23.4 或更高版本。如果项目仍在使用 Astro 6 /
 Starlight 0.40，请继续使用 0.1.x 版本线。
 
 ## 预览
