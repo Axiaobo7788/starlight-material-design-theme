@@ -10,7 +10,7 @@ Last maintenance rewrite: 2026-11-02.
 Status: **published v0.x project under active maintenance**.
 
 The repository is no longer in a "before first publish" state. The current
-package version on `main` is `0.2.2`, with Astro 7 / Starlight 0.41+ support,
+package version on `main` is `0.2.3`, with Astro 7 / Starlight 0.41+ support,
 runtime color picking, package-consumption checks, Playwright visual regression,
 GitHub Pages deployment, and npm publishing automation already present.
 
@@ -20,7 +20,7 @@ tests, and release automation aligned.
 ## Current Compatibility
 
 - Package: `starlight-theme-md3`
-- Current version: `0.2.2`
+- Current version: `0.2.3`
 - Node: `>=22.23.4`
 - Astro peer: `>=7.0.0 <8`
 - Starlight peer: `>=0.41.0`

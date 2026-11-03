@@ -7,7 +7,7 @@ This file is the working contract for coding agents operating in this repository
 `starlight-theme-md3` is a Material Design 3 / Material You inspired theme for Astro Starlight. The project intentionally remains a thin layer over Starlight rather than replacing Starlight's content model, router, search, table of contents, or MDX components.
 
 Current public line: `0.2.x`.
-Current package version on `main`: `0.2.2`.
+Current package version on `main`: `0.2.3`.
 
 ## Read before changing code
 

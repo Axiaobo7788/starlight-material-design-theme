@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.2.3 - 2026-11-03
+
+### Changed
+
+- Updated the validated maintenance toolchain to Astro 7.4.5, Starlight 0.42.8,
+  Playwright 1.64.1, and compatible current build/check dependencies.
+- Raised the minimum Node.js version to 22.23.4 to match the supported Astro
+  toolchain, and synchronized the creator package and starter template engines.
+- Updated the repository workflows to the current compatible major releases of
+  GitHub's checkout, Node setup, Pages, artifact, and pnpm setup actions.
+- Corrected the implementation overview and release documentation to reflect
+  the runtime color picker already shipped in 0.2.2 and the current public v0.x
+  release state.
+
 ## 0.2.2 - 2026-09-05
 
 ### Added
